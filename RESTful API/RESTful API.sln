@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35327.3
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RESTful API", "RESTful API.csproj", "{DB8688BA-2803-4868-8585-4E8F65D66310}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "..\Shared\Shared.csproj", "{337C1F93-7065-453D-B06B-BDECE97FF4F9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DB8688BA-2803-4868-8585-4E8F65D66310}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB8688BA-2803-4868-8585-4E8F65D66310}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB8688BA-2803-4868-8585-4E8F65D66310}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB8688BA-2803-4868-8585-4E8F65D66310}.Release|Any CPU.Build.0 = Release|Any CPU
+		{337C1F93-7065-453D-B06B-BDECE97FF4F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{337C1F93-7065-453D-B06B-BDECE97FF4F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{337C1F93-7065-453D-B06B-BDECE97FF4F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{337C1F93-7065-453D-B06B-BDECE97FF4F9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B408C91A-2E1D-41D2-B17C-20E41CEED795}
+	EndGlobalSection
+EndGlobal

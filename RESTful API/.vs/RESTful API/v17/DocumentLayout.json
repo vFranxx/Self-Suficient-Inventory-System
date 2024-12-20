@@ -1,0 +1,58 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\fpigh\\source\\repos\\Self-Suficient-Inventory-System\\RESTful API\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{DB8688BA-2803-4868-8585-4E8F65D66310}|RESTful API.csproj|c:\\users\\fpigh\\source\\repos\\self-suficient-inventory-system\\restful api\\controllers\\productcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DB8688BA-2803-4868-8585-4E8F65D66310}|RESTful API.csproj|solutionrelative:controllers\\productcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DB8688BA-2803-4868-8585-4E8F65D66310}|RESTful API.csproj|c:\\users\\fpigh\\source\\repos\\self-suficient-inventory-system\\restful api\\controllers\\systemoperatorcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DB8688BA-2803-4868-8585-4E8F65D66310}|RESTful API.csproj|solutionrelative:controllers\\systemoperatorcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ProductController.cs",
+              "DocumentMoniker": "C:\\Users\\fpigh\\source\\repos\\Self-Suficient-Inventory-System\\RESTful API\\Controllers\\ProductController.cs",
+              "RelativeDocumentMoniker": "Controllers\\ProductController.cs",
+              "ToolTip": "C:\\Users\\fpigh\\source\\repos\\Self-Suficient-Inventory-System\\RESTful API\\Controllers\\ProductController.cs",
+              "RelativeToolTip": "Controllers\\ProductController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACkAAAAZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-20T21:23:36.031Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "SystemOperatorController.cs",
+              "DocumentMoniker": "C:\\Users\\fpigh\\source\\repos\\Self-Suficient-Inventory-System\\RESTful API\\Controllers\\SystemOperatorController.cs",
+              "RelativeDocumentMoniker": "Controllers\\SystemOperatorController.cs",
+              "ToolTip": "C:\\Users\\fpigh\\source\\repos\\Self-Suficient-Inventory-System\\RESTful API\\Controllers\\SystemOperatorController.cs",
+              "RelativeToolTip": "Controllers\\SystemOperatorController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-20T21:22:28.138Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

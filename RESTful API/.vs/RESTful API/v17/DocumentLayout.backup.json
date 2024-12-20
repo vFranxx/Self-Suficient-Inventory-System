@@ -1,0 +1,177 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\fpigh\\source\\repos\\Self-Suficient-Inventory-System\\RESTful API\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\fpigh\\source\\repos\\Self-Suficient-Inventory-System\\RESTful API\\Migrations\\20241220205508_Modify Product entity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Migrations\\20241220205508_Modify Product entity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DB8688BA-2803-4868-8585-4E8F65D66310}|RESTful API.csproj|c:\\users\\fpigh\\source\\repos\\self-suficient-inventory-system\\restful api\\controllers\\productcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DB8688BA-2803-4868-8585-4E8F65D66310}|RESTful API.csproj|solutionrelative:controllers\\productcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DB8688BA-2803-4868-8585-4E8F65D66310}|RESTful API.csproj|c:\\users\\fpigh\\source\\repos\\self-suficient-inventory-system\\restful api\\models\\entities\\product.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DB8688BA-2803-4868-8585-4E8F65D66310}|RESTful API.csproj|solutionrelative:models\\entities\\product.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DB8688BA-2803-4868-8585-4E8F65D66310}|RESTful API.csproj|c:\\users\\fpigh\\source\\repos\\self-suficient-inventory-system\\restful api\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DB8688BA-2803-4868-8585-4E8F65D66310}|RESTful API.csproj|solutionrelative:data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DB8688BA-2803-4868-8585-4E8F65D66310}|RESTful API.csproj|c:\\users\\fpigh\\source\\repos\\self-suficient-inventory-system\\restful api\\models\\entities\\warehouse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DB8688BA-2803-4868-8585-4E8F65D66310}|RESTful API.csproj|solutionrelative:models\\entities\\warehouse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DB8688BA-2803-4868-8585-4E8F65D66310}|RESTful API.csproj|c:\\users\\fpigh\\source\\repos\\self-suficient-inventory-system\\restful api\\loghandling\\exceptionhandling\\exceptionmiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DB8688BA-2803-4868-8585-4E8F65D66310}|RESTful API.csproj|solutionrelative:loghandling\\exceptionhandling\\exceptionmiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DB8688BA-2803-4868-8585-4E8F65D66310}|RESTful API.csproj|c:\\users\\fpigh\\source\\repos\\self-suficient-inventory-system\\restful api\\loghandling\\exceptionhandling\\unhandledexceptionmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DB8688BA-2803-4868-8585-4E8F65D66310}|RESTful API.csproj|solutionrelative:loghandling\\exceptionhandling\\unhandledexceptionmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DB8688BA-2803-4868-8585-4E8F65D66310}|RESTful API.csproj|c:\\users\\fpigh\\source\\repos\\self-suficient-inventory-system\\restful api\\loghandling\\exceptionhandling\\exceptionhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DB8688BA-2803-4868-8585-4E8F65D66310}|RESTful API.csproj|solutionrelative:loghandling\\exceptionhandling\\exceptionhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DB8688BA-2803-4868-8585-4E8F65D66310}|RESTful API.csproj|c:\\users\\fpigh\\source\\repos\\self-suficient-inventory-system\\restful api\\controllers\\suppliercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DB8688BA-2803-4868-8585-4E8F65D66310}|RESTful API.csproj|solutionrelative:controllers\\suppliercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "20241220205508_Modify Product entity.cs",
+              "DocumentMoniker": "C:\\Users\\fpigh\\source\\repos\\Self-Suficient-Inventory-System\\RESTful API\\Migrations\\20241220205508_Modify Product entity.cs",
+              "RelativeDocumentMoniker": "Migrations\\20241220205508_Modify Product entity.cs",
+              "ToolTip": "C:\\Users\\fpigh\\source\\repos\\Self-Suficient-Inventory-System\\RESTful API\\Migrations\\20241220205508_Modify Product entity.cs",
+              "RelativeToolTip": "Migrations\\20241220205508_Modify Product entity.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-20T20:55:08.891Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ProductController.cs",
+              "DocumentMoniker": "C:\\Users\\fpigh\\source\\repos\\Self-Suficient-Inventory-System\\RESTful API\\Controllers\\ProductController.cs",
+              "RelativeDocumentMoniker": "Controllers\\ProductController.cs",
+              "ToolTip": "C:\\Users\\fpigh\\source\\repos\\Self-Suficient-Inventory-System\\RESTful API\\Controllers\\ProductController.cs",
+              "RelativeToolTip": "Controllers\\ProductController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADkAAABZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-20T20:53:32.673Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Product.cs",
+              "DocumentMoniker": "C:\\Users\\fpigh\\source\\repos\\Self-Suficient-Inventory-System\\RESTful API\\Models\\Entities\\Product.cs",
+              "RelativeDocumentMoniker": "Models\\Entities\\Product.cs",
+              "ToolTip": "C:\\Users\\fpigh\\source\\repos\\Self-Suficient-Inventory-System\\RESTful API\\Models\\Entities\\Product.cs",
+              "RelativeToolTip": "Models\\Entities\\Product.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAA8AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-20T20:53:21.008Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "AppDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\fpigh\\source\\repos\\Self-Suficient-Inventory-System\\RESTful API\\Data\\AppDbContext.cs",
+              "RelativeDocumentMoniker": "Data\\AppDbContext.cs",
+              "ToolTip": "C:\\Users\\fpigh\\source\\repos\\Self-Suficient-Inventory-System\\RESTful API\\Data\\AppDbContext.cs",
+              "RelativeToolTip": "Data\\AppDbContext.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAIwG0AAAAyAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-20T20:32:33.605Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Warehouse.cs",
+              "DocumentMoniker": "C:\\Users\\fpigh\\source\\repos\\Self-Suficient-Inventory-System\\RESTful API\\Models\\Entities\\Warehouse.cs",
+              "RelativeDocumentMoniker": "Models\\Entities\\Warehouse.cs",
+              "ToolTip": "C:\\Users\\fpigh\\source\\repos\\Self-Suficient-Inventory-System\\RESTful API\\Models\\Entities\\Warehouse.cs",
+              "RelativeToolTip": "Models\\Entities\\Warehouse.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-20T20:28:51.432Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "SupplierController.cs",
+              "DocumentMoniker": "C:\\Users\\fpigh\\source\\repos\\Self-Suficient-Inventory-System\\RESTful API\\Controllers\\SupplierController.cs",
+              "RelativeDocumentMoniker": "Controllers\\SupplierController.cs",
+              "ToolTip": "C:\\Users\\fpigh\\source\\repos\\Self-Suficient-Inventory-System\\RESTful API\\Controllers\\SupplierController.cs",
+              "RelativeToolTip": "Controllers\\SupplierController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-20T19:47:05.517Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "UnhandledExceptionModel.cs",
+              "DocumentMoniker": "C:\\Users\\fpigh\\source\\repos\\Self-Suficient-Inventory-System\\RESTful API\\LogHandling\\ExceptionHandling\\UnhandledExceptionModel.cs",
+              "RelativeDocumentMoniker": "LogHandling\\ExceptionHandling\\UnhandledExceptionModel.cs",
+              "ToolTip": "C:\\Users\\fpigh\\source\\repos\\Self-Suficient-Inventory-System\\RESTful API\\LogHandling\\ExceptionHandling\\UnhandledExceptionModel.cs",
+              "RelativeToolTip": "LogHandling\\ExceptionHandling\\UnhandledExceptionModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-20T19:42:40.811Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "ExceptionMiddleware.cs",
+              "DocumentMoniker": "C:\\Users\\fpigh\\source\\repos\\Self-Suficient-Inventory-System\\RESTful API\\LogHandling\\ExceptionHandling\\ExceptionMiddleware.cs",
+              "RelativeDocumentMoniker": "LogHandling\\ExceptionHandling\\ExceptionMiddleware.cs",
+              "ToolTip": "C:\\Users\\fpigh\\source\\repos\\Self-Suficient-Inventory-System\\RESTful API\\LogHandling\\ExceptionHandling\\ExceptionMiddleware.cs",
+              "RelativeToolTip": "LogHandling\\ExceptionHandling\\ExceptionMiddleware.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB8AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-20T19:30:21.208Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ExceptionHandler.cs",
+              "DocumentMoniker": "C:\\Users\\fpigh\\source\\repos\\Self-Suficient-Inventory-System\\RESTful API\\LogHandling\\ExceptionHandling\\ExceptionHandler.cs",
+              "RelativeDocumentMoniker": "LogHandling\\ExceptionHandling\\ExceptionHandler.cs",
+              "ToolTip": "C:\\Users\\fpigh\\source\\repos\\Self-Suficient-Inventory-System\\RESTful API\\LogHandling\\ExceptionHandling\\ExceptionHandler.cs",
+              "RelativeToolTip": "LogHandling\\ExceptionHandling\\ExceptionHandler.cs",
+              "ViewState": "AgIAACgAAAAAAAAAAAAgwEkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-20T19:30:20.706Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
