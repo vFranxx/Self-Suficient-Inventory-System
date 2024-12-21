@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RESTful_API.Data;
 
@@ -11,9 +12,11 @@ using RESTful_API.Data;
 namespace RESTful_API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241221025805_Modify entities")]
+    partial class Modifyentities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -78,6 +81,34 @@ namespace RESTful_API.Migrations
                     b.HasIndex("IdProducto");
 
                     b.ToTable("BillDetails");
+                });
+
+            modelBuilder.Entity("RESTful_API.Models.Entities.Inventory", b =>
+                {
+                    b.Property<int>("DepoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DepoId"));
+
+                    b.Property<DateTime?>("FechaBaja")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("IdProducto")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(13)");
+
+                    b.Property<int>("Stock")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StockMin")
+                        .HasColumnType("int");
+
+                    b.HasKey("DepoId");
+
+                    b.HasIndex("IdProducto");
+
+                    b.ToTable("Inventories");
                 });
 
             modelBuilder.Entity("RESTful_API.Models.Entities.LogEntry", b =>
@@ -193,20 +224,11 @@ namespace RESTful_API.Migrations
                     b.Property<decimal?>("Descuento")
                         .HasColumnType("decimal(2,1)");
 
-                    b.Property<DateTime?>("FechaBaja")
-                        .HasColumnType("datetime2");
-
                     b.Property<decimal>("Ganancia")
                         .HasColumnType("decimal(5,2)");
 
                     b.Property<decimal>("PrecioUnitario")
                         .HasColumnType("decimal(12,2)");
-
-                    b.Property<int?>("Stock")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("StockMin")
-                        .HasColumnType("int");
 
                     b.HasKey("ProdId");
 
@@ -312,6 +334,17 @@ namespace RESTful_API.Migrations
                     b.Navigation("Facturas");
 
                     b.Navigation("Productos");
+                });
+
+            modelBuilder.Entity("RESTful_API.Models.Entities.Inventory", b =>
+                {
+                    b.HasOne("RESTful_API.Models.Entities.Product", "Products")
+                        .WithMany()
+                        .HasForeignKey("IdProducto")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("RESTful_API.Models.Entities.Order", b =>

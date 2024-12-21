@@ -1,9 +1,10 @@
 ﻿namespace Shared.DTOs.SystemOperator
 {
-    public class UpdateOperator
+    public class AddOperatorDto
     {
+        public string Uid { get; set; }
         public required string Nombre { get; set; }
-        public required bool Tipo { get; set; } = false;
+        public bool Tipo { get; set; } = false;
         public required string Pswd { get; set; }
     }
 }

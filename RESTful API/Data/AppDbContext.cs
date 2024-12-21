@@ -21,7 +21,6 @@ namespace RESTful_API.Data
         public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<SupplierProduct> SupplierProducts { get; set; }
         public DbSet<SystemOperator> SystemOperators { get; set; }
-        public DbSet<Warehouse> Warehouses { get; set; }
         public DbSet<LogEntry> LogEntries { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -119,6 +118,12 @@ namespace RESTful_API.Data
 
                 entity.Property(p => p.PrecioUnitario)
                       .HasColumnType("decimal(12,2)");
+
+                entity.Property(p => p.Ganancia)
+                      .HasColumnType("decimal(5,2)");
+
+                entity.Property(p => p.Descuento)
+                      .HasColumnType("decimal(2,1)");
             });
 
             modelBuilder.Entity<Supplier>(entity =>
@@ -176,25 +181,6 @@ namespace RESTful_API.Data
                 
                 LogEntries.Property(l => l.StatusCode)
                           .IsRequired(false);
-            });
-
-            modelBuilder.Entity<Warehouse>(entity =>
-            {
-                entity.HasKey(w => w.DepoId);
-
-                entity.Property(w => w.DepoId)
-                      .UseIdentityColumn();
-
-                entity.Property(w => w.Ganancia)
-                      .HasColumnType("decimal(5,2)");
-
-                entity.Property(w => w.Descuento)
-                      .HasColumnType("decimal(2,1)");
-
-                entity.HasOne(w => w.Products)
-                      .WithMany()
-                      .HasForeignKey(sp => sp.IdProducto)
-                      .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }

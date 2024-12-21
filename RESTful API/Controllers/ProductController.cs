@@ -30,7 +30,11 @@ namespace RESTful_API.Controllers
             {
                 ProdId = addProductDto.ProdId,
                 Descripcion = addProductDto.Descripcion,
-                PrecioUnitario = addProductDto.PrecioUnitario
+                PrecioUnitario = addProductDto.PrecioUnitario,
+                Ganancia = addProductDto.Ganancia,
+                Descuento = addProductDto.Descuento,
+                Stock = addProductDto.Stock,
+                StockMin = addProductDto.StockMin
             };
 
             _dbContext.Products.Add(product);
@@ -66,6 +70,9 @@ namespace RESTful_API.Controllers
 
             product.Descripcion = updateProductoDto.Descripcion;
             product.PrecioUnitario = updateProductoDto.PrecioUnitario;
+            product.Ganancia = updateProductoDto.Ganancia;
+            product.Descuento = updateProductoDto.Descuento;
+            product.StockMin = updateProductoDto.StockMin;
 
             _dbContext.SaveChanges();
 
@@ -73,7 +80,7 @@ namespace RESTful_API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteProduct(string id)
+        public IActionResult SoftDeleteProduct(string id)
         {
             var product = _dbContext.Products.Find(id);
 
@@ -82,10 +89,32 @@ namespace RESTful_API.Controllers
                 return NotFound();
             }
 
-            _dbContext.Products.Remove(product);
+            product.FechaBaja = DateTime.Now;
+
+            _dbContext.Products.Update(product);
+
             _dbContext.SaveChanges();
 
-            return Ok();
+            return Ok(product);
+        }
+
+        [HttpPost("{id}")]
+        public IActionResult ActivateProduct(string id)
+        {
+            var product = _dbContext.Products.Find(id);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            product.FechaBaja = null;
+
+            _dbContext.Products.Update(product);
+
+            _dbContext.SaveChanges();
+
+            return Ok(product);
         }
     }
 }
