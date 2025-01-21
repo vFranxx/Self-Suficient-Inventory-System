@@ -183,9 +183,8 @@ namespace RESTful_API.Controllers
             return Ok(product);
         }
 
-        // Hacer endpoint para agregados y updates masivos - no llamar aún
-        [HttpPost("xml")]
-        public IActionResult HandleMultipleProducts(List<AddProductDto> productsDto)
+        [HttpPost("product-list")]
+        public IActionResult InsertProductList(List<AddProductDto> productsDto)
         {
             foreach (var item in productsDto) 
             {
@@ -194,7 +193,6 @@ namespace RESTful_API.Controllers
 
                 if (product == null)
                 {
-                    // insertarlo
                     var newProduct = new Product
                     {
                         ProdId = item.ProdId,
@@ -208,17 +206,11 @@ namespace RESTful_API.Controllers
 
                     _dbContext.Products.Add(newProduct);
                 }
-                else 
-                {
-                    // modificarlo
-                    
-                }
-
-                _dbContext.SaveChanges();
             }
+
+            _dbContext.SaveChanges();
 
             return Ok();
         }
-
-        }
     }
+}

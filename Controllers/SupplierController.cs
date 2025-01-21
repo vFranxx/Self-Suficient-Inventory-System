@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RESTful_API.Data;
 using RESTful_API.Models.Entities;
+using Shared.DTOs.Product;
 using Shared.DTOs.Supplier;
 
 namespace RESTful_API.Controllers
@@ -113,6 +114,31 @@ namespace RESTful_API.Controllers
             return Ok(products);
         }
 
-        // Hacer endpoint para agregados y updates masivos
+        [HttpPost("supplier-list")]
+        public IActionResult InsertSupplierList(List<AddSupplierDto> supplierDto)
+        {
+            foreach (var item in supplierDto)
+            {
+                // Validar existencia del proveedor
+                var supplier = _dbContext.Suppliers.Find(item);
+
+                if (supplier == null)
+                {
+                    var newSupplier = new Supplier
+                    {
+                        Referencia = item.Referencia,
+                        Contacto = item.Contacto,
+                        Direccion = item.Direccion,
+                        Mail = item.Mail
+                    };
+
+                    _dbContext.Suppliers.Add(newSupplier);
+                }
+            }
+
+            _dbContext.SaveChanges();
+
+            return Ok();
+        }
     }
 }
