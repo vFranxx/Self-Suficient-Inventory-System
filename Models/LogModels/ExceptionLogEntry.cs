@@ -1,6 +1,6 @@
-﻿namespace RESTful_API.Models.Entities
+﻿namespace Self_Suficient_Inventory_System.Models.LogModels
 {
-    public class LogEntry
+    public class ExceptionLogEntry
     {
         public int Id { get; set; }
         public DateTime Timestamp { get; set; }

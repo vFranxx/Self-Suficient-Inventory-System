@@ -1,6 +1,6 @@
 using Middleware.Models;
 using RESTful_API.Data;
-using RESTful_API.Models.Entities;
+using Self_Suficient_Inventory_System.Models.LogModels;
 using System.Net;
 
 namespace Middleware
@@ -31,7 +31,7 @@ namespace Middleware
                     await context.Response.WriteAsJsonAsync(response).ConfigureAwait(false);
                 }
 
-                var logEntry = new LogEntry
+                var logEntry = new ExceptionLogEntry
                 {
                     RequestUrl = context.Request.Path,
                     StatusCode = context.Response.StatusCode,
@@ -42,7 +42,7 @@ namespace Middleware
                     Origin = "API",
                 };
 
-                dbContext.LogEntries.Add(logEntry);
+                dbContext.ExceptionLogEntries.Add(logEntry);
                 await dbContext.SaveChangesAsync().ConfigureAwait(false);
 
                 return logEntry.Id;
@@ -64,7 +64,7 @@ namespace Middleware
         {
             if (context.Response.StatusCode >= 400 && context.Response.StatusCode < 500)
             {
-                var logEntry = new LogEntry
+                var logEntry = new ExceptionLogEntry
                 {
                     RequestUrl = context.Request.Path,
                     StatusCode = context.Response.StatusCode,
@@ -72,7 +72,7 @@ namespace Middleware
                     Origin = "API",
                 };
 
-                dbContext.LogEntries.Add(logEntry);
+                dbContext.ExceptionLogEntries.Add(logEntry);
                 await dbContext.SaveChangesAsync().ConfigureAwait(false);
 
                 return logEntry.Id;
