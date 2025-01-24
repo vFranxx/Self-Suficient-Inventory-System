@@ -18,6 +18,12 @@ namespace RESTful_API.Controllers
             _dbContext = dbContext;
         }
 
+        [HttpGet]
+        public IActionResult GetAllDetails()
+        {
+            return Ok(_dbContext.BillDetails.ToList());
+        }
+
         [HttpGet("{id}")]
         public IActionResult GetDetailsByBillId(int id)
         {

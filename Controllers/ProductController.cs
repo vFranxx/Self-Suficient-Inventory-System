@@ -18,14 +18,32 @@ namespace RESTful_API.Controllers
             _dbContext = dbContext;
         }
 
-        [HttpGet]
-        public IActionResult GetAllProducts()
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllProducts()
         {
-            return Ok(_dbContext.Products.ToList());
+            return Ok(await _dbContext.Products.ToListAsync());
+        }
+
+        [HttpGet("active")]
+        public async Task<IActionResult> GetActiveProducts()
+        {
+            var activeProducts = _dbContext.Products
+                .Where(p => p.FechaBaja == null);
+
+            return Ok(await activeProducts.ToListAsync());
+        }
+
+        [HttpGet("inactive")]
+        public async Task<IActionResult> GetInactiveProducts()
+        {
+            var inactiveProducts = _dbContext.Products
+                .Where(p => p.FechaBaja != null);
+
+            return Ok(await inactiveProducts.ToListAsync());
         }
 
         [HttpPost]
-        public IActionResult AddProduct(AddProductDto addProductDto)
+        public async Task<IActionResult> AddProduct(AddProductDto addProductDto)
         {
             var product = new Product()
             {
@@ -38,16 +56,16 @@ namespace RESTful_API.Controllers
                 StockMin = addProductDto.StockMin
             };
 
-            _dbContext.Products.Add(product);
-            _dbContext.SaveChanges();
+            await _dbContext.Products.AddAsync(product);
+            await _dbContext.SaveChangesAsync();
 
             return CreatedAtAction(nameof(AddProduct), product);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetProductById(string id)
+        public async Task<IActionResult> GetProductById(string id)
         {
-            var product = _dbContext.Products.Find(id);
+            var product = await _dbContext.Products.FindAsync(id);
 
             if (product == null)
             {
@@ -60,9 +78,9 @@ namespace RESTful_API.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateProduct(string id, UpdateProductDto updateProductoDto)
+        public async Task<IActionResult> UpdateProduct(string id, UpdateProductDto updateProductoDto)
         {
-            var product = _dbContext.Products.Find(id);
+            var product = await _dbContext.Products.FindAsync(id);
 
             if (product == null)
             {
@@ -75,15 +93,15 @@ namespace RESTful_API.Controllers
             product.Descuento = updateProductoDto.Descuento;
             product.StockMin = updateProductoDto.StockMin;
 
-            _dbContext.SaveChanges();
+           await _dbContext.SaveChangesAsync();
 
             return Ok(product);
         }
 
         [HttpDelete("{id}")]
-        public IActionResult SoftDeleteProduct(string id)
+        public async Task<IActionResult> SoftDeleteProduct(string id)
         {
-            var product = _dbContext.Products.Find(id);
+            var product = await _dbContext.Products.FindAsync(id);
 
             if (product == null)
             {
@@ -92,17 +110,15 @@ namespace RESTful_API.Controllers
 
             product.FechaBaja = DateTime.Now;
 
-            _dbContext.Products.Update(product);
-
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             return Ok(product);
         }
 
         [HttpPost("{id}")]
-        public IActionResult ActivateProduct(string id)
+        public async Task<IActionResult> ActivateProduct(string id)
         {
-            var product = _dbContext.Products.Find(id);
+            var product = await _dbContext.Products.FindAsync(id);
 
             if (product == null)
             {
@@ -111,18 +127,16 @@ namespace RESTful_API.Controllers
 
             product.FechaBaja = null;
 
-            _dbContext.Products.Update(product);
-
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             return Ok(product);
         }
 
         [HttpGet("{productId}/suppliers")]
-        public IActionResult GetSuppliersByProduct(string productId)
+        public async Task<IActionResult> GetSuppliersByProduct(string productId)
         {
             // Obtener los proveedores asociados al producto desde la tabla intermedia
-            var suppliers = _dbContext.SupplierProducts
+            var suppliers = await _dbContext.SupplierProducts
                 .Where(sp => sp.IdProd == productId)
                 .Include(sp => sp.Suppliers) // Incluir los proveedores relacionados
                 .Select(sp => new
@@ -133,7 +147,7 @@ namespace RESTful_API.Controllers
                     Mail = sp.Suppliers.Mail,
                     Direccion = sp.Suppliers.Direccion
                 })
-                .ToList();
+                .ToListAsync();
 
             // Verificar si no se encontraron proveedores
             if (!suppliers.Any())
@@ -145,9 +159,9 @@ namespace RESTful_API.Controllers
         }
 
         [HttpPut("{id}/stock/{quantity}")]
-        public IActionResult AddStock(string id, int quantity)
+        public async Task<IActionResult> AddStock(string id, int quantity)
         {
-            var product = _dbContext.Products.Find(id);
+            var product = await _dbContext.Products.FindAsync(id);
 
             if (product == null)
             {
@@ -159,39 +173,54 @@ namespace RESTful_API.Controllers
                 return BadRequest("No está permitido restar productos.");
             }
             
-            product.Stock = quantity;
+            product.Stock += quantity;
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             return Ok(product);
         }
 
         [HttpPut("remove-from-stock/{id}")]
-        public IActionResult RemoveFromStock(string id, UpdateProductStockDto updateProductStockDto)
+        public async Task<IActionResult> RemoveFromStock(string id, UpdateProductStockDto updateProductStockDto)
         {
-            var product = _dbContext.Products.Find(id);
+            var product = await _dbContext.Products.FindAsync(id);
 
             if (product == null)
             {
                 return NotFound();
             }
 
-            product.Stock = updateProductStockDto.Stock;
+            if (updateProductStockDto.Stock < 0)
+            {
+                return BadRequest("La cantidad a restar no puede ser negativa.");
+            }
 
-            _dbContext.SaveChanges();
+            if (product.Stock < updateProductStockDto.Stock)
+            {
+                return BadRequest("No hay suficiente stock para realizar esta operación.");
+            }
+
+            product.Stock -= updateProductStockDto.Stock;
+
+            await _dbContext.SaveChangesAsync();
 
             return Ok(product);
         }
 
         [HttpPost("product-list")]
-        public IActionResult InsertProductList(List<AddProductDto> productsDto)
+        public async Task<IActionResult> InsertProductList(List<AddProductDto> productsDto)
         {
+            // Obtengo los productos existentes de la bd
+            var existingProductIds = await _dbContext.Products
+                .Where(p => productsDto.Select(pd => pd.ProdId).Contains(p.ProdId))
+                .Select(p => p.ProdId)
+                .ToListAsync();
+
+            var newProducts = new List<Product>();
+
             foreach (var item in productsDto) 
             {
-                // Validar existencia del producto
-                var product = _dbContext.Products.Find(item.ProdId);
-
-                if (product == null)
+                if (!existingProductIds.Contains(item.ProdId))
                 {
                     var newProduct = new Product
                     {
@@ -203,14 +232,18 @@ namespace RESTful_API.Controllers
                         Stock = item.Stock,
                         StockMin = item.StockMin
                     };
-
-                    _dbContext.Products.Add(newProduct);
+                    
+                    newProducts.Add(newProduct);
                 }
             }
 
-            _dbContext.SaveChanges();
+            if (newProducts.Any()) 
+            {
+                await _dbContext.Products.AddRangeAsync(newProducts);
+                await _dbContext.SaveChangesAsync();
+            }
 
-            return Ok();
+            return Ok(newProducts.Count);
         }
     }
 }

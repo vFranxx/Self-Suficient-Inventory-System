@@ -4,6 +4,7 @@
     {
         public int AuditId { get; set; }
         public required DateTime TimeStamp { get; set; }
+        public required string AuditAction { get; set; }
         public required string UserId { get; set; }
         public required string ProdId { get; set; }
         public required string Descripcion { get; set; }

@@ -243,146 +243,154 @@ namespace RESTful_API.Data
             });
         }
 
-        public override int SaveChanges()
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            AuditProductChanges();
+            await AuditProductChangesAsync();
 
-            AuditSupplierChanges();
+            await AuditSupplierChangesAsync();
 
-            AuditSystemOperatorChanges();
+            await AuditSystemOperatorChangesAsync();
 
-            AuditBillChanges();
+            await AuditBillChangesAsync();
 
-            AuditBillDetailChanges();
+            await AuditBillDetailChangesAsync();
 
-            return base.SaveChanges();
+            return await base.SaveChangesAsync(cancellationToken);
         }
 
-        private void AuditProductChanges()
+        private async Task AuditProductChangesAsync()
         {
-            var entries = ChangeTracker.Entries<Product>();
+            var entries = ChangeTracker
+                .Entries<Product>()
+                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted);
 
             foreach (var entry in entries)
             {
-                if (entry.State != EntityState.Added) {
+                var originalValues = entry.OriginalValues;
 
-                    // Crear registro de auditoria
-                    var audit = new ProductAudit
-                    {
-                        TimeStamp = DateTime.Now,
-                        UserId = DateTime.Now.ToString(), //placeholder
-                        ProdId = entry.Entity.ProdId,
-                        Descripcion = entry.Entity.Descripcion,
-                        PrecioUnitario = entry.Entity.PrecioUnitario,
-                        Ganancia = entry.Entity.Ganancia,
-                        Descuento = entry.Entity.Descuento,
-                        Stock = entry.Entity.Stock,
-                        StockMin = entry.Entity.StockMin,
-                        FechaBaja = entry.Entity.FechaBaja
-                    };
+                // Crear un registro de auditoría para cada cambio
+                var productAudit = new ProductAudit
+                {
+                    TimeStamp = DateTime.UtcNow,
+                    AuditAction = entry.State.ToString(),
+                    UserId = "",  // Placeholder
+                    ProdId = (string)originalValues["ProdId"]!,
+                    Descripcion = (string)originalValues["Descripcion"]!,
+                    PrecioUnitario = (decimal)originalValues["PrecioUnitario"]!,
+                    Ganancia = (decimal)originalValues["Ganancia"]!,
+                    Descuento = (decimal?)originalValues["Descuento"],
+                    Stock = (int?)originalValues["Stock"],
+                    StockMin = (int?)originalValues["StockMin"],
+                    FechaBaja = (DateTime?)originalValues["FechaBaja"]
+                };
 
-                    ProductAudits.Add(audit);
-                }
+                // Añadir el registro de auditoría asincrónicamente
+                await ProductAudits.AddAsync(productAudit);
             }
         }
 
-        private void AuditSupplierChanges()
+        private async Task AuditSupplierChangesAsync()
         {
-            var entries = ChangeTracker.Entries<Supplier>();
+            var entries = ChangeTracker
+                .Entries<Supplier>()
+                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted);
 
             foreach (var entry in entries)
             {
-                if (entry.State != EntityState.Added)
+                var originalValues = entry.OriginalValues;
+
+                // Crear registro de auditoria
+                var audit = new SupplierAudit
                 {
+                    TimeStamp = DateTime.UtcNow,
+                    AuditAction = entry.State.ToString(),
+                    UserId = "",  // Placeholder
+                    Referencia = (string)originalValues["Referencia"],
+                    Contacto = (string?)originalValues["Contacto"],
+                    Direccion = (string?)originalValues["Direccion"],
+                    Mail = (string?)originalValues["Mail"]
+                };
 
-                    // Crear registro de auditoria
-                    var audit = new SupplierAudit
-                    {
-                        TimeStamp = DateTime.Now,
-                        UserId = DateTime.Now.ToString(), //placeholder
-                        Referencia = entry.Entity.Referencia,
-                        Contacto = entry?.Entity.Contacto,
-                        Direccion = entry?.Entity.Direccion,
-                        Mail = entry?.Entity.Mail
-                    };
-
-                    SupplierAudits.Add(audit);
-                }
+                await SupplierAudits.AddAsync(audit);
             }
         }
 
-        private void AuditSystemOperatorChanges()
+        private async Task AuditSystemOperatorChangesAsync()
         {
-            var entries = ChangeTracker.Entries<SystemOperator>();
+            var entries = ChangeTracker
+                .Entries<SystemOperator>()
+                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted);
 
             foreach (var entry in entries)
             {
-                if (entry.State != EntityState.Added)
+                var originalValues = entry.OriginalValues;
+
+                // Crear registro de auditoria
+                var audit = new SystemOperatorAudit
                 {
+                    TimeStamp = DateTime.UtcNow,
+                    AuditAction = entry.State.ToString(),
+                    UserId = "",  // Placeholder
+                    Nombre = (string?)originalValues["Nombre"],
+                    Tipo = (bool)originalValues["Tipo"],
+                    Pswd = (string?)originalValues["Pswd"],
+                    FechaBaja = (DateTime)originalValues["FechaBaja"]
+                };
 
-                    // Crear registro de auditoria
-                    var audit = new SystemOperatorAudit
-                    {
-                        TimeStamp = DateTime.Now,
-                        UserId = DateTime.Now.ToString(), //placeholder
-                        Nombre = entry.Entity.Nombre,
-                        Tipo = entry.Entity.Tipo,
-                        Pswd = entry.Entity.Pswd,
-                        FechaBaja = entry?.Entity.FechaBaja
-                    };
-
-                    SystemOperatorAudits.Add(audit);
-                }
+                await SystemOperatorAudits.AddAsync(audit);
             }
         }
 
-        private void AuditBillChanges()
+        private async Task AuditBillChangesAsync()
         {
-            var entries = ChangeTracker.Entries<Bill>();
+            var entries = ChangeTracker
+                .Entries<Bill>()
+                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted);
 
             foreach (var entry in entries)
             {
-                if (entry.State != EntityState.Added)
+                var originalValues = entry.OriginalValues;
+
+                // Crear registro de auditoria
+                var audit = new BillAudit
                 {
+                    TimeStamp = DateTime.UtcNow,
+                    AuditAction = entry.State.ToString(),
+                    UserId = "",  // Placeholder
+                    FechaHora = (DateTime)originalValues["FechaHora"],
+                    Total = (decimal)originalValues["Total"],
+                    IdOp = (string)originalValues["IdOp"]
+                };
 
-                    // Crear registro de auditoria
-                    var audit = new BillAudit
-                    {
-                        TimeStamp = DateTime.Now,
-                        UserId = DateTime.Now.ToString(), //placeholder
-                        FechaHora = entry.Entity.FechaHora,
-                        Total = entry.Entity.Total,
-                        IdOp = entry.Entity.IdOp
-                    };
-
-                    BillAudits.Add(audit);
-                }
+                await BillAudits.AddAsync(audit);
+                
             }
         }
 
-        private void AuditBillDetailChanges()
+        private async Task AuditBillDetailChangesAsync()
         {
-            var entries = ChangeTracker.Entries<BillDetail>();
+            var entries = ChangeTracker
+                .Entries<BillDetail>()
+                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted);
 
             foreach (var entry in entries)
             {
-                if (entry.State != EntityState.Added)
+                var originalValues = entry.OriginalValues;
+
+                // Crear registro de auditoria
+                var audit = new BillDetailAudit
                 {
+                    TimeStamp = DateTime.UtcNow,
+                    AuditAction = entry.State.ToString(),
+                    UserId = "",  // Placeholder
+                    Cantidad = (int)originalValues["Cantidad"],
+                    Precio = (decimal)originalValues["Precio"],
+                    Subtotal = (decimal)originalValues["Subtotal"],
+                    IdFactura = (int)originalValues["IdFactura"],
+                    IdProducto = (string)originalValues["IdProducto"]
+                };
 
-                    // Crear registro de auditoria
-                    var audit = new BillDetailAudit
-                    {
-                        TimeStamp = DateTime.Now,
-                        UserId = DateTime.Now.ToString(), //placeholder
-                        Cantidad = entry.Entity.Cantidad,
-                        Precio = entry.Entity.Precio,
-                        Subtotal = entry.Entity.Subtotal,
-                        IdFactura = entry.Entity.IdFactura,
-                        IdProducto = entry.Entity.IdProducto
-                    };
-
-                    BillDetailAudits.Add(audit);
-                }
+                await BillDetailAudits.AddAsync(audit);
             }
         }
 

@@ -118,5 +118,27 @@ namespace RESTful_API.Controllers
             return Ok($"Factura creada con ID {bill.FacId}");
         }
 
+        [HttpDelete("{id}")]
+        public IActionResult DeleteBill(int id)
+        {
+            var bill = _dbContext.Bills.Find(id);
+            
+            if (bill == null)
+            {
+                return NotFound($"No se encontró el detalle {id} de factura.");
+            }
+
+            var hasDetail = _dbContext.BillDetails.Any(detail => detail.IdFactura == id);
+
+            if (hasDetail)
+            { 
+                return BadRequest("No se puede eliminar una factura con detalles asociados");
+            }
+
+            _dbContext.Bills.Remove(bill);
+            _dbContext.SaveChanges();
+
+            return Ok($"Factura {id} eliminado correctamente");
+        }
     }
 }
