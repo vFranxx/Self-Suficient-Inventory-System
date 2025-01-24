@@ -6,7 +6,7 @@
         public required DateTime TimeStamp { get; set; }
         public required string AuditAction { get; set; }
         public required string UserId { get; set; }
-        public string Uid { get; set; }
+        public required string Uid { get; set; }
         public required string Nombre { get; set; }
         public required bool Tipo { get; set; } = false;
         public required string Pswd { get; set; }

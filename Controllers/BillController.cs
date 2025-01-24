@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using RESTful_API.Data;
 using RESTful_API.Models.Entities;
 using Shared.DTOs.Bill;
@@ -18,9 +19,9 @@ namespace RESTful_API.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAllBills()
+        public async Task<IActionResult> GetAllBills()
         {
-            var bills = _dbContext.Bills
+            var bills = await _dbContext.Bills
                 .Select(b => new
                 {
                     b.FacId,
@@ -29,22 +30,22 @@ namespace RESTful_API.Controllers
                     b.Operators.Nombre,
                     b.IdOp
                 })
-                .ToList();
+                .ToListAsync();
 
             return Ok(bills);
         }
 
         [HttpGet("bills-by-date-range")]
-        public IActionResult GetBillsByDateRange(DateTime startDate, DateTime endDate)
+        public async Task<IActionResult> GetBillsByDateRange(DateTime startDate, DateTime endDate)
         {
-            if (startDate > endDate)
+            if (startDate.Date > endDate.Date)
             {
                 return BadRequest("La fecha de inicio no puede ser mayor que la fecha de fin.");
             }
 
             // Obtener las facturas dentro del rango
-            var bills = _dbContext.Bills
-                .Where(b => b.FechaHora >= startDate && b.FechaHora <= endDate)
+            var bills = await _dbContext.Bills
+                .Where(b => b.FechaHora.Date >= startDate && b.FechaHora.Date <= endDate)
                 .Select(b => new
                 {
                     b.FacId,
@@ -53,7 +54,7 @@ namespace RESTful_API.Controllers
                     b.Operators.Nombre,
                     b.IdOp
                 })
-                .ToList();
+                .ToListAsync();
 
             if (!bills.Any())
             {
@@ -63,17 +64,30 @@ namespace RESTful_API.Controllers
             return Ok(bills);
         }
 
-        [HttpGet("bills/{id}")]
-        public IActionResult GetBillsByOperator(string id)
+        [HttpGet("bill/{id}")]
+        public async Task<IActionResult> GetBillsById(int id)
+        {
+            var bill = await _dbContext.Bills.FindAsync(id);
+
+            if (bill == null) 
+            {
+                return NotFound();
+            }
+            
+            return Ok(bill);
+        }
+
+        [HttpGet("bills-operator/{id}")]
+        public async Task<IActionResult> GetBillsByOperator(string id)
         {
             // Validar si el operador existe
-            var systemOperator = _dbContext.SystemOperators.FirstOrDefault(op => op.Uid == id);
+            var systemOperator = await _dbContext.SystemOperators.FirstOrDefaultAsync(op => op.Uid == id);
             if (systemOperator == null)
             {
                 return NotFound($"No se encontró el operador con ID {id}");
             }
 
-            var bills = _dbContext.Bills
+            var bills = await _dbContext.Bills
                 .Where(b => b.IdOp == id)
                 .Select(b => new
                 {
@@ -81,7 +95,7 @@ namespace RESTful_API.Controllers
                     b.FechaHora,
                     b.Total
                 })
-                .ToList();
+                .ToListAsync();
 
             if (!bills.Any())
             {
@@ -96,9 +110,9 @@ namespace RESTful_API.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateBill(BillDto billDto)
+        public async Task<IActionResult> CreateBill(BillDto billDto)
         {
-            var systemOperator = _dbContext.SystemOperators.FirstOrDefault(o => o.Uid == billDto.IdOp);
+            var systemOperator = await _dbContext.SystemOperators.FirstOrDefaultAsync(o => o.Uid == billDto.IdOp);
             if (systemOperator == null)
             {
                 return NotFound($"No se encontró el operador {billDto.IdOp}");
@@ -112,23 +126,23 @@ namespace RESTful_API.Controllers
                 Operators = systemOperator
             };
 
-            _dbContext.Bills.Add(bill);
-            _dbContext.SaveChanges();
+            await _dbContext.Bills.AddAsync(bill);
+            await _dbContext.SaveChangesAsync();
 
             return Ok($"Factura creada con ID {bill.FacId}");
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteBill(int id)
+        public async Task<IActionResult> DeleteBill(int id)
         {
-            var bill = _dbContext.Bills.Find(id);
+            var bill = await _dbContext.Bills.FindAsync(id);
             
             if (bill == null)
             {
                 return NotFound($"No se encontró el detalle {id} de factura.");
             }
 
-            var hasDetail = _dbContext.BillDetails.Any(detail => detail.IdFactura == id);
+            var hasDetail = await _dbContext.BillDetails.AnyAsync(detail => detail.IdFactura == id);
 
             if (hasDetail)
             { 
@@ -136,7 +150,7 @@ namespace RESTful_API.Controllers
             }
 
             _dbContext.Bills.Remove(bill);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             return Ok($"Factura {id} eliminado correctamente");
         }

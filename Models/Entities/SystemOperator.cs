@@ -2,7 +2,7 @@
 {
     public class SystemOperator
     {
-        public string Uid { get; set; }
+        public required string Uid { get; set; }
         public required string Nombre { get; set; }
         public required bool Tipo { get; set; } = false;
         public required string Pswd { get; set; }

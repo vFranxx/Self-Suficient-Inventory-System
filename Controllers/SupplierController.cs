@@ -20,13 +20,13 @@ namespace RESTful_API.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAllSuppliers()
+        public async Task<IActionResult> GetAllSuppliers()
         {
-            return Ok(_dbContext.Suppliers.ToList());
+            return Ok(await _dbContext.Suppliers.ToListAsync());
         }
 
         [HttpPost]
-        public IActionResult AddSupplier(AddSupplierDto addSupplierDto)
+        public async Task<IActionResult> AddSupplier(AddSupplierDto addSupplierDto)
         {
             var supplier = new Supplier()
             { 
@@ -36,16 +36,16 @@ namespace RESTful_API.Controllers
                 Direccion = addSupplierDto.Direccion
             };
 
-            _dbContext.Suppliers.Add(supplier);
-            _dbContext.SaveChanges();
+            await _dbContext.Suppliers.AddAsync(supplier);
+            await _dbContext.SaveChangesAsync();
 
             return CreatedAtAction(nameof(AddSupplier), supplier);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetSupplierById(int id)
+        public async Task<IActionResult> GetSupplierById(int id)
         {
-            var supplier = _dbContext.Suppliers.Find(id);
+            var supplier = await _dbContext.Suppliers.FindAsync(id);
 
             if (supplier == null)
             {
@@ -58,9 +58,9 @@ namespace RESTful_API.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateSupplier(int id, UpdateSupplierDto updateSupplierDto)
+        public async Task<IActionResult> UpdateSupplier(int id, UpdateSupplierDto updateSupplierDto)
         {
-            var supplier = _dbContext.Suppliers.Find(id);
+            var supplier = await _dbContext.Suppliers.FindAsync(id);
 
             if (supplier == null)
             {
@@ -72,15 +72,15 @@ namespace RESTful_API.Controllers
             supplier.Mail = updateSupplierDto.Mail;
             supplier.Direccion = updateSupplierDto.Direccion;
             
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             return Ok(supplier);
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteSupplierById(int id)
+        public async Task<IActionResult> DeleteSupplierById(int id)
         {
-            var supplier = _dbContext.Suppliers.Find(id);
+            var supplier = await _dbContext.Suppliers.FindAsync(id);
 
             if (supplier == null)
             {
@@ -88,15 +88,15 @@ namespace RESTful_API.Controllers
             }
 
             _dbContext.Suppliers.Remove(supplier);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             return Ok();
         }
 
         [HttpGet("{supplierId}/products")]
-        public IActionResult GetProductsBySupplier(int supplierId)
+        public async Task<IActionResult> GetProductsBySupplier(int supplierId)
         {
-            var products = _dbContext.SupplierProducts
+            var products = await _dbContext.SupplierProducts
                 .Where(sp => sp.IdProv == supplierId)
                 .Include(p => p.Products) 
                 .Select(sp => new
@@ -104,7 +104,7 @@ namespace RESTful_API.Controllers
                     ProductId = sp.Products.ProdId,
                     Description = sp.Products.Descripcion
                 })
-                .ToList();
+                .ToListAsync();
 
             if (!products.Any())
             {
@@ -115,12 +115,12 @@ namespace RESTful_API.Controllers
         }
 
         [HttpPost("supplier-list")]
-        public IActionResult InsertSupplierList(List<AddSupplierDto> supplierDto)
+        public async Task<IActionResult> InsertSupplierList(List<AddSupplierDto> supplierDto)
         {
             foreach (var item in supplierDto)
             {
                 // Validar existencia del proveedor
-                var supplier = _dbContext.Suppliers.Find(item);
+                var supplier = await _dbContext.Suppliers.FindAsync(item);
 
                 if (supplier == null)
                 {
@@ -132,11 +132,11 @@ namespace RESTful_API.Controllers
                         Mail = item.Mail
                     };
 
-                    _dbContext.Suppliers.Add(newSupplier);
+                    await _dbContext.Suppliers.FindAsync(newSupplier);
                 }
             }
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             return Ok();
         }

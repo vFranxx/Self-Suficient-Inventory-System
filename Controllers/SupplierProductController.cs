@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Writers;
 using RESTful_API.Data;
 using RESTful_API.Models.Entities;
@@ -34,13 +35,13 @@ namespace RESTful_API.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            return Ok(_dbContext.SupplierProducts.ToList());
+            return Ok(await _dbContext.SupplierProducts.ToListAsync());
         }
 
         [HttpPost]
-        public IActionResult AddProductToSupplier(SupplierProductDto supplierProductDto)
+        public async Task<IActionResult> AddProductToSupplier(SupplierProductDto supplierProductDto)
         {
             if (!SupplierExists(supplierProductDto.IdProv))
             {
@@ -63,28 +64,27 @@ namespace RESTful_API.Controllers
                 IdProd = supplierProductDto.IdProd
             };
 
-            _dbContext.SupplierProducts.Add(supplierProduct);
-            _dbContext.SaveChanges();
+            await _dbContext.SupplierProducts.AddAsync(supplierProduct);
+            await _dbContext.SaveChangesAsync();
 
             return Ok($"Producto {supplierProductDto.IdProd} ha sido añadido correctamente al Proveedor {supplierProductDto.IdProv}.");
         }
 
         [HttpDelete("{supplierId}/product/{productId}")]
-        public IActionResult DeleteSupplierProduct(int supplierId, string productId)
+        public async Task<IActionResult> DeleteSupplierProduct(int supplierId, string productId)
         {
             if (RelationDoesNotExist(supplierId, productId)) 
             {
                 return NotFound($"No se encontró la relación entre el proveedor {supplierId} y el producto {productId}.");
             }
 
-            var relation = _dbContext.SupplierProducts.FirstOrDefault(sp => sp.IdProv == supplierId && sp.IdProd == productId);
+            var relation = await _dbContext.SupplierProducts.FirstOrDefaultAsync(sp => sp.IdProv == supplierId && sp.IdProd == productId);
 
             _dbContext.SupplierProducts.Remove(relation);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             return Ok($"La relación entre el proveedor {supplierId} y el producto {productId} fue eliminada correctamente.");
         }
-
 
     }
 }

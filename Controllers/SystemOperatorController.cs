@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using RESTful_API.Data;
 using RESTful_API.Models.Entities;
 using Shared.DTOs.SystemOperator;
@@ -17,15 +18,15 @@ namespace RESTful_API.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAllOperators()
+        public async Task<IActionResult> GetAllOperators()
         {
-            return Ok(_dbContext.SystemOperators.ToList());
+            return Ok(await _dbContext.SystemOperators.ToListAsync());
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetOperatorById(string id)
+        public async Task<IActionResult> GetOperatorById(string id)
         {
-            var systemOperator = _dbContext.SystemOperators.Find(id);
+            var systemOperator = await _dbContext.SystemOperators.FindAsync(id);
 
             if (systemOperator == null)
             {
@@ -36,7 +37,7 @@ namespace RESTful_API.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddOperator(AddOperatorDto addOperatorDto)
+        public async Task<IActionResult> AddOperator(AddOperatorDto addOperatorDto)
         {
             var systemOperator = new SystemOperator()
             { 
@@ -46,16 +47,22 @@ namespace RESTful_API.Controllers
                 Pswd = addOperatorDto.Pswd,
             };
 
-            _dbContext.SystemOperators.Add(systemOperator);
-            _dbContext.SaveChanges();
+            bool exists = await _dbContext.SystemOperators.AnyAsync(so => so.Uid == systemOperator.Uid);
+            if (exists)
+            {
+                return BadRequest($"Un usuario con el identificador '{systemOperator.Uid}' ya existe");
+            }
+
+            await _dbContext.SystemOperators.AddAsync(systemOperator);
+            await _dbContext.SaveChangesAsync();
 
             return Ok(systemOperator);
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateOperator(string id, UpdateOperatorDto updateOperatorDto)
+        public async Task<IActionResult> UpdateOperator(string id, UpdateOperatorDto updateOperatorDto)
         {
-            var systemOperator = _dbContext.SystemOperators.Find(id);
+            var systemOperator = await _dbContext.SystemOperators.FindAsync(id);
 
             if (systemOperator == null)
             {
@@ -65,81 +72,102 @@ namespace RESTful_API.Controllers
             systemOperator.Nombre = updateOperatorDto.Nombre;
             systemOperator.Pswd = updateOperatorDto.Pswd;
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             return Ok(systemOperator);
         }
 
         [HttpDelete("{id}")]
-        public IActionResult SoftDeleteOperator(string id)
+        public async Task<IActionResult> SoftDeleteOperator(string id)
         {
-            var systemOperator = _dbContext.SystemOperators.Find(id);
+            var systemOperator = await _dbContext.SystemOperators.FindAsync(id);
 
             if (systemOperator == null)
             {
                 return NotFound();
+            }
+
+            if (systemOperator.FechaBaja != null) 
+            {
+                return BadRequest($"El usuario {id} ya está dado de baja.");
             }
 
             systemOperator.FechaBaja = DateTime.Now;
 
             _dbContext.SystemOperators.Update(systemOperator);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             return Ok(systemOperator);
         }
 
         [HttpPost("{id}")]
-        public IActionResult ActivateOperator(string id)
+        public async Task<IActionResult> ActivateOperator(string id)
         {
-            var systemOperator = _dbContext.SystemOperators.Find(id);
+            var systemOperator = await _dbContext.SystemOperators.FindAsync(id);
 
             if (systemOperator == null)
             {
                 return NotFound();
+            }
+
+            if (systemOperator.FechaBaja == null) 
+            {
+                return BadRequest($"El usuario {id} ya está dado de alta");
             }
 
             systemOperator.FechaBaja = null;
 
             _dbContext.SystemOperators.Update(systemOperator);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             return Ok(systemOperator);
         }
 
         [HttpPut("{id}/admin")]
-        public IActionResult ChangeOperatorToAdmin(string id)
+        public async Task<IActionResult> ChangeOperatorToAdmin(string id)
         {
-            var systemOperator = _dbContext.SystemOperators.Find(id);
+            var systemOperator = await _dbContext.SystemOperators.FindAsync(id);
 
             if (systemOperator == null)
             {
                 return NotFound();
+            }
+
+            if (systemOperator.Tipo) 
+            {
+                return BadRequest($"El usuario {id} ya tiene permisos de administrador.");
             }
 
             systemOperator.Tipo = true;
 
             _dbContext.SystemOperators.Update(systemOperator);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             return Ok(systemOperator);
         }
 
         [HttpPut("{id}/operator")]
-        public IActionResult ChangeAdminToOperator(string id)
+        public async Task<IActionResult> ChangeAdminToOperator(string id)
         {
-            var systemOperator = _dbContext.SystemOperators.Find(id);
+            var systemOperator = await _dbContext.SystemOperators.FindAsync(id);
 
             if (systemOperator == null)
             {
                 return NotFound();
             }
 
+            if (!systemOperator.Tipo)
+            {
+                return BadRequest($"El usuario {id} no tiene permisos de administrador.");
+            }
+
             systemOperator.Tipo = false;
 
             _dbContext.SystemOperators.Update(systemOperator);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             return Ok(systemOperator);
         }
+    
     }
 }

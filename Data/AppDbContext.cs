@@ -262,17 +262,22 @@ namespace RESTful_API.Data
         {
             var entries = ChangeTracker
                 .Entries<Product>()
-                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted);
+                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted)
+                .ToList();
+
+            var audits = new List<ProductAudit>();
 
             foreach (var entry in entries)
             {
                 var originalValues = entry.OriginalValues;
+                var fechaBaja = (DateTime?)entry.CurrentValues["FechaBaja"];
+
 
                 // Crear un registro de auditoría para cada cambio
                 var productAudit = new ProductAudit
                 {
-                    TimeStamp = DateTime.UtcNow,
-                    AuditAction = entry.State.ToString(),
+                    TimeStamp = DateTime.Now,
+                    AuditAction = fechaBaja == null ? entry.State.ToString() : EntityState.Deleted.ToString(),
                     UserId = "",  // Placeholder
                     ProdId = (string)originalValues["ProdId"]!,
                     Descripcion = (string)originalValues["Descripcion"]!,
@@ -284,16 +289,21 @@ namespace RESTful_API.Data
                     FechaBaja = (DateTime?)originalValues["FechaBaja"]
                 };
 
-                // Añadir el registro de auditoría asincrónicamente
-                await ProductAudits.AddAsync(productAudit);
+                audits.Add(productAudit);
             }
+
+            // Añadir el registro de auditoría asincrónicamente
+            await ProductAudits.AddRangeAsync(audits);
         }
 
         private async Task AuditSupplierChangesAsync()
         {
             var entries = ChangeTracker
                 .Entries<Supplier>()
-                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted);
+                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted)
+                .ToList();
+
+            var audits = new List<SupplierAudit>();
 
             foreach (var entry in entries)
             {
@@ -302,7 +312,7 @@ namespace RESTful_API.Data
                 // Crear registro de auditoria
                 var audit = new SupplierAudit
                 {
-                    TimeStamp = DateTime.UtcNow,
+                    TimeStamp = DateTime.Now,
                     AuditAction = entry.State.ToString(),
                     UserId = "",  // Placeholder
                     Referencia = (string)originalValues["Referencia"],
@@ -311,41 +321,53 @@ namespace RESTful_API.Data
                     Mail = (string?)originalValues["Mail"]
                 };
 
-                await SupplierAudits.AddAsync(audit);
+                audits.Add(audit);
             }
+
+            await SupplierAudits.AddRangeAsync(audits);
         }
 
         private async Task AuditSystemOperatorChangesAsync()
         {
             var entries = ChangeTracker
                 .Entries<SystemOperator>()
-                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted);
+                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted)
+                .ToList();
+
+            var audits = new List<SystemOperatorAudit>();
 
             foreach (var entry in entries)
             {
                 var originalValues = entry.OriginalValues;
+                var fechaBaja = (DateTime?)entry.CurrentValues["FechaBaja"];
 
                 // Crear registro de auditoria
                 var audit = new SystemOperatorAudit
                 {
                     TimeStamp = DateTime.UtcNow,
-                    AuditAction = entry.State.ToString(),
+                    AuditAction = fechaBaja == null ? entry.State.ToString() : EntityState.Deleted.ToString(),
                     UserId = "",  // Placeholder
-                    Nombre = (string?)originalValues["Nombre"],
+                    Uid = (string)originalValues["Uid"],
+                    Nombre = (string)originalValues["Nombre"],
                     Tipo = (bool)originalValues["Tipo"],
-                    Pswd = (string?)originalValues["Pswd"],
-                    FechaBaja = (DateTime)originalValues["FechaBaja"]
+                    Pswd = (string)originalValues["Pswd"],
+                    FechaBaja = (DateTime?)originalValues["FechaBaja"]
                 };
 
-                await SystemOperatorAudits.AddAsync(audit);
+                audits.Add(audit);
             }
+
+            await SystemOperatorAudits.AddRangeAsync(audits);
         }
 
         private async Task AuditBillChangesAsync()
         {
             var entries = ChangeTracker
                 .Entries<Bill>()
-                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted);
+                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted)
+                .ToList();
+
+            var audits = new List<BillAudit>();
 
             foreach (var entry in entries)
             {
@@ -362,16 +384,20 @@ namespace RESTful_API.Data
                     IdOp = (string)originalValues["IdOp"]
                 };
 
-                await BillAudits.AddAsync(audit);
-                
+                audits.Add(audit);
             }
+
+            await BillAudits.AddRangeAsync(audits);
         }
 
         private async Task AuditBillDetailChangesAsync()
         {
             var entries = ChangeTracker
                 .Entries<BillDetail>()
-                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted);
+                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted)
+                .ToList();
+
+            var audits = new List<BillDetailAudit>();
 
             foreach (var entry in entries)
             {
@@ -390,8 +416,10 @@ namespace RESTful_API.Data
                     IdProducto = (string)originalValues["IdProducto"]
                 };
 
-                await BillDetailAudits.AddAsync(audit);
+                audits.Add(audit);
             }
+
+            await BillDetailAudits.AddRangeAsync(audits);
         }
 
     }

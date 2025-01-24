@@ -19,21 +19,21 @@ namespace RESTful_API.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAllDetails()
+        public async Task<IActionResult> GetAllDetails()
         {
-            return Ok(_dbContext.BillDetails.ToList());
+            return Ok(await _dbContext.BillDetails.ToListAsync());
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetDetailsByBillId(int id)
+        public async Task<IActionResult> GetDetailsByBillId(int id)
         {
-            var bill = _dbContext.Bills.Find(id);
+            var bill = await _dbContext.Bills.FindAsync(id);
             if (bill == null)
             {
                 return NotFound();
             }
 
-            var details = _dbContext.BillDetails
+            var details = await _dbContext.BillDetails
                                     .Where(bd => bd.IdFactura == bill.FacId)
                                     .Select(d => new
                                     {
@@ -44,16 +44,16 @@ namespace RESTful_API.Controllers
                                         d.Productos.Descripcion,
                                         d.Productos.PrecioUnitario
                                     })
-                                    .ToList();
+                                    .ToListAsync();
 
             return Ok(details);
         }
 
         [HttpPost("bill/{id}/details")]
-        public IActionResult AddDetailsToBill(List<AddBillDetailDto> detailDto, int id)
+        public async Task<IActionResult> AddDetailsToBill(List<AddBillDetailDto> detailDto, int id)
         {
             // Validar existencia de la factura
-            var bill = _dbContext.Bills.Find(id);
+            var bill = await _dbContext.Bills.FindAsync(id);
             if (bill == null)
             {
                 return NotFound($"No se encontró la factura: {id}");
@@ -62,7 +62,7 @@ namespace RESTful_API.Controllers
             foreach (var item in detailDto)
             {
                 // Validar existencia del producto
-                var product = _dbContext.Products.Find(item.IdProducto);
+                var product = await _dbContext.Products.FindAsync(item.IdProducto);
                 if (product == null)
                 {
                     return NotFound($"No se encontró el producto con ID {item.IdProducto}");
@@ -88,55 +88,55 @@ namespace RESTful_API.Controllers
                 };
 
                 // Agregar el detalle directamente al contexto
-                _dbContext.BillDetails.Add(detail);
+                await _dbContext.BillDetails.AddAsync(detail);
 
                 // Actualizar el total de la factura y reducir el stock del producto
                 bill.Total += subtotal;
                 product.Stock -= item.Cantidad;
 
-                _dbContext.SaveChanges();
+                await _dbContext.SaveChangesAsync();
             }
 
             return Ok($"Detalle añadido correctamente a la factura con ID {id}");
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteDetail(int id)
+        public async Task<IActionResult> DeleteDetail(int id)
         {
-            var detail = _dbContext.BillDetails.Find(id);
+            var detail = await _dbContext.BillDetails.FindAsync(id);
             if (detail == null)
             {
                 return NotFound($"No se encontró el detalle {id} de factura.");
             }
 
-            var product = _dbContext.Products.Find(detail.IdProducto);
+            var product = await _dbContext.Products.FindAsync(detail.IdProducto);
             if (product != null)
             {
                 product.Stock += detail.Cantidad;
             }
 
-            var bill = _dbContext.Bills.Find(detail.IdFactura);
+            var bill = await _dbContext.Bills.FindAsync(detail.IdFactura);
             if (bill != null)
             {
                 bill.Total -= detail.Subtotal;
             }
 
             _dbContext.BillDetails.Remove(detail);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             return Ok($"Detalle {id} eliminado correctamente");
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateDetail(int id, UpdateBillDetailDto updateDto)
+        public async Task<IActionResult> UpdateDetail(int id, UpdateBillDetailDto updateDto)
         {
-            var detail = _dbContext.BillDetails.Find(id);
+            var detail = await _dbContext.BillDetails.FindAsync(id);
             if (detail == null)
             {
                 return NotFound();
             }
 
-            var product = _dbContext.Products.Find(detail.IdProducto);
+            var product = await _dbContext.Products.FindAsync(detail.IdProducto);
             if (product == null)
             {
                 return NotFound($"No se encontró el producto con ID {detail.IdProducto}");
@@ -155,13 +155,13 @@ namespace RESTful_API.Controllers
             detail.Cantidad = updateDto.Cantidad;
             detail.Subtotal = nuevoSubtotal;
 
-            var bill = _dbContext.Bills.Find(detail.IdFactura);
+            var bill = await _dbContext.Bills.FindAsync(detail.IdFactura);
             if (bill != null)
             {
                 bill.Total += (nuevoSubtotal - detail.Subtotal);
             }
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             return Ok();
         }

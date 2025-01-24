@@ -56,6 +56,12 @@ namespace RESTful_API.Controllers
                 StockMin = addProductDto.StockMin
             };
 
+            bool exists = await _dbContext.Products.AnyAsync(p => p.ProdId == product.ProdId);
+            if (exists)
+            {
+                return BadRequest($"El producto '{product.ProdId}' ya existe");
+            }
+
             await _dbContext.Products.AddAsync(product);
             await _dbContext.SaveChangesAsync();
 
@@ -108,7 +114,13 @@ namespace RESTful_API.Controllers
                 return NotFound();
             }
 
+            if (product.FechaBaja != null)
+            {
+                return BadRequest($"El producto {id} se encuentra dado de baja.");
+            }
+
             product.FechaBaja = DateTime.Now;
+            
 
             await _dbContext.SaveChangesAsync();
 
@@ -123,6 +135,11 @@ namespace RESTful_API.Controllers
             if (product == null)
             {
                 return NotFound();
+            }
+
+            if (product.FechaBaja == null)
+            {
+                return BadRequest($"El producto {id} se encuentra dado de baja.");
             }
 
             product.FechaBaja = null;
