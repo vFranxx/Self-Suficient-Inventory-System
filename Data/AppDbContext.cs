@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using RESTful_API.Models.Entities;
 using Self_Suficient_Inventory_System.Models.AuditModels;
 using Self_Suficient_Inventory_System.Models.LogModels;
+using System.Collections.Specialized;
 
 namespace RESTful_API.Data
 {
@@ -30,6 +31,9 @@ namespace RESTful_API.Data
         public DbSet<SystemOperatorAudit> SystemOperatorAudits { get; set; }
         public DbSet<BillAudit> BillAudits { get; set; }
         public DbSet<BillDetailAudit> BillDetailAudits { get; set; }
+        public DbSet<OrderAudit> OrderAudits { get; set; }
+        public DbSet<OrderDetailAudit> OrderDetailAudits { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -241,6 +245,22 @@ namespace RESTful_API.Data
                 BillDetailAudits.Property(a => a.AuditId)
                           .UseIdentityColumn();
             });
+
+            modelBuilder.Entity<OrderAudit>(OrderAudits =>
+            {
+                OrderAudits.HasKey(a => a.AuditId);
+
+                OrderAudits.Property(a => a.AuditId)
+                          .UseIdentityColumn();
+            });
+
+            modelBuilder.Entity<OrderDetailAudit>(OrderDetailAudits =>
+            {
+                OrderDetailAudits.HasKey(a => a.AuditId);
+
+                OrderDetailAudits.Property(a => a.AuditId)
+                          .UseIdentityColumn();
+            });
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -254,6 +274,10 @@ namespace RESTful_API.Data
             await AuditBillChangesAsync();
 
             await AuditBillDetailChangesAsync();
+
+            await AuditOrderChangesAsync();
+
+            await AuditOrderDetailChangesAsync();
 
             return await base.SaveChangesAsync(cancellationToken);
         }
@@ -390,6 +414,37 @@ namespace RESTful_API.Data
             await BillAudits.AddRangeAsync(audits);
         }
 
+        private async Task AuditOrderChangesAsync()
+        {
+            var entries = ChangeTracker
+                .Entries<Order>()
+                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted)
+                .ToList();
+
+            var audits = new List<OrderAudit>();
+
+            foreach (var entry in entries)
+            {
+                var originalValues = entry.OriginalValues;
+
+                // Crear registro de auditoria
+                var audit = new OrderAudit
+                {
+                    TimeStamp = DateTime.UtcNow,
+                    AuditAction = entry.State.ToString(),
+                    UserId = "",  // Placeholder
+                    FechaSolicitud = (DateTime)originalValues["FechaSolicitud"],
+                    Estado = (string)originalValues["Estado"],
+                    IdOp = (string)originalValues["IdOp"],
+                    IdProv = (int)originalValues["IdProv"]
+                };
+
+                audits.Add(audit);
+            }
+
+            await OrderAudits.AddRangeAsync(audits);
+        }
+
         private async Task AuditBillDetailChangesAsync()
         {
             var entries = ChangeTracker
@@ -422,5 +477,34 @@ namespace RESTful_API.Data
             await BillDetailAudits.AddRangeAsync(audits);
         }
 
+        private async Task AuditOrderDetailChangesAsync()
+        {
+            var entries = ChangeTracker
+                .Entries<OrderDetail>()
+                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted)
+                .ToList();
+
+            var audits = new List<OrderDetailAudit>();
+
+            foreach (var entry in entries)
+            {
+                var originalValues = entry.OriginalValues;
+
+                // Crear registro de auditoria
+                var audit = new OrderDetailAudit
+                {
+                    TimeStamp = DateTime.UtcNow,
+                    AuditAction = entry.State.ToString(),
+                    UserId = "",  // Placeholder
+                    Cantidad = (int)originalValues["Cantidad"],
+                    IdProd = (string)originalValues["IdProducto"],
+                    IdOc = (int)originalValues["IdOc"]
+                };
+
+                audits.Add(audit);
+            }
+
+            await OrderDetailAudits.AddRangeAsync(audits);
+        }
     }
 }

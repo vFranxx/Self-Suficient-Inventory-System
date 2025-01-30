@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Middleware;
 using RESTful_API.Data;
+using Self_Suficient_Inventory_System.LogHandling.ResponseHandle;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ResponseMiddleware>();
 
 app.UseMiddleware<ExceptionMiddleware>();
 

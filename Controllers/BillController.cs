@@ -142,13 +142,6 @@ namespace RESTful_API.Controllers
                 return NotFound($"No se encontró el detalle {id} de factura.");
             }
 
-            var hasDetail = await _dbContext.BillDetails.AnyAsync(detail => detail.IdFactura == id);
-
-            if (hasDetail)
-            { 
-                return BadRequest("No se puede eliminar una factura con detalles asociados");
-            }
-
             _dbContext.Bills.Remove(bill);
             await _dbContext.SaveChangesAsync();
 
