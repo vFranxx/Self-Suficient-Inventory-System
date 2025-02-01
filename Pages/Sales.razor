@@ -1,0 +1,85 @@
+﻿@page "/Sales"
+
+@using BlazorFront.Models.Entities
+@using System.Linq
+@inject NavigationManager Navigation
+
+<h3>Venta de Productos</h3>
+
+@if (Factura == null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <div>
+        <label>Producto:</label>
+        <input @bind="NuevoDetalle.IdProducto" placeholder="Código de producto" />
+    </div>
+    <div>
+        <label>Cantidad:</label>
+        <input type="number" @bind="NuevoDetalle.Cantidad" min="1" />
+    </div>
+    <div>
+        <label>Precio:</label>
+        <input type="number" @bind="NuevoDetalle.Precio" step="0.01" />
+    </div>
+    <button @onclick="AgregarProducto">Agregar</button>
+
+    <h4>Detalles de Venta</h4>
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var detalle in Factura.Detalles)
+            {
+                <tr>
+                    <td>@detalle.IdProducto</td>
+                    <td>@detalle.Cantidad</td>
+                    <td>@detalle.Precio</td>
+                    <td>@detalle.Subtotal</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <h4>Total: @Factura.Total</h4>
+    <button @onclick="RegistrarVenta">Registrar Venta</button>
+}
+
+@code {
+    private Bill Factura = new Bill { Detalles = new List<BillDetail>() };
+    private BillDetail NuevoDetalle = new BillDetail();
+
+    private void AgregarProducto()
+    {
+        if (string.IsNullOrWhiteSpace(NuevoDetalle.IdProducto) || NuevoDetalle.Cantidad <= 0 || NuevoDetalle.Precio <= 0)
+        {
+            return;
+        }
+
+        NuevoDetalle.Subtotal = NuevoDetalle.Cantidad * NuevoDetalle.Precio;
+        Factura.Detalles.Add(new BillDetail
+            {
+                IdProducto = NuevoDetalle.IdProducto,
+                Cantidad = NuevoDetalle.Cantidad,
+                Precio = NuevoDetalle.Precio,
+                Subtotal = NuevoDetalle.Subtotal
+            });
+
+        Factura.Total = Factura.Detalles.Sum(d => d.Subtotal);
+        NuevoDetalle = new BillDetail();
+    }
+
+    private void RegistrarVenta()
+    {
+        // Aquí se enviaría la factura a la API para registrarla en la base de datos
+        Console.WriteLine("Venta registrada con éxito");
+        Factura = new Bill { Detalles = new List<BillDetail>() };
+    }
+}

@@ -1,0 +1,52 @@
+﻿@page "/create-product"
+@using Microsoft.AspNetCore.Components.Forms
+@using BlazorFront.Services
+@using BlazorFront.Models.Entities
+@inject NavigationManager NavigationManager
+@inject ProductService productService
+
+<h3>Crear Nuevo Producto</h3>
+
+<EditForm Model="@newProduct" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="descripcion">Descripción:</label>
+        <InputText id="descripcion" class="form-control" @bind-Value="newProduct.Descripcion" />
+    </div>
+    <div class="form-group">
+        <label for="precio">Precio Unitario:</label>
+        <InputNumber id="precio" class="form-control" @bind-Value="newProduct.PrecioUnitario" />
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancelar</button>
+</EditForm>
+
+@code {
+    private Product newProduct = new()
+        {
+            ProdId = "", 
+            Descripcion = "",
+            PrecioUnitario = 0,
+            Ganancia = 0
+        };
+
+    private async Task HandleValidSubmit()
+    {
+        bool success = await productService.AddProductAsync(newProduct);
+        if (success)
+        {
+            NavigationManager.NavigateTo("/products");
+        }
+        else
+        {
+            Console.Error.WriteLine("Error al agregar el producto.");
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/products");
+    }
+}
