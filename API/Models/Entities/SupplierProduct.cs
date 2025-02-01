@@ -1,0 +1,13 @@
+﻿namespace API.Models.Entities
+{
+    public class SupplierProduct
+    {
+        public int IdProv { get; set; } // ID_PROV
+        public string IdProd { get; set; } // ID_PROD
+
+        // Relaciones con las tablas relacionadas
+        public Supplier Suppliers { get; set; } // Relación con Proveedores
+
+        public Product Products { get; set; } // Relación con Productos
+    }
+}
