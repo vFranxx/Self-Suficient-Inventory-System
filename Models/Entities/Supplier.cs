@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 ﻿namespace BlazorFront.Models.Entities
+=======
+﻿namespace RESTful_API.Models.Entities
+>>>>>>> 30789201ddefe3990da3d2a2783d4120496c1b5e
 {
     public class Supplier
     {

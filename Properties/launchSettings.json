@@ -1,11 +1,20 @@
+<<<<<<< HEAD
 {
+=======
+﻿{
+>>>>>>> 30789201ddefe3990da3d2a2783d4120496c1b5e
   "$schema": "http://json.schemastore.org/launchsettings.json",
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
+<<<<<<< HEAD
       "applicationUrl": "http://localhost:1569",
       "sslPort": 44321
+=======
+      "applicationUrl": "http://localhost:22228",
+      "sslPort": 44312
+>>>>>>> 30789201ddefe3990da3d2a2783d4120496c1b5e
     }
   },
   "profiles": {
@@ -13,8 +22,13 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
+<<<<<<< HEAD
       "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
       "applicationUrl": "http://localhost:5175",
+=======
+      "launchUrl": "swagger",
+      "applicationUrl": "http://localhost:5013",
+>>>>>>> 30789201ddefe3990da3d2a2783d4120496c1b5e
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
@@ -23,8 +37,13 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
+<<<<<<< HEAD
       "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
       "applicationUrl": "https://localhost:7047;http://localhost:5175",
+=======
+      "launchUrl": "swagger",
+      "applicationUrl": "https://localhost:7026;http://localhost:5013",
+>>>>>>> 30789201ddefe3990da3d2a2783d4120496c1b5e
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
@@ -32,7 +51,11 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
+<<<<<<< HEAD
       "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
+=======
+      "launchUrl": "swagger",
+>>>>>>> 30789201ddefe3990da3d2a2783d4120496c1b5e
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
