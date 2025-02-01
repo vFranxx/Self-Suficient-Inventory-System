@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RESTful_API.Data;
@@ -11,67 +12,106 @@ namespace RESTful_API.Controllers
     [ApiController]
     public class SystemOperatorController : ControllerBase
     {
-        /*
+        
         private readonly AppDbContext _dbContext;
-        public SystemOperatorController(AppDbContext dbContext) 
+        private readonly UserManager<SystemOperator> _userManager;
+        public SystemOperatorController(AppDbContext dbContext, UserManager<SystemOperator> userManager) 
         {
             _dbContext = dbContext;
+            _userManager = userManager;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllOperators()
         {
-            return Ok(await _dbContext.SystemOperators.ToListAsync());
+            var users = await _userManager.Users.ToListAsync();
+            var operators = new List<object>();
+
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                operators.Add(new
+                {
+                    user.Id,
+                    user.UserName,
+                    user.Email,
+                    user.PhoneNumber,
+                    user.FechaBaja,
+                    Roles = roles
+                });
+            }
+
+            return Ok(operators);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOperatorById(string id)
         {
-            var systemOperator = await _dbContext.SystemOperators.FindAsync(id);
+            var user = await _userManager.FindByIdAsync(id);
 
-            if (systemOperator == null)
+            if (user == null)
             {
                 return NotFound();
             }
 
-            return Ok(systemOperator);
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var operatorData = new
+            {
+                user.Id,
+                user.UserName,
+                user.Email,
+                user.PhoneNumber,
+                user.FechaBaja,
+                Roles = roles
+            };
+
+            return Ok(operatorData);
         }
 
         [HttpPost]
         public async Task<IActionResult> AddOperator(AddOperatorDto addOperatorDto)
         {
-            var systemOperator = new SystemOperator()
-            { 
-                Uid = addOperatorDto.Uid,
-                Nombre = addOperatorDto.Nombre,
-                Tipo = addOperatorDto.Tipo,
-                Pswd = addOperatorDto.Pswd,
-            };
-
-            bool exists = await _dbContext.SystemOperators.AnyAsync(so => so.Uid == systemOperator.Uid);
-            if (exists)
+            var exists = await _userManager.FindByEmailAsync(addOperatorDto.Email);
+            if (exists != null)
             {
-                return BadRequest($"Un usuario con el identificador '{systemOperator.Uid}' ya existe");
+                return BadRequest($"El usuario con el email '{addOperatorDto.Email}' ya existe.");
             }
 
-            await _dbContext.SystemOperators.AddAsync(systemOperator);
-            await _dbContext.SaveChangesAsync();
+            var newOperator = new SystemOperator
+            {
+                UserName = addOperatorDto.UserName ?? addOperatorDto.Email,
+                Email = addOperatorDto.Email,
+                PasswordHash = addOperatorDto.Password,
+                PhoneNumber = addOperatorDto.PhoneNumber,
+            };
 
-            return Ok(systemOperator);
+            var result = await _userManager.CreateAsync(newOperator, addOperatorDto.Password);
+
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
+
+            await _userManager.AddToRoleAsync(newOperator, "OPERADOR");
+
+            return Ok(newOperator);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateOperator(string id, UpdateOperatorDto updateOperatorDto)
         {
-            var systemOperator = await _dbContext.SystemOperators.FindAsync(id);
+            var systemOperator = await _userManager.FindByIdAsync(id);
 
             if (systemOperator == null)
             {
                 return NotFound();
             }
 
-            systemOperator.Nombre = updateOperatorDto.Nombre;
-            systemOperator.Pswd = updateOperatorDto.Pswd;
+            systemOperator.UserName = updateOperatorDto.UserName;
+            systemOperator.Email = updateOperatorDto.Email;
+            systemOperator.PasswordHash = updateOperatorDto.Password;
+            systemOperator.PhoneNumber = updateOperatorDto.PhoneNumber;
 
             await _dbContext.SaveChangesAsync();
 
@@ -81,7 +121,7 @@ namespace RESTful_API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> SoftDeleteOperator(string id)
         {
-            var systemOperator = await _dbContext.SystemOperators.FindAsync(id);
+            var systemOperator = await _userManager.FindByIdAsync(id);
 
             if (systemOperator == null)
             {
@@ -104,7 +144,7 @@ namespace RESTful_API.Controllers
         [HttpPost("{id}")]
         public async Task<IActionResult> ActivateOperator(string id)
         {
-            var systemOperator = await _dbContext.SystemOperators.FindAsync(id);
+            var systemOperator = await _userManager.FindByIdAsync(id);
 
             if (systemOperator == null)
             {
@@ -123,52 +163,5 @@ namespace RESTful_API.Controllers
 
             return Ok(systemOperator);
         }
-
-        [HttpPut("{id}/admin")]
-        public async Task<IActionResult> ChangeOperatorToAdmin(string id)
-        {
-            var systemOperator = await _dbContext.SystemOperators.FindAsync(id);
-
-            if (systemOperator == null)
-            {
-                return NotFound();
-            }
-
-            if (systemOperator.Tipo) 
-            {
-                return BadRequest($"El usuario {id} ya tiene permisos de administrador.");
-            }
-
-            systemOperator.Tipo = true;
-
-            _dbContext.SystemOperators.Update(systemOperator);
-            await _dbContext.SaveChangesAsync();
-
-            return Ok(systemOperator);
-        }
-
-        [HttpPut("{id}/operator")]
-        public async Task<IActionResult> ChangeAdminToOperator(string id)
-        {
-            var systemOperator = await _dbContext.SystemOperators.FindAsync(id);
-
-            if (systemOperator == null)
-            {
-                return NotFound();
-            }
-
-            if (!systemOperator.Tipo)
-            {
-                return BadRequest($"El usuario {id} no tiene permisos de administrador.");
-            }
-
-            systemOperator.Tipo = false;
-
-            _dbContext.SystemOperators.Update(systemOperator);
-            await _dbContext.SaveChangesAsync();
-
-            return Ok(systemOperator);
-        }
-    */
     }
 }
