@@ -7,10 +7,12 @@ using RESTful_API.Models.Entities;
 using Self_Suficient_Inventory_System.Models.AuditModels;
 using Self_Suficient_Inventory_System.Models.LogModels;
 using System.Collections.Specialized;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+
 
 namespace RESTful_API.Data
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<SystemOperator>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
@@ -37,6 +39,8 @@ namespace RESTful_API.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<Bill>(entity =>
             {
                 entity.HasKey(b => b.FacId); // PK
@@ -173,17 +177,6 @@ namespace RESTful_API.Data
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
-            modelBuilder.Entity<SystemOperator>(entity =>
-            {
-                entity.HasKey(op => op.Uid);
-
-                entity.Property(op => op.Uid)
-                      .HasMaxLength(50);
-
-                entity.Property(op => op.Nombre)
-                      .HasMaxLength(50);
-            });
-
             modelBuilder.Entity<ExceptionLogEntry>(ExceptionLogEntries =>
             {
                 ExceptionLogEntries.HasKey(l => l.Id);
@@ -263,24 +256,24 @@ namespace RESTful_API.Data
             });
         }
 
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            await AuditProductChangesAsync();
+        //public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        //{
+            //await AuditProductChangesAsync();
 
-            await AuditSupplierChangesAsync();
+            //await AuditSupplierChangesAsync();
 
-            await AuditSystemOperatorChangesAsync();
+            //await AuditSystemOperatorChangesAsync();
 
-            await AuditBillChangesAsync();
+            //await AuditBillChangesAsync();
 
-            await AuditBillDetailChangesAsync();
+            //await AuditBillDetailChangesAsync();
 
-            await AuditOrderChangesAsync();
+            //await AuditOrderChangesAsync();
 
-            await AuditOrderDetailChangesAsync();
+            //await AuditOrderDetailChangesAsync();
 
-            return await base.SaveChangesAsync(cancellationToken);
-        }
+            //return await base.SaveChangesAsync(cancellationToken);
+        //}
 
         private async Task AuditProductChangesAsync()
         {

@@ -27,7 +27,7 @@ namespace RESTful_API.Controllers
                     b.FacId,
                     b.Total,
                     b.FechaHora,
-                    b.Operators.Nombre,
+                    //b.Operators.Nombre,
                     b.IdOp
                 })
                 .ToListAsync();
@@ -51,7 +51,7 @@ namespace RESTful_API.Controllers
                     b.FacId,
                     b.FechaHora,
                     b.Total,
-                    b.Operators.Nombre,
+                    //b.Operators.Nombre,
                     b.IdOp
                 })
                 .ToListAsync();
@@ -81,11 +81,11 @@ namespace RESTful_API.Controllers
         public async Task<IActionResult> GetBillsByOperator(string id)
         {
             // Validar si el operador existe
-            var systemOperator = await _dbContext.SystemOperators.FirstOrDefaultAsync(op => op.Uid == id);
-            if (systemOperator == null)
-            {
-                return NotFound($"No se encontró el operador con ID {id}");
-            }
+            //var systemOperator = await _dbContext.SystemOperators.FirstOrDefaultAsync(op => op.Uid == id);
+            //if (systemOperator == null)
+            //{
+            //    return NotFound($"No se encontró el operador con ID {id}");
+            //}
 
             var bills = await _dbContext.Bills
                 .Where(b => b.IdOp == id)
@@ -104,7 +104,7 @@ namespace RESTful_API.Controllers
 
             return Ok(new
             {
-                OperatorName = systemOperator.Nombre,
+                //OperatorName = systemOperator.Nombre,
                 Facturas = bills
             });
         }
@@ -112,18 +112,18 @@ namespace RESTful_API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateBill(BillDto billDto)
         {
-            var systemOperator = await _dbContext.SystemOperators.FirstOrDefaultAsync(o => o.Uid == billDto.IdOp);
-            if (systemOperator == null)
-            {
-                return NotFound($"No se encontró el operador {billDto.IdOp}");
-            }
+            //var systemOperator = await _dbContext.SystemOperators.FirstOrDefaultAsync(o => o.Uid == billDto.IdOp);
+            //if (systemOperator == null)
+            //{
+            //    return NotFound($"No se encontró el operador {billDto.IdOp}");
+            //}
 
             var bill = new Bill()
             {
                 FechaHora = billDto.FechaHora,
                 IdOp = billDto.IdOp,
                 Total = 0, // Inicialmente sin detalles, el total es 0
-                Operators = systemOperator
+                //Operators = systemOperatorW
             };
 
             await _dbContext.Bills.AddAsync(bill);

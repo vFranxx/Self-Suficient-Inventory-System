@@ -19,7 +19,8 @@ namespace Self_Suficient_Inventory_System.LogHandling.ResponseHandle
             
             var excludedEndpoints = new HashSet<string>()
             {
-                "/api/Test/"
+                "/api/Test/",
+
             };
 
             if (excludedEndpoints.Any(endpoint => context.Request.Path.Value.StartsWith(endpoint, StringComparison.OrdinalIgnoreCase)))

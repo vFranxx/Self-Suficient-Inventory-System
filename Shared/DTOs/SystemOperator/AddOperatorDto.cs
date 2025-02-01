@@ -2,9 +2,9 @@
 {
     public class AddOperatorDto
     {
-        public string Uid { get; set; }
-        public required string Nombre { get; set; }
-        public bool Tipo { get; set; } = false;
-        public required string Pswd { get; set; }
+        public required string Email { get; set; }
+        public string? UserName { get; set; }
+        public required string Password { get; set; }
+        public string? PhoneNumber { get; set; }
     }
 }

@@ -27,7 +27,7 @@ namespace Self_Suficient_Inventory_System.Controllers
                     o.FechaSolicitud,
                     o.Estado,
                     o.Suppliers.Referencia,
-                    o.Operators.Nombre,
+                    //o.Operators.Nombre,
                     o.IdOp
                 })
                 .ToListAsync();
@@ -52,7 +52,7 @@ namespace Self_Suficient_Inventory_System.Controllers
                     o.FechaSolicitud,
                     o.Estado,
                     o.Suppliers.Referencia,
-                    o.Operators.Nombre,
+                    //o.Operators.Nombre,
                     o.IdOp
                 })
                 .ToListAsync();
@@ -81,11 +81,11 @@ namespace Self_Suficient_Inventory_System.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrder(AddOrderDTO orderDto)
         {
-            var systemOperator = await _dbContext.SystemOperators.AnyAsync(o => o.Uid == orderDto.IdOp);
-            if (!systemOperator)
-            {
-                return NotFound($"No se encontró el operador {orderDto.IdOp}");
-            }
+            //var systemOperator = await _dbContext.SystemOperators.AnyAsync(o => o.Uid == orderDto.IdOp);
+            //if (!systemOperator)
+            //{
+            //    return NotFound($"No se encontró el operador {orderDto.IdOp}");
+            //}
 
             var supplier = await _dbContext.Suppliers.AnyAsync(s => s.ProvId == orderDto.IdProv);
             if (!supplier)

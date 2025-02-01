@@ -11,6 +11,7 @@ namespace RESTful_API.Controllers
     [ApiController]
     public class SystemOperatorController : ControllerBase
     {
+        /*
         private readonly AppDbContext _dbContext;
         public SystemOperatorController(AppDbContext dbContext) 
         {
@@ -168,6 +169,6 @@ namespace RESTful_API.Controllers
 
             return Ok(systemOperator);
         }
-    
+    */
     }
 }
