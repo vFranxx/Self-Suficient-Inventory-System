@@ -8,7 +8,7 @@ using RESTful_API.Data;
 
 #nullable disable
 
-namespace RESTful_API.Migrations
+namespace Self_Suficient_Inventory_System.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     partial class AppDbContextModelSnapshot : ModelSnapshot
