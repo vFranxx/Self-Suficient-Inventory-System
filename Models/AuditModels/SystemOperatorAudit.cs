@@ -1,15 +1,12 @@
 ﻿namespace Self_Suficient_Inventory_System.Models.AuditModels
 {
-    public class SystemOperatorAudit
+    public class SystemOperatorAudit : AuditBase
     {
-        public int AuditId { get; set; }
-        public required DateTime TimeStamp { get; set; }
-        public required string AuditAction { get; set; }
-        public required string UserId { get; set; }
-        public required string Uid { get; set; }
-        public required string Nombre { get; set; }
-        public required bool Tipo { get; set; } = false;
-        public required string Pswd { get; set; }
+        public required string Email { get; set; }
+        public string? UserName { get; set; }
+        public string? PhoneNumber { get; set; }
         public DateTime? FechaBaja { get; set; } = null;
+        public string Rol { get; set; }
+        public SystemOperatorAudit() => AuditType = "Usuario";
     }
 }

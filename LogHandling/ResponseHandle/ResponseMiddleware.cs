@@ -1,6 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Win32;
 using Middleware;
 using RESTful_API.Data;
+using System;
 
 namespace Self_Suficient_Inventory_System.LogHandling.ResponseHandle
 {
@@ -20,7 +23,18 @@ namespace Self_Suficient_Inventory_System.LogHandling.ResponseHandle
             var excludedEndpoints = new HashSet<string>()
             {
                 "/api/Test/",
-
+                "/register",
+                "/login",
+                "/refresh",
+                "/confirmEmail",
+                "/resendConfirmationEmail",
+                "/forgotPassword",
+                "/resetPassword",
+                "/manage/2fa",
+                "/manage/info",
+                "/manage/info",
+                "/api/Auth/",
+                "/api/Roles/"
             };
 
             if (excludedEndpoints.Any(endpoint => context.Request.Path.Value.StartsWith(endpoint, StringComparison.OrdinalIgnoreCase)))

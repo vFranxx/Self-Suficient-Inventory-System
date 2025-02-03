@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RESTful_API.Data;
 using RESTful_API.Models.Entities;
 using Shared.DTOs.SystemOperator;
+using System.Security.Claims;
 
 namespace RESTful_API.Controllers
 {
@@ -72,10 +74,16 @@ namespace RESTful_API.Controllers
         [HttpPost]
         public async Task<IActionResult> AddOperator(AddOperatorDto addOperatorDto)
         {
-            var exists = await _userManager.FindByEmailAsync(addOperatorDto.Email);
-            if (exists != null)
+            var existsEmail = await _userManager.FindByEmailAsync(addOperatorDto.Email);
+            if (existsEmail != null)
             {
                 return BadRequest($"El usuario con el email '{addOperatorDto.Email}' ya existe.");
+            }
+
+            var existsUsername = await _userManager.FindByNameAsync(addOperatorDto.UserName);
+            if (existsUsername != null)
+            {
+                return BadRequest($"Una persona con el nombre de usuario '{addOperatorDto.UserName}' ya existe.");
             }
 
             var newOperator = new SystemOperator
@@ -83,7 +91,7 @@ namespace RESTful_API.Controllers
                 UserName = addOperatorDto.UserName ?? addOperatorDto.Email,
                 Email = addOperatorDto.Email,
                 PasswordHash = addOperatorDto.Password,
-                PhoneNumber = addOperatorDto.PhoneNumber,
+                PhoneNumber = addOperatorDto.PhoneNumber
             };
 
             var result = await _userManager.CreateAsync(newOperator, addOperatorDto.Password);
@@ -99,26 +107,75 @@ namespace RESTful_API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "OPERADOR, ADMIN")]
         public async Task<IActionResult> UpdateOperator(string id, UpdateOperatorDto updateOperatorDto)
         {
+            // Verificaciones
+            if (User.IsInRole("OPERADOR") && User.FindFirst(ClaimTypes.NameIdentifier)?.Value != id)
+            {
+                return Forbid(); // Operador solo puede modificarse a sí mismo
+            }
+
             var systemOperator = await _userManager.FindByIdAsync(id);
 
             if (systemOperator == null)
             {
-                return NotFound();
+                return NotFound("Usuario no encontrado");
+            }
+            
+            if (systemOperator.UserName != updateOperatorDto.UserName)
+            {
+                var existingUser = await _userManager.FindByNameAsync(updateOperatorDto.UserName);
+                if (existingUser != null && existingUser.Id != id)
+                {
+                    return BadRequest($"El nombre de usuario '{updateOperatorDto.UserName}' ya está en uso.");
+                }
             }
 
+            if (systemOperator.Email != updateOperatorDto.Email) 
+            {
+                var existingEmail = await _userManager.FindByEmailAsync(updateOperatorDto.Email);
+                if (existingEmail != null && existingEmail.Id != id) 
+                {
+                    return BadRequest($"El email '{updateOperatorDto.Email}' ya está en uso.");
+                }
+            }
+
+            // Actualizar campos básicos
             systemOperator.UserName = updateOperatorDto.UserName;
-            systemOperator.Email = updateOperatorDto.Email;
-            systemOperator.PasswordHash = updateOperatorDto.Password;
             systemOperator.PhoneNumber = updateOperatorDto.PhoneNumber;
 
-            await _dbContext.SaveChangesAsync();
+            // Actualizar email (requiere validación)
+            var emailResult = await _userManager.SetEmailAsync(systemOperator, updateOperatorDto.Email);
+            if (!emailResult.Succeeded)
+            {
+                return BadRequest(emailResult.Errors);
+            }
+
+            // Actualizar contraseña (solo si se proporciona)
+            if (!string.IsNullOrEmpty(updateOperatorDto.Password))
+            {
+                var token = await _userManager.GeneratePasswordResetTokenAsync(systemOperator);
+                var passwordResult = await _userManager.ResetPasswordAsync(systemOperator, token, updateOperatorDto.Password);
+
+                if (!passwordResult.Succeeded)
+                {
+                    return BadRequest(passwordResult.Errors);
+                }
+            }
+
+            // Guardar cambios
+            var result = await _userManager.UpdateAsync(systemOperator);
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
 
             return Ok(systemOperator);
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> SoftDeleteOperator(string id)
         {
             var systemOperator = await _userManager.FindByIdAsync(id);
@@ -142,6 +199,7 @@ namespace RESTful_API.Controllers
         }
 
         [HttpPost("{id}")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> ActivateOperator(string id)
         {
             var systemOperator = await _userManager.FindByIdAsync(id);

@@ -8,14 +8,19 @@ using Self_Suficient_Inventory_System.Models.AuditModels;
 using Self_Suficient_Inventory_System.Models.LogModels;
 using System.Collections.Specialized;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Self_Suficient_Inventory_System.Services;
+using Microsoft.AspNetCore.Identity;
 
 
 namespace RESTful_API.Data
 {
     public class AppDbContext : IdentityDbContext<SystemOperator>
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+        private readonly UserManager<SystemOperator> _userManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAccessor httpContextAccessor) : base(options)
         {
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public DbSet<Bill> Bills { get; set; }
@@ -28,15 +33,8 @@ namespace RESTful_API.Data
         public DbSet<SystemOperator> SystemOperators { get; set; }
         public DbSet<ExceptionLogEntry> ExceptionLogEntries { get; set; }
         public DbSet<ResponseLogEntry> ResponseLogEntries { get; set; }
-        public DbSet<ProductAudit> ProductAudits { get; set; }
-        public DbSet<SupplierAudit> SupplierAudits { get; set; }
-        public DbSet<SystemOperatorAudit> SystemOperatorAudits { get; set; }
-        public DbSet<BillAudit> BillAudits { get; set; }
-        public DbSet<BillDetailAudit> BillDetailAudits { get; set; }
-        public DbSet<OrderAudit> OrderAudits { get; set; }
-        public DbSet<OrderDetailAudit> OrderDetailAudits { get; set; }
-
-
+        public DbSet<AuditBase> Audits { get; set; }
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -199,83 +197,53 @@ namespace RESTful_API.Data
                           .IsRequired(false);
             });
 
-            modelBuilder.Entity<ProductAudit>(ProductAudits =>
+            // Configuración TPH CORREGIDA
+            modelBuilder.Entity<AuditBase>()
+                .ToTable("Audits")
+                .HasDiscriminator<string>(a => a.AuditType)
+                .HasValue<ProductAudit>("ProductAudit")
+                .HasValue<SupplierAudit>("SupplierAudit")
+                .HasValue<BillAudit>("BillAudit")              
+                .HasValue<BillDetailAudit>("BillDetailAudit") 
+                .HasValue<OrderAudit>("OrderAudit")      
+                .HasValue<OrderDetailAudit>("OrderDetailAudit") 
+                .HasValue<SystemOperatorAudit>("SystemOperatorAudit");
+
+            modelBuilder.Entity<AuditBase>(entity =>
             {
-                ProductAudits.HasKey(a => a.AuditId);
-
-                ProductAudits.Property(a => a.AuditId)
-                          .UseIdentityColumn();
-            });
-
-            modelBuilder.Entity<SupplierAudit>(SupplierAudits =>
-            {
-                SupplierAudits.HasKey(a => a.AuditId);
-
-                SupplierAudits.Property(a => a.AuditId)
-                          .UseIdentityColumn();
-            });
-
-            modelBuilder.Entity<SystemOperatorAudit>(SystemOperatorAudits =>
-            {
-                SystemOperatorAudits.HasKey(a => a.AuditId);
-
-                SystemOperatorAudits.Property(a => a.AuditId)
-                          .UseIdentityColumn();
-            });
-
-            modelBuilder.Entity<BillAudit>(BillAudits =>
-            {
-                BillAudits.HasKey(a => a.AuditId);
-
-                BillAudits.Property(a => a.AuditId)
-                          .UseIdentityColumn();
-            });
-
-            modelBuilder.Entity<BillDetailAudit>(BillDetailAudits =>
-            {
-                BillDetailAudits.HasKey(a => a.AuditId);
-
-                BillDetailAudits.Property(a => a.AuditId)
-                          .UseIdentityColumn();
-            });
-
-            modelBuilder.Entity<OrderAudit>(OrderAudits =>
-            {
-                OrderAudits.HasKey(a => a.AuditId);
-
-                OrderAudits.Property(a => a.AuditId)
-                          .UseIdentityColumn();
-            });
-
-            modelBuilder.Entity<OrderDetailAudit>(OrderDetailAudits =>
-            {
-                OrderDetailAudits.HasKey(a => a.AuditId);
-
-                OrderDetailAudits.Property(a => a.AuditId)
-                          .UseIdentityColumn();
+                entity.HasKey(a => a.AuditId);
+                entity.Property(a => a.AuditId).UseIdentityColumn();
+                entity.Property(a => a.TimeStamp).IsRequired();
+                entity.Property(a => a.AuditAction).HasMaxLength(50);
+                entity.Property(a => a.UserId).IsRequired().HasMaxLength(450);
+                entity.Property(a => a.AuditType) 
+                    .HasMaxLength(30)
+                    .IsRequired()
+                    .HasColumnName("TipoAuditoria");
             });
         }
 
-        //public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        //{
-            //await AuditProductChangesAsync();
+        /*
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            await AuditProductChangesAsync();
 
-            //await AuditSupplierChangesAsync();
+            await AuditSupplierChangesAsync();
 
             //await AuditSystemOperatorChangesAsync();
 
-            //await AuditBillChangesAsync();
+            await AuditBillChangesAsync();
 
-            //await AuditBillDetailChangesAsync();
+            await AuditBillDetailChangesAsync();
 
-            //await AuditOrderChangesAsync();
+            await AuditOrderChangesAsync();
 
-            //await AuditOrderDetailChangesAsync();
+            await AuditOrderDetailChangesAsync();
 
-            //return await base.SaveChangesAsync(cancellationToken);
-        //}
+            return await base.SaveChangesAsync(cancellationToken);
+        }
 
-        private async Task AuditProductChangesAsync()
+        public async Task AuditProductChangesAsync()
         {
             var entries = ChangeTracker
                 .Entries<Product>()
@@ -289,13 +257,15 @@ namespace RESTful_API.Data
                 var originalValues = entry.OriginalValues;
                 var fechaBaja = (DateTime?)entry.CurrentValues["FechaBaja"];
 
+                // Recuperar el UserId del usuario actual
+                var user = GetCurrentUser();
 
                 // Crear un registro de auditoría para cada cambio
                 var productAudit = new ProductAudit
                 {
                     TimeStamp = DateTime.Now,
                     AuditAction = fechaBaja == null ? entry.State.ToString() : EntityState.Deleted.ToString(),
-                    UserId = "",  // Placeholder
+                    UserId = user.Id,
                     ProdId = (string)originalValues["ProdId"]!,
                     Descripcion = (string)originalValues["Descripcion"]!,
                     PrecioUnitario = (decimal)originalValues["PrecioUnitario"]!,
@@ -310,10 +280,10 @@ namespace RESTful_API.Data
             }
 
             // Añadir el registro de auditoría asincrónicamente
-            await ProductAudits.AddRangeAsync(audits);
+            await Audits.AddRangeAsync(audits);
         }
 
-        private async Task AuditSupplierChangesAsync()
+        public async Task AuditSupplierChangesAsync()
         {
             var entries = ChangeTracker
                 .Entries<Supplier>()
@@ -321,6 +291,9 @@ namespace RESTful_API.Data
                 .ToList();
 
             var audits = new List<SupplierAudit>();
+
+            // Recuperar el UserId del usuario actual
+            var user = GetCurrentUser();
 
             foreach (var entry in entries)
             {
@@ -331,7 +304,7 @@ namespace RESTful_API.Data
                 {
                     TimeStamp = DateTime.Now,
                     AuditAction = entry.State.ToString(),
-                    UserId = "",  // Placeholder
+                    UserId = user.Id,
                     Referencia = (string)originalValues["Referencia"],
                     Contacto = (string?)originalValues["Contacto"],
                     Direccion = (string?)originalValues["Direccion"],
@@ -341,43 +314,51 @@ namespace RESTful_API.Data
                 audits.Add(audit);
             }
 
-            await SupplierAudits.AddRangeAsync(audits);
+            await Audits.AddRangeAsync(audits);
         }
 
-        private async Task AuditSystemOperatorChangesAsync()
-        {
-            var entries = ChangeTracker
-                .Entries<SystemOperator>()
-                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted)
-                .ToList();
+        //public async Task AuditSystemOperatorChangesAsync()
+        //{
+        //    var entries = ChangeTracker
+        //        .Entries<IdentityUser>()
+        //        .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted)
+        //        .ToList();
 
-            var audits = new List<SystemOperatorAudit>();
+        //    var audits = new List<SystemOperatorAudit>();
 
-            foreach (var entry in entries)
-            {
-                var originalValues = entry.OriginalValues;
-                var fechaBaja = (DateTime?)entry.CurrentValues["FechaBaja"];
+        //    // Recuperar el UserId del usuario actual
+        //    var user = GetCurrentUser();
 
-                // Crear registro de auditoria
-                var audit = new SystemOperatorAudit
-                {
-                    TimeStamp = DateTime.UtcNow,
-                    AuditAction = fechaBaja == null ? entry.State.ToString() : EntityState.Deleted.ToString(),
-                    UserId = "",  // Placeholder
-                    Uid = (string)originalValues["Uid"],
-                    Nombre = (string)originalValues["Nombre"],
-                    Tipo = (bool)originalValues["Tipo"],
-                    Pswd = (string)originalValues["Pswd"],
-                    FechaBaja = (DateTime?)originalValues["FechaBaja"]
-                };
+        //    foreach (var entry in entries)
+        //    {
+        //        var originalValues = entry.OriginalValues;
+        //        var fechaBaja = (DateTime?)entry.CurrentValues["FechaBaja"];
 
-                audits.Add(audit);
-            }
+        //        // Obtener el usuario para obtener su rol
+        //        var user = GetCurrentUser();
 
-            await SystemOperatorAudits.AddRangeAsync(audits);
-        }
+        //        var roles = GetUserRoles(user.Id);
 
-        private async Task AuditBillChangesAsync()
+        //        // Crear un registro de auditoría
+        //        var audit = new SystemOperatorAudit
+        //        {
+        //            TimeStamp = DateTime.Now,
+        //            AuditAction = entry.State.ToString(),
+        //            UserId = user.Id,  // Id de quien hizo la modificación
+        //            UserName = (string?)originalValues["UserName"],
+        //            Email = (string)originalValues["Email"]!,
+        //            PhoneNumber = (string?)originalValues["PhoneNumber"],
+        //            FechaBaja = (DateTime?)originalValues["FechaBaja"],
+        //            Rol = roles.FirstOrDefault() ?? "Sin rol asignado"
+        //        };
+
+        //        audits.Add(audit);
+        //    }
+
+        //    await Audits.AddRangeAsync(audits);
+        //}
+
+        public async Task AuditBillChangesAsync()
         {
             var entries = ChangeTracker
                 .Entries<Bill>()
@@ -385,6 +366,9 @@ namespace RESTful_API.Data
                 .ToList();
 
             var audits = new List<BillAudit>();
+
+            // Recuperar el UserId del usuario actual
+            var user = GetCurrentUser();
 
             foreach (var entry in entries)
             {
@@ -395,7 +379,7 @@ namespace RESTful_API.Data
                 {
                     TimeStamp = DateTime.UtcNow,
                     AuditAction = entry.State.ToString(),
-                    UserId = "",  // Placeholder
+                    UserId = user.Id,
                     FechaHora = (DateTime)originalValues["FechaHora"],
                     Total = (decimal)originalValues["Total"],
                     IdOp = (string)originalValues["IdOp"]
@@ -404,10 +388,10 @@ namespace RESTful_API.Data
                 audits.Add(audit);
             }
 
-            await BillAudits.AddRangeAsync(audits);
+            await Audits.AddRangeAsync(audits);
         }
 
-        private async Task AuditOrderChangesAsync()
+        public async Task AuditOrderChangesAsync()
         {
             var entries = ChangeTracker
                 .Entries<Order>()
@@ -415,6 +399,9 @@ namespace RESTful_API.Data
                 .ToList();
 
             var audits = new List<OrderAudit>();
+
+            // Recuperar el UserId del usuario actual
+            var user = GetCurrentUser();
 
             foreach (var entry in entries)
             {
@@ -425,7 +412,7 @@ namespace RESTful_API.Data
                 {
                     TimeStamp = DateTime.UtcNow,
                     AuditAction = entry.State.ToString(),
-                    UserId = "",  // Placeholder
+                    UserId = user.Id,
                     FechaSolicitud = (DateTime)originalValues["FechaSolicitud"],
                     Estado = (string)originalValues["Estado"],
                     IdOp = (string)originalValues["IdOp"],
@@ -435,10 +422,10 @@ namespace RESTful_API.Data
                 audits.Add(audit);
             }
 
-            await OrderAudits.AddRangeAsync(audits);
+            await Audits.AddRangeAsync(audits);
         }
 
-        private async Task AuditBillDetailChangesAsync()
+        public async Task AuditBillDetailChangesAsync()
         {
             var entries = ChangeTracker
                 .Entries<BillDetail>()
@@ -446,6 +433,9 @@ namespace RESTful_API.Data
                 .ToList();
 
             var audits = new List<BillDetailAudit>();
+
+            // Recuperar el UserId del usuario actual
+            var user = GetCurrentUser();
 
             foreach (var entry in entries)
             {
@@ -456,7 +446,7 @@ namespace RESTful_API.Data
                 {
                     TimeStamp = DateTime.UtcNow,
                     AuditAction = entry.State.ToString(),
-                    UserId = "",  // Placeholder
+                    UserId = user.Id,
                     Cantidad = (int)originalValues["Cantidad"],
                     Precio = (decimal)originalValues["Precio"],
                     Subtotal = (decimal)originalValues["Subtotal"],
@@ -467,10 +457,10 @@ namespace RESTful_API.Data
                 audits.Add(audit);
             }
 
-            await BillDetailAudits.AddRangeAsync(audits);
+            await Audits.AddRangeAsync(audits);
         }
 
-        private async Task AuditOrderDetailChangesAsync()
+        public async Task AuditOrderDetailChangesAsync()
         {
             var entries = ChangeTracker
                 .Entries<OrderDetail>()
@@ -478,6 +468,9 @@ namespace RESTful_API.Data
                 .ToList();
 
             var audits = new List<OrderDetailAudit>();
+
+            // Recuperar el UserId del usuario actual
+            var user = GetCurrentUser();
 
             foreach (var entry in entries)
             {
@@ -488,7 +481,7 @@ namespace RESTful_API.Data
                 {
                     TimeStamp = DateTime.UtcNow,
                     AuditAction = entry.State.ToString(),
-                    UserId = "",  // Placeholder
+                    UserId = user.Id,
                     Cantidad = (int)originalValues["Cantidad"],
                     IdProd = (string)originalValues["IdProducto"],
                     IdOc = (int)originalValues["IdOc"]
@@ -497,7 +490,32 @@ namespace RESTful_API.Data
                 audits.Add(audit);
             }
 
-            await OrderDetailAudits.AddRangeAsync(audits);
+            await Audits.AddRangeAsync(audits);
         }
+
+        private SystemOperator GetCurrentUser()
+        {
+            var user = SystemOperators.FirstOrDefault(x => x.UserName == _httpContextAccessor.HttpContext.User.Identity.Name);
+            if (user == null)
+            {
+                throw new InvalidOperationException("No se pudo obtener el ID del usuario autenticado.");
+            }
+
+            return user;
+        }
+        /*
+        private List<string> GetUserRoles(string id)
+        {
+            return SystemOperators
+            .Where(x => x.Id == id)
+            .Join(
+                Role,
+                ur => ur.RoleId,
+                r => r.Id,
+                (ur, r) => r.Name
+            )
+            .ToList();
+        }
+        */
     }
 }
