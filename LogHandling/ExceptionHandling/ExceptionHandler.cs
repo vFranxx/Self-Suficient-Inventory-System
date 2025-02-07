@@ -1,5 +1,3 @@
-using Middleware.Models;
-using Self_Suficient_Inventory_System.API.LogHandling.ExceptionHandling;
 using Self_Suficient_Inventory_System.Data;
 using Self_Suficient_Inventory_System.Models.LogModels;
 using System.Net;

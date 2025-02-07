@@ -1,9 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Win32;
-using Middleware;
-using Self_Suficient_Inventory_System.Data;
-using System;
+﻿using Self_Suficient_Inventory_System.Data;
 
 namespace Self_Suficient_Inventory_System.LogHandling.ResponseHandle
 {

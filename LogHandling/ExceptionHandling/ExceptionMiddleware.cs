@@ -1,7 +1,4 @@
-using Microsoft.AspNetCore.Http;
-using Middleware.Models;
 using Self_Suficient_Inventory_System.Data;
-using System.Net;
 
 namespace Self_Suficient_Inventory_System.LogHandling.ExceptionHandling
 {
