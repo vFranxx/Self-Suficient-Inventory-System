@@ -1,9 +1,10 @@
 using Middleware.Models;
-using RESTful_API.Data;
+using Self_Suficient_Inventory_System.API.LogHandling.ExceptionHandling;
+using Self_Suficient_Inventory_System.Data;
 using Self_Suficient_Inventory_System.Models.LogModels;
 using System.Net;
 
-namespace Middleware
+namespace Self_Suficient_Inventory_System.LogHandling.ExceptionHandling
 {
     public static class ExceptionHandler
     {
@@ -14,7 +15,7 @@ namespace Middleware
         /// <param name="context"></param>
         /// <param name="dbContext"></param>
         /// <param name="writeResponse">Indica si el manejador de excepcion se encargue de escribir la respuesta de la API.
-                                    /// Dejar en falso si se desea evitar que se sobreescriba la respuesta</param>
+        /// Dejar en falso si se desea evitar que se sobreescriba la respuesta</param>
         /// <returns></returns>
         public static async Task<int> HandleExceptionAsync(Exception ex, HttpContext context, AppDbContext dbContext, bool writeResponse = true)
         {

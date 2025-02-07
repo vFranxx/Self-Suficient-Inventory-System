@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Http;
 using Middleware.Models;
-using RESTful_API.Data;
+using Self_Suficient_Inventory_System.Data;
 using System.Net;
 
-namespace Middleware
+namespace Self_Suficient_Inventory_System.LogHandling.ExceptionHandling
 {
     public class ExceptionMiddleware
     {

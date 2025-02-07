@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using RESTful_API.Models.Entities;
-using Self_Suficient_Inventory_System.Shared.DTOs.Role;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
@@ -11,7 +10,7 @@ namespace Self_Suficient_Inventory_System.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "ADMIN")] // Solo administradores pueden acceder
+    //[Authorize(Roles = "ADMIN")] // Solo administradores pueden acceder
     public class RolesController : ControllerBase
     {
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -31,11 +30,11 @@ namespace Self_Suficient_Inventory_System.Controllers
         }
 
         [HttpPost("assign-role")]
-        public async Task<IActionResult> AssignRole(RoleDTO dto)
+        public async Task<IActionResult> AssignAdminRole(string userId)
         {
             // Buscar usuario por ID o email
-            var user = await _userManager.FindByIdAsync(dto.UserIdentifier)
-                     ?? await _userManager.FindByEmailAsync(dto.UserIdentifier);
+            var user = await _userManager.FindByIdAsync(userId)
+                     ?? await _userManager.FindByEmailAsync(userId);
 
             if (user == null)
             {
@@ -43,27 +42,27 @@ namespace Self_Suficient_Inventory_System.Controllers
             }
 
             // Verificar si el rol existe
-            string normalizedRoleName = dto.RoleName.ToUpper();
+            string normalizedRoleName = "ADMIN";
             if (!await _roleManager.RoleExistsAsync(normalizedRoleName))
             {
-                return BadRequest($"El rol '{dto.RoleName}' no existe");
+                return BadRequest($"El rol '{normalizedRoleName}' no existe");
             }
 
             // Verificar si el usuario ya tiene el rol
             if (await _userManager.IsInRoleAsync(user, normalizedRoleName))
             {
-                return Conflict($"El usuario ya tiene el rol '{dto.RoleName}'");
+                return Conflict($"El usuario ya tiene el rol '{normalizedRoleName}'");
             }
 
             // Asignar el rol
             var result = await _userManager.AddToRoleAsync(user, normalizedRoleName);
 
             return result.Succeeded
-                ? Ok($"Rol '{dto.RoleName}' asignado correctamente")
+                ? Ok($"Rol '{normalizedRoleName}' asignado correctamente")
                 : BadRequest($"Error al asignar rol: {string.Join(", ", result.Errors)}");
         }
 
-        [HttpPost("revoke-admin-role")]
+        [HttpPost("revoke-role")]
         public async Task<IActionResult> RevokeAdminRole(string userId)
         {
             // Buscar usuario por ID o email
@@ -99,7 +98,6 @@ namespace Self_Suficient_Inventory_System.Controllers
                 ? Ok($"Rol '{normalizedRoleName}' revocado exitosamente")
                 : BadRequest($"Error al revocar rol: {string.Join(", ", result.Errors)}");
         }
-
     }
 }
 

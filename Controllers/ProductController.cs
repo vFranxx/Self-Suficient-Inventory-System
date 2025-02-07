@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using RESTful_API.Data;
 using RESTful_API.Models.Entities;
+using Self_Suficient_Inventory_System.Data;
 using Shared.DTOs.Product;
 
-namespace RESTful_API.Controllers
+namespace Self_Suficient_Inventory_System.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -99,7 +99,7 @@ namespace RESTful_API.Controllers
             product.Descuento = updateProductoDto.Descuento;
             product.StockMin = updateProductoDto.StockMin;
 
-           await _dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
 
             return Ok(product);
         }
@@ -120,7 +120,7 @@ namespace RESTful_API.Controllers
             }
 
             product.FechaBaja = DateTime.Now;
-            
+
 
             await _dbContext.SaveChangesAsync();
 
@@ -161,8 +161,8 @@ namespace RESTful_API.Controllers
                     SupplierId = sp.Suppliers.ProvId,
                     SupplierName = sp.Suppliers.Referencia,
                     Contact = sp.Suppliers.Contacto,
-                    Mail = sp.Suppliers.Mail,
-                    Direccion = sp.Suppliers.Direccion
+                    sp.Suppliers.Mail,
+                    sp.Suppliers.Direccion
                 })
                 .ToListAsync();
 
@@ -189,7 +189,7 @@ namespace RESTful_API.Controllers
             {
                 return BadRequest("No está permitido restar productos.");
             }
-            
+
             product.Stock += quantity;
 
             await _dbContext.SaveChangesAsync();
@@ -235,7 +235,7 @@ namespace RESTful_API.Controllers
 
             var newProducts = new List<Product>();
 
-            foreach (var item in productsDto) 
+            foreach (var item in productsDto)
             {
                 if (!existingProductIds.Contains(item.ProdId))
                 {
@@ -249,12 +249,12 @@ namespace RESTful_API.Controllers
                         Stock = item.Stock,
                         StockMin = item.StockMin
                     };
-                    
+
                     newProducts.Add(newProduct);
                 }
             }
 
-            if (newProducts.Any()) 
+            if (newProducts.Any())
             {
                 await _dbContext.Products.AddRangeAsync(newProducts);
                 await _dbContext.SaveChangesAsync();

@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using RESTful_API.Data;
 using RESTful_API.Models.Entities;
+using Self_Suficient_Inventory_System.Data;
 using Self_Suficient_Inventory_System.Shared.DTOs.Order;
 
 namespace Self_Suficient_Inventory_System.Controllers
@@ -141,7 +141,7 @@ namespace Self_Suficient_Inventory_System.Controllers
                 return NotFound($"No se encontró el pedido de compra {id}");
             }
 
-            order.Estado = status;
+            order.Estado = status.ToUpper();
 
             if (status == "FINALIZADO")
             {

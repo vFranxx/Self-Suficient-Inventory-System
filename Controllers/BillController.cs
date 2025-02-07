@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using RESTful_API.Data;
 using RESTful_API.Models.Entities;
+using Self_Suficient_Inventory_System.Data;
 using Shared.DTOs.Bill;
 
-namespace RESTful_API.Controllers
+namespace Self_Suficient_Inventory_System.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -69,11 +69,11 @@ namespace RESTful_API.Controllers
         {
             var bill = await _dbContext.Bills.FindAsync(id);
 
-            if (bill == null) 
+            if (bill == null)
             {
                 return NotFound();
             }
-            
+
             return Ok(bill);
         }
 
@@ -136,7 +136,7 @@ namespace RESTful_API.Controllers
         public async Task<IActionResult> DeleteBill(int id)
         {
             var bill = await _dbContext.Bills.FindAsync(id);
-            
+
             if (bill == null)
             {
                 return NotFound($"No se encontró el detalle {id} de factura.");

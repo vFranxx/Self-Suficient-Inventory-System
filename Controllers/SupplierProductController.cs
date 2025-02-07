@@ -2,11 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Writers;
-using RESTful_API.Data;
 using RESTful_API.Models.Entities;
+using Self_Suficient_Inventory_System.Data;
 using Shared.DTOs.SupplierProduct;
 
-namespace RESTful_API.Controllers
+namespace Self_Suficient_Inventory_System.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -73,7 +73,7 @@ namespace RESTful_API.Controllers
         [HttpDelete("{supplierId}/product/{productId}")]
         public async Task<IActionResult> DeleteSupplierProduct(int supplierId, string productId)
         {
-            if (RelationDoesNotExist(supplierId, productId)) 
+            if (RelationDoesNotExist(supplierId, productId))
             {
                 return NotFound($"No se encontró la relación entre el proveedor {supplierId} y el producto {productId}.");
             }

@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using RESTful_API.Data;
 using RESTful_API.Models.Entities;
+using Self_Suficient_Inventory_System.Data;
 using Shared.DTOs.Product;
 using Shared.DTOs.Supplier;
 
-namespace RESTful_API.Controllers
+namespace Self_Suficient_Inventory_System.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -29,7 +29,7 @@ namespace RESTful_API.Controllers
         public async Task<IActionResult> AddSupplier(AddSupplierDto addSupplierDto)
         {
             var supplier = new Supplier()
-            { 
+            {
                 Referencia = addSupplierDto.Referencia,
                 Contacto = addSupplierDto.Contacto,
                 Mail = addSupplierDto.Mail,
@@ -71,7 +71,7 @@ namespace RESTful_API.Controllers
             supplier.Contacto = updateSupplierDto.Contacto;
             supplier.Mail = updateSupplierDto.Mail;
             supplier.Direccion = updateSupplierDto.Direccion;
-            
+
             await _dbContext.SaveChangesAsync();
 
             return Ok(supplier);
@@ -98,7 +98,7 @@ namespace RESTful_API.Controllers
         {
             var products = await _dbContext.SupplierProducts
                 .Where(sp => sp.IdProv == supplierId)
-                .Include(p => p.Products) 
+                .Include(p => p.Products)
                 .Select(sp => new
                 {
                     ProductId = sp.Products.ProdId,

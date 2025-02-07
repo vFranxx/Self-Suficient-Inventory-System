@@ -8,21 +8,27 @@ using Self_Suficient_Inventory_System.Models.AuditModels;
 using Self_Suficient_Inventory_System.Models.LogModels;
 using System.Collections.Specialized;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Self_Suficient_Inventory_System.Services;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System.Reflection;
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 
-namespace RESTful_API.Data
+namespace Self_Suficient_Inventory_System.Data
 {
     public class AppDbContext : IdentityDbContext<SystemOperator>
     {
-        private readonly UserManager<SystemOperator> _userManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAccessor httpContextAccessor) : base(options)
+
+        public AppDbContext(DbContextOptions<AppDbContext> options,
+            IHttpContextAccessor httpContextAccessor) : base(options)
         {
             _httpContextAccessor = httpContextAccessor;
         }
 
+        // Main
         public DbSet<Bill> Bills { get; set; }
         public DbSet<BillDetail> BillDetails { get; set; }
         public DbSet<Order> Orders { get; set; }
@@ -31,10 +37,18 @@ namespace RESTful_API.Data
         public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<SupplierProduct> SupplierProducts { get; set; }
         public DbSet<SystemOperator> SystemOperators { get; set; }
+        // Logs
         public DbSet<ExceptionLogEntry> ExceptionLogEntries { get; set; }
         public DbSet<ResponseLogEntry> ResponseLogEntries { get; set; }
-        public DbSet<AuditBase> Audits { get; set; }
-        
+        // Audit
+        public DbSet<ProductAudit> ProductAudits { get; set; }
+        public DbSet<BillAudit> BillAudits { get; set; }
+        public DbSet<BillDetailAudit> BillDetailAudits { get; set; }
+        public DbSet<OrderAudit> OrderAudits { get; set; }
+        public DbSet<OrderDetailAudit> OrderDetailAudits { get; set; }
+        public DbSet<SupplierAudit> SupplierAudits { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -166,12 +180,12 @@ namespace RESTful_API.Data
 
                 entity.HasOne(sp => sp.Suppliers)
                       .WithMany()
-                      .HasForeignKey(sp => sp.IdProv) 
-                      .OnDelete(DeleteBehavior.Restrict); 
+                      .HasForeignKey(sp => sp.IdProv)
+                      .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(sp => sp.Products)
                       .WithMany()
-                      .HasForeignKey(sp => sp.IdProd) 
+                      .HasForeignKey(sp => sp.IdProd)
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
@@ -181,11 +195,11 @@ namespace RESTful_API.Data
 
                 ExceptionLogEntries.Property(l => l.Id)
                           .UseIdentityColumn();
-                
+
                 ExceptionLogEntries.Property(l => l.StatusCode)
                           .IsRequired(false);
             });
-            
+
             modelBuilder.Entity<ResponseLogEntry>(ResponseLogEntries =>
             {
                 ResponseLogEntries.HasKey(l => l.Id);
@@ -197,325 +211,132 @@ namespace RESTful_API.Data
                           .IsRequired(false);
             });
 
-            // Configuración TPH CORREGIDA
-            modelBuilder.Entity<AuditBase>()
-                .ToTable("Audits")
-                .HasDiscriminator<string>(a => a.AuditType)
-                .HasValue<ProductAudit>("ProductAudit")
-                .HasValue<SupplierAudit>("SupplierAudit")
-                .HasValue<BillAudit>("BillAudit")              
-                .HasValue<BillDetailAudit>("BillDetailAudit") 
-                .HasValue<OrderAudit>("OrderAudit")      
-                .HasValue<OrderDetailAudit>("OrderDetailAudit") 
-                .HasValue<SystemOperatorAudit>("SystemOperatorAudit");
-
-            modelBuilder.Entity<AuditBase>(entity =>
+            void ConfigureAudit<T>(EntityTypeBuilder<T> builder) where T : AuditBase
             {
-                entity.HasKey(a => a.AuditId);
-                entity.Property(a => a.AuditId).UseIdentityColumn();
-                entity.Property(a => a.TimeStamp).IsRequired();
-                entity.Property(a => a.AuditAction).HasMaxLength(50);
-                entity.Property(a => a.UserId).IsRequired().HasMaxLength(450);
-                entity.Property(a => a.AuditType) 
-                    .HasMaxLength(30)
-                    .IsRequired()
-                    .HasColumnName("TipoAuditoria");
-            });
+                builder.HasKey(a => a.AuditId);
+                builder.Property(a => a.AuditId)
+                       .UseIdentityColumn(); // Autoincremental
+            }
+
+            // Aplica la configuración a cada auditoría
+            ConfigureAudit(modelBuilder.Entity<ProductAudit>());
+            ConfigureAudit(modelBuilder.Entity<BillAudit>());
+            ConfigureAudit(modelBuilder.Entity<BillDetailAudit>());
+            ConfigureAudit(modelBuilder.Entity<OrderAudit>());
+            ConfigureAudit(modelBuilder.Entity<OrderDetailAudit>());
+            ConfigureAudit(modelBuilder.Entity<SupplierAudit>());
         }
 
-        /*
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
         {
-            await AuditProductChangesAsync();
+            var userId = GetCurrentUserId();
+            var auditEntries = new List<AuditBase>();
 
-            await AuditSupplierChangesAsync();
+            // 1. Primero detectar cambios SIN modificar el contexto
+            foreach (var entry in ChangeTracker.Entries().ToList()) // Convertir a lista para iterar
+            {
+                if (entry.State == EntityState.Detached || entry.State == EntityState.Unchanged)
+                    continue;
 
-            //await AuditSystemOperatorChangesAsync();
+                var auditEntry = CreateAuditEntry(entry, userId);
+                if (auditEntry != null) auditEntries.Add(auditEntry);
+            }
 
-            await AuditBillChangesAsync();
+            // 2. Guardar cambios principales PRIMERO
+            var result = await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
 
-            await AuditBillDetailChangesAsync();
+            // 3. Ahora añadir las auditorías al contexto
+            foreach (var auditEntry in auditEntries)
+            {
+                Add(auditEntry);
+            }
 
-            await AuditOrderChangesAsync();
+            // 4. Guardar auditorías por SEPARADO
+            if (auditEntries.Any())
+            {
+                await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+            }
 
-            await AuditOrderDetailChangesAsync();
-
-            return await base.SaveChangesAsync(cancellationToken);
+            return result;
         }
 
-        public async Task AuditProductChangesAsync()
+        private AuditBase? CreateAuditEntry(EntityEntry entry, string userId)
         {
-            var entries = ChangeTracker
-                .Entries<Product>()
-                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted)
-                .ToList();
-
-            var audits = new List<ProductAudit>();
-
-            foreach (var entry in entries)
+            var auditType = GetAuditType(entry.Entity.GetType());
+            if (auditType == null)
             {
-                var originalValues = entry.OriginalValues;
-                var fechaBaja = (DateTime?)entry.CurrentValues["FechaBaja"];
+                return null;
+            }
 
-                // Recuperar el UserId del usuario actual
-                var user = GetCurrentUser();
+            var auditEntry = (AuditBase)Activator.CreateInstance(auditType);
+            auditEntry.AuditAction = entry.State.ToString();
+            auditEntry.TimeStamp = DateTime.Now;
+            auditEntry.UserId = userId;
 
-                // Crear un registro de auditoría para cada cambio
-                var productAudit = new ProductAudit
+            PopulateAuditData(entry, auditEntry);
+
+            return auditEntry;
+        }
+
+        private void PopulateAuditData(EntityEntry entry, AuditBase auditEntry)
+        {
+            var entityType = entry.Entity.GetType();
+            var values = entry.State == EntityState.Deleted ? entry.OriginalValues : entry.CurrentValues;
+
+            // Copiar valores específicos de la entidad
+            foreach (var property in values.Properties)
+            {
+                if (property.Name.Equals(nameof(AuditBase.AuditId), StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                var value = values[property];
+                var auditProperty = auditEntry.GetType().GetProperty(property.Name);
+                if (auditProperty != null && auditProperty.CanWrite)
                 {
-                    TimeStamp = DateTime.Now,
-                    AuditAction = fechaBaja == null ? entry.State.ToString() : EntityState.Deleted.ToString(),
-                    UserId = user.Id,
-                    ProdId = (string)originalValues["ProdId"]!,
-                    Descripcion = (string)originalValues["Descripcion"]!,
-                    PrecioUnitario = (decimal)originalValues["PrecioUnitario"]!,
-                    Ganancia = (decimal)originalValues["Ganancia"]!,
-                    Descuento = (decimal?)originalValues["Descuento"],
-                    Stock = (int?)originalValues["Stock"],
-                    StockMin = (int?)originalValues["StockMin"],
-                    FechaBaja = (DateTime?)originalValues["FechaBaja"]
-                };
-
-                audits.Add(productAudit);
+                    auditProperty.SetValue(auditEntry, value);
+                }
             }
 
-            // Añadir el registro de auditoría asincrónicamente
-            await Audits.AddRangeAsync(audits);
-        }
-
-        public async Task AuditSupplierChangesAsync()
-        {
-            var entries = ChangeTracker
-                .Entries<Supplier>()
-                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted)
-                .ToList();
-
-            var audits = new List<SupplierAudit>();
-
-            // Recuperar el UserId del usuario actual
-            var user = GetCurrentUser();
-
-            foreach (var entry in entries)
+            // Manejar valores modificados
+            if (entry.State == EntityState.Added)
             {
-                var originalValues = entry.OriginalValues;
-
-                // Crear registro de auditoria
-                var audit = new SupplierAudit
-                {
-                    TimeStamp = DateTime.Now,
-                    AuditAction = entry.State.ToString(),
-                    UserId = user.Id,
-                    Referencia = (string)originalValues["Referencia"],
-                    Contacto = (string?)originalValues["Contacto"],
-                    Direccion = (string?)originalValues["Direccion"],
-                    Mail = (string?)originalValues["Mail"]
-                };
-
-                audits.Add(audit);
+                auditEntry.NewValues = GetCurrentValuesJson(entry);
             }
-
-            await Audits.AddRangeAsync(audits);
-        }
-
-        //public async Task AuditSystemOperatorChangesAsync()
-        //{
-        //    var entries = ChangeTracker
-        //        .Entries<IdentityUser>()
-        //        .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted)
-        //        .ToList();
-
-        //    var audits = new List<SystemOperatorAudit>();
-
-        //    // Recuperar el UserId del usuario actual
-        //    var user = GetCurrentUser();
-
-        //    foreach (var entry in entries)
-        //    {
-        //        var originalValues = entry.OriginalValues;
-        //        var fechaBaja = (DateTime?)entry.CurrentValues["FechaBaja"];
-
-        //        // Obtener el usuario para obtener su rol
-        //        var user = GetCurrentUser();
-
-        //        var roles = GetUserRoles(user.Id);
-
-        //        // Crear un registro de auditoría
-        //        var audit = new SystemOperatorAudit
-        //        {
-        //            TimeStamp = DateTime.Now,
-        //            AuditAction = entry.State.ToString(),
-        //            UserId = user.Id,  // Id de quien hizo la modificación
-        //            UserName = (string?)originalValues["UserName"],
-        //            Email = (string)originalValues["Email"]!,
-        //            PhoneNumber = (string?)originalValues["PhoneNumber"],
-        //            FechaBaja = (DateTime?)originalValues["FechaBaja"],
-        //            Rol = roles.FirstOrDefault() ?? "Sin rol asignado"
-        //        };
-
-        //        audits.Add(audit);
-        //    }
-
-        //    await Audits.AddRangeAsync(audits);
-        //}
-
-        public async Task AuditBillChangesAsync()
-        {
-            var entries = ChangeTracker
-                .Entries<Bill>()
-                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted)
-                .ToList();
-
-            var audits = new List<BillAudit>();
-
-            // Recuperar el UserId del usuario actual
-            var user = GetCurrentUser();
-
-            foreach (var entry in entries)
+            else if (entry.State == EntityState.Deleted)
             {
-                var originalValues = entry.OriginalValues;
-
-                // Crear registro de auditoria
-                var audit = new BillAudit
-                {
-                    TimeStamp = DateTime.UtcNow,
-                    AuditAction = entry.State.ToString(),
-                    UserId = user.Id,
-                    FechaHora = (DateTime)originalValues["FechaHora"],
-                    Total = (decimal)originalValues["Total"],
-                    IdOp = (string)originalValues["IdOp"]
-                };
-
-                audits.Add(audit);
+                auditEntry.OriginalValues = GetOriginalValuesJson(entry);
             }
-
-            await Audits.AddRangeAsync(audits);
-        }
-
-        public async Task AuditOrderChangesAsync()
-        {
-            var entries = ChangeTracker
-                .Entries<Order>()
-                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted)
-                .ToList();
-
-            var audits = new List<OrderAudit>();
-
-            // Recuperar el UserId del usuario actual
-            var user = GetCurrentUser();
-
-            foreach (var entry in entries)
+            else if (entry.State == EntityState.Modified)
             {
-                var originalValues = entry.OriginalValues;
+                var modifiedProps = entry.Properties
+                .Where(p => p.IsModified)
+                .Select(p => p.Metadata.Name);
 
-                // Crear registro de auditoria
-                var audit = new OrderAudit
-                {
-                    TimeStamp = DateTime.UtcNow,
-                    AuditAction = entry.State.ToString(),
-                    UserId = user.Id,
-                    FechaSolicitud = (DateTime)originalValues["FechaSolicitud"],
-                    Estado = (string)originalValues["Estado"],
-                    IdOp = (string)originalValues["IdOp"],
-                    IdProv = (int)originalValues["IdProv"]
-                };
-
-                audits.Add(audit);
+                auditEntry.ModifiedColumns = string.Join(",", modifiedProps);
+                auditEntry.OriginalValues = GetOriginalValuesJson(entry);
+                auditEntry.NewValues = GetCurrentValuesJson(entry);
             }
-
-            await Audits.AddRangeAsync(audits);
         }
 
-        public async Task AuditBillDetailChangesAsync()
+        private string GetCurrentUserId()
+        => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? "System";
+
+        private Type? GetAuditType(Type entityType)
         {
-            var entries = ChangeTracker
-                .Entries<BillDetail>()
-                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted)
-                .ToList();
-
-            var audits = new List<BillDetailAudit>();
-
-            // Recuperar el UserId del usuario actual
-            var user = GetCurrentUser();
-
-            foreach (var entry in entries)
-            {
-                var originalValues = entry.OriginalValues;
-
-                // Crear registro de auditoria
-                var audit = new BillDetailAudit
-                {
-                    TimeStamp = DateTime.UtcNow,
-                    AuditAction = entry.State.ToString(),
-                    UserId = user.Id,
-                    Cantidad = (int)originalValues["Cantidad"],
-                    Precio = (decimal)originalValues["Precio"],
-                    Subtotal = (decimal)originalValues["Subtotal"],
-                    IdFactura = (int)originalValues["IdFactura"],
-                    IdProducto = (string)originalValues["IdProducto"]
-                };
-
-                audits.Add(audit);
-            }
-
-            await Audits.AddRangeAsync(audits);
+            var auditTypeName = $"{entityType.Name}Audit";
+            return Assembly.GetExecutingAssembly()
+                .GetTypes()
+                .FirstOrDefault(t => t.Name == auditTypeName && t.Namespace == typeof(AuditBase).Namespace);
         }
 
-        public async Task AuditOrderDetailChangesAsync()
+        private string? GetCurrentValuesJson(EntityEntry entry)
         {
-            var entries = ChangeTracker
-                .Entries<OrderDetail>()
-                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted)
-                .ToList();
-
-            var audits = new List<OrderDetailAudit>();
-
-            // Recuperar el UserId del usuario actual
-            var user = GetCurrentUser();
-
-            foreach (var entry in entries)
-            {
-                var originalValues = entry.OriginalValues;
-
-                // Crear registro de auditoria
-                var audit = new OrderDetailAudit
-                {
-                    TimeStamp = DateTime.UtcNow,
-                    AuditAction = entry.State.ToString(),
-                    UserId = user.Id,
-                    Cantidad = (int)originalValues["Cantidad"],
-                    IdProd = (string)originalValues["IdProducto"],
-                    IdOc = (int)originalValues["IdOc"]
-                };
-
-                audits.Add(audit);
-            }
-
-            await Audits.AddRangeAsync(audits);
+            return JsonSerializer.Serialize(entry.CurrentValues.ToObject());
         }
 
-        private SystemOperator GetCurrentUser()
-        {
-            var user = SystemOperators.FirstOrDefault(x => x.UserName == _httpContextAccessor.HttpContext.User.Identity.Name);
-            if (user == null)
-            {
-                throw new InvalidOperationException("No se pudo obtener el ID del usuario autenticado.");
-            }
-
-            return user;
-        }
-        /*
-        private List<string> GetUserRoles(string id)
-        {
-            return SystemOperators
-            .Where(x => x.Id == id)
-            .Join(
-                Role,
-                ur => ur.RoleId,
-                r => r.Id,
-                (ur, r) => r.Name
-            )
-            .ToList();
-        }
-        */
+        private string? GetOriginalValuesJson(EntityEntry entry)
+        => entry.State == EntityState.Modified || entry.State == EntityState.Deleted
+            ? JsonSerializer.Serialize(entry.OriginalValues.ToObject())
+            : null;
     }
 }

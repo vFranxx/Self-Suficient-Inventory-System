@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Win32;
 using Middleware;
-using RESTful_API.Data;
+using Self_Suficient_Inventory_System.Data;
 using System;
 
 namespace Self_Suficient_Inventory_System.LogHandling.ResponseHandle
@@ -19,7 +19,7 @@ namespace Self_Suficient_Inventory_System.LogHandling.ResponseHandle
         public async Task InvokeAsync(HttpContext context, AppDbContext _dbContext)
         {
             var originalBodyStream = context.Response.Body;
-            
+
             var excludedEndpoints = new HashSet<string>()
             {
                 "/api/Test/",
@@ -34,14 +34,15 @@ namespace Self_Suficient_Inventory_System.LogHandling.ResponseHandle
                 "/manage/info",
                 "/manage/info",
                 "/api/Auth/",
-                "/api/Roles/"
+                "/api/Roles/",
+                "/identity/"
             };
 
             if (excludedEndpoints.Any(endpoint => context.Request.Path.Value.StartsWith(endpoint, StringComparison.OrdinalIgnoreCase)))
             {
                 await _next(context);
                 return;
-            }            
+            }
 
             try
             {

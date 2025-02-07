@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using RESTful_API.Data;
 using RESTful_API.Models.Entities;
+using Self_Suficient_Inventory_System.Data;
 using Self_Suficient_Inventory_System.Shared.DTOs.OrderDetail;
 
 namespace Self_Suficient_Inventory_System.Controllers
@@ -72,8 +72,8 @@ namespace Self_Suficient_Inventory_System.Controllers
                 var detail = new OrderDetail
                 {
                     Cantidad = item.Cantidad,
-                    IdProd = item.IdProd,
-                    IdOc = item.IdOc
+                    IdProd = product.ProdId,
+                    IdOc = id
                 };
 
                 // Agregar el detalle directamente al contexto

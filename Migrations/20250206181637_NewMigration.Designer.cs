@@ -5,14 +5,14 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using RESTful_API.Data;
+using Self_Suficient_Inventory_System.Data;
 
 #nullable disable
 
 namespace Self_Suficient_Inventory_System.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250202014207_NewMigration")]
+    [Migration("20250206181637_NewMigration")]
     partial class NewMigration
     {
         /// <inheritdoc />
@@ -287,6 +287,10 @@ namespace Self_Suficient_Inventory_System.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("AuditType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Cantidad")
                         .HasColumnType("int");
 
@@ -298,6 +302,15 @@ namespace Self_Suficient_Inventory_System.Migrations
 
                     b.Property<string>("IdProd")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModifiedColumns")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NewValues")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OriginalValues")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("TimeStamp")
@@ -471,11 +484,24 @@ namespace Self_Suficient_Inventory_System.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("AuditType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("FechaHora")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("IdOp")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModifiedColumns")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NewValues")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OriginalValues")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("TimeStamp")
@@ -505,6 +531,10 @@ namespace Self_Suficient_Inventory_System.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("AuditType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Cantidad")
                         .HasColumnType("int");
 
@@ -513,6 +543,15 @@ namespace Self_Suficient_Inventory_System.Migrations
 
                     b.Property<string>("IdProducto")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModifiedColumns")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NewValues")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OriginalValues")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Precio")
@@ -545,6 +584,10 @@ namespace Self_Suficient_Inventory_System.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("AuditType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Estado")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -559,8 +602,17 @@ namespace Self_Suficient_Inventory_System.Migrations
                     b.Property<int>("IdProv")
                         .HasColumnType("int");
 
+                    b.Property<string>("ModifiedColumns")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NewValues")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("OcId")
                         .HasColumnType("int");
+
+                    b.Property<string>("OriginalValues")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("TimeStamp")
                         .HasColumnType("datetime2");
@@ -586,6 +638,10 @@ namespace Self_Suficient_Inventory_System.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("AuditType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Descripcion")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -598,6 +654,15 @@ namespace Self_Suficient_Inventory_System.Migrations
 
                     b.Property<decimal>("Ganancia")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("ModifiedColumns")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NewValues")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OriginalValues")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("PrecioUnitario")
                         .HasColumnType("decimal(18,2)");
@@ -636,6 +701,10 @@ namespace Self_Suficient_Inventory_System.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("AuditType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Contacto")
                         .HasColumnType("nvarchar(max)");
 
@@ -643,6 +712,15 @@ namespace Self_Suficient_Inventory_System.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Mail")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModifiedColumns")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NewValues")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OriginalValues")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ProvId")
@@ -662,48 +740,6 @@ namespace Self_Suficient_Inventory_System.Migrations
                     b.HasKey("AuditId");
 
                     b.ToTable("SupplierAudits");
-                });
-
-            modelBuilder.Entity("Self_Suficient_Inventory_System.Models.AuditModels.SystemOperatorAudit", b =>
-                {
-                    b.Property<int>("AuditId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AuditId"));
-
-                    b.Property<string>("AuditAction")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("FechaBaja")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Pswd")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("TimeStamp")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("Tipo")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Uid")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("AuditId");
-
-                    b.ToTable("SystemOperatorAudits");
                 });
 
             modelBuilder.Entity("Self_Suficient_Inventory_System.Models.LogModels.ExceptionLogEntry", b =>

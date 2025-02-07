@@ -3,21 +3,22 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using RESTful_API.Data;
 using RESTful_API.Models.Entities;
+using Self_Suficient_Inventory_System.Data;
 using Shared.DTOs.SystemOperator;
 using System.Security.Claims;
 
-namespace RESTful_API.Controllers
+namespace Self_Suficient_Inventory_System.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize(Roles = "ADMIN")]
     public class SystemOperatorController : ControllerBase
     {
-        
+
         private readonly AppDbContext _dbContext;
         private readonly UserManager<SystemOperator> _userManager;
-        public SystemOperatorController(AppDbContext dbContext, UserManager<SystemOperator> userManager) 
+        public SystemOperatorController(AppDbContext dbContext, UserManager<SystemOperator> userManager)
         {
             _dbContext = dbContext;
             _userManager = userManager;
@@ -71,41 +72,6 @@ namespace RESTful_API.Controllers
             return Ok(operatorData);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddOperator(AddOperatorDto addOperatorDto)
-        {
-            var existsEmail = await _userManager.FindByEmailAsync(addOperatorDto.Email);
-            if (existsEmail != null)
-            {
-                return BadRequest($"El usuario con el email '{addOperatorDto.Email}' ya existe.");
-            }
-
-            var existsUsername = await _userManager.FindByNameAsync(addOperatorDto.UserName);
-            if (existsUsername != null)
-            {
-                return BadRequest($"Una persona con el nombre de usuario '{addOperatorDto.UserName}' ya existe.");
-            }
-
-            var newOperator = new SystemOperator
-            {
-                UserName = addOperatorDto.UserName ?? addOperatorDto.Email,
-                Email = addOperatorDto.Email,
-                PasswordHash = addOperatorDto.Password,
-                PhoneNumber = addOperatorDto.PhoneNumber
-            };
-
-            var result = await _userManager.CreateAsync(newOperator, addOperatorDto.Password);
-
-            if (!result.Succeeded)
-            {
-                return BadRequest(result.Errors);
-            }
-
-            await _userManager.AddToRoleAsync(newOperator, "OPERADOR");
-
-            return Ok(newOperator);
-        }
-
         [HttpPut("{id}")]
         [Authorize(Roles = "OPERADOR, ADMIN")]
         public async Task<IActionResult> UpdateOperator(string id, UpdateOperatorDto updateOperatorDto)
@@ -122,7 +88,7 @@ namespace RESTful_API.Controllers
             {
                 return NotFound("Usuario no encontrado");
             }
-            
+
             if (systemOperator.UserName != updateOperatorDto.UserName)
             {
                 var existingUser = await _userManager.FindByNameAsync(updateOperatorDto.UserName);
@@ -132,10 +98,10 @@ namespace RESTful_API.Controllers
                 }
             }
 
-            if (systemOperator.Email != updateOperatorDto.Email) 
+            if (systemOperator.Email != updateOperatorDto.Email)
             {
                 var existingEmail = await _userManager.FindByEmailAsync(updateOperatorDto.Email);
-                if (existingEmail != null && existingEmail.Id != id) 
+                if (existingEmail != null && existingEmail.Id != id)
                 {
                     return BadRequest($"El email '{updateOperatorDto.Email}' ya está en uso.");
                 }
@@ -175,7 +141,6 @@ namespace RESTful_API.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> SoftDeleteOperator(string id)
         {
             var systemOperator = await _userManager.FindByIdAsync(id);
@@ -185,7 +150,7 @@ namespace RESTful_API.Controllers
                 return NotFound();
             }
 
-            if (systemOperator.FechaBaja != null) 
+            if (systemOperator.FechaBaja != null)
             {
                 return BadRequest($"El usuario {id} ya está dado de baja.");
             }
@@ -199,7 +164,6 @@ namespace RESTful_API.Controllers
         }
 
         [HttpPost("{id}")]
-        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> ActivateOperator(string id)
         {
             var systemOperator = await _userManager.FindByIdAsync(id);
@@ -209,7 +173,7 @@ namespace RESTful_API.Controllers
                 return NotFound();
             }
 
-            if (systemOperator.FechaBaja == null) 
+            if (systemOperator.FechaBaja == null)
             {
                 return BadRequest($"El usuario {id} ya está dado de alta");
             }

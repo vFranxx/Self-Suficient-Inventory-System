@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using RESTful_API.Data;
 using RESTful_API.Models.Entities;
+using Self_Suficient_Inventory_System.Data;
 using Shared.DTOs.BillDetail;
 
-namespace RESTful_API.Controllers
+namespace Self_Suficient_Inventory_System.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -75,15 +75,15 @@ namespace RESTful_API.Controllers
                 }
 
                 // Calcular subtotal
-                var subtotal = item.Cantidad * item.Precio;
+                var subtotal = item.Cantidad * product.PrecioUnitario;
 
                 // Crear el detalle
                 var detail = new BillDetail
                 {
                     IdFactura = id,
-                    IdProducto = item.IdProducto,
+                    IdProducto = product.ProdId,
                     Cantidad = item.Cantidad,
-                    Precio = item.Precio,
+                    Precio = product.PrecioUnitario,
                     Subtotal = subtotal
                 };
 
@@ -151,14 +151,14 @@ namespace RESTful_API.Controllers
             product.Stock += stockAdjustment;
 
             // Actualizar la cantidad y subtotal del detalle
-            var nuevoSubtotal = updateDto.Cantidad * product.PrecioUnitario; 
+            var nuevoSubtotal = updateDto.Cantidad * product.PrecioUnitario;
             detail.Cantidad = updateDto.Cantidad;
             detail.Subtotal = nuevoSubtotal;
 
             var bill = await _dbContext.Bills.FindAsync(detail.IdFactura);
             if (bill != null)
             {
-                bill.Total += (nuevoSubtotal - detail.Subtotal);
+                bill.Total += nuevoSubtotal - detail.Subtotal;
             }
 
             await _dbContext.SaveChangesAsync();

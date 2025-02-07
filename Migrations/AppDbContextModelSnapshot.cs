@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using RESTful_API.Data;
+using Self_Suficient_Inventory_System.Data;
 
 #nullable disable
 
@@ -272,6 +272,56 @@ namespace Self_Suficient_Inventory_System.Migrations
                     b.ToTable("OrderDetails");
                 });
 
+            modelBuilder.Entity("RESTful_API.Models.Entities.OrderDetailAudit", b =>
+                {
+                    b.Property<int>("AuditId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AuditId"));
+
+                    b.Property<string>("AuditAction")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AuditType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DetOcId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IdOc")
+                        .HasColumnType("int");
+
+                    b.Property<string>("IdProd")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModifiedColumns")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NewValues")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OriginalValues")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("TimeStamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("AuditId");
+
+                    b.ToTable("OrderDetailAudits");
+                });
+
             modelBuilder.Entity("RESTful_API.Models.Entities.Product", b =>
                 {
                     b.Property<string>("ProdId")
@@ -419,7 +469,7 @@ namespace Self_Suficient_Inventory_System.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Self_Suficient_Inventory_System.Models.AuditModels.AuditBase", b =>
+            modelBuilder.Entity("Self_Suficient_Inventory_System.Models.AuditModels.BillAudit", b =>
                 {
                     b.Property<int>("AuditId")
                         .ValueGeneratedOnAdd()
@@ -429,30 +479,264 @@ namespace Self_Suficient_Inventory_System.Migrations
 
                     b.Property<string>("AuditAction")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("AuditType")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("TipoAuditoria");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("FechaHora")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("IdOp")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModifiedColumns")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NewValues")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OriginalValues")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("TimeStamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("Total")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("AuditId");
+
+                    b.ToTable("BillAudits");
+                });
+
+            modelBuilder.Entity("Self_Suficient_Inventory_System.Models.AuditModels.BillDetailAudit", b =>
+                {
+                    b.Property<int>("AuditId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AuditId"));
+
+                    b.Property<string>("AuditAction")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AuditType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IdFactura")
+                        .HasColumnType("int");
+
+                    b.Property<string>("IdProducto")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModifiedColumns")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NewValues")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OriginalValues")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Precio")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Subtotal")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("TimeStamp")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("AuditId");
 
-                    b.ToTable("Audits", (string)null);
+                    b.ToTable("BillDetailAudits");
+                });
 
-                    b.HasDiscriminator<string>("AuditType").HasValue("AuditBase");
+            modelBuilder.Entity("Self_Suficient_Inventory_System.Models.AuditModels.OrderAudit", b =>
+                {
+                    b.Property<int>("AuditId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
 
-                    b.UseTphMappingStrategy();
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AuditId"));
+
+                    b.Property<string>("AuditAction")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AuditType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("FechaSolicitud")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("IdOp")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("IdProv")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ModifiedColumns")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NewValues")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("OcId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OriginalValues")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("TimeStamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("AuditId");
+
+                    b.ToTable("OrderAudits");
+                });
+
+            modelBuilder.Entity("Self_Suficient_Inventory_System.Models.AuditModels.ProductAudit", b =>
+                {
+                    b.Property<int>("AuditId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AuditId"));
+
+                    b.Property<string>("AuditAction")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AuditType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("Descuento")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("FechaBaja")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("Ganancia")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("ModifiedColumns")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NewValues")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OriginalValues")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("PrecioUnitario")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("ProdId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Stock")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("StockMin")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("TimeStamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("AuditId");
+
+                    b.ToTable("ProductAudits");
+                });
+
+            modelBuilder.Entity("Self_Suficient_Inventory_System.Models.AuditModels.SupplierAudit", b =>
+                {
+                    b.Property<int>("AuditId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AuditId"));
+
+                    b.Property<string>("AuditAction")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AuditType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Contacto")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Direccion")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Mail")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModifiedColumns")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NewValues")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OriginalValues")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ProvId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Referencia")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("TimeStamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("AuditId");
+
+                    b.ToTable("SupplierAudits");
                 });
 
             modelBuilder.Entity("Self_Suficient_Inventory_System.Models.LogModels.ExceptionLogEntry", b =>
@@ -532,188 +816,6 @@ namespace Self_Suficient_Inventory_System.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ResponseLogEntries");
-                });
-
-            modelBuilder.Entity("RESTful_API.Models.Entities.OrderDetailAudit", b =>
-                {
-                    b.HasBaseType("Self_Suficient_Inventory_System.Models.AuditModels.AuditBase");
-
-                    b.Property<int>("Cantidad")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DetOcId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IdOc")
-                        .HasColumnType("int");
-
-                    b.Property<string>("IdProd")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasDiscriminator().HasValue("OrderDetailAudit");
-                });
-
-            modelBuilder.Entity("Self_Suficient_Inventory_System.Models.AuditModels.BillAudit", b =>
-                {
-                    b.HasBaseType("Self_Suficient_Inventory_System.Models.AuditModels.AuditBase");
-
-                    b.Property<DateTime>("FechaHora")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("IdOp")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Total")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasDiscriminator().HasValue("BillAudit");
-                });
-
-            modelBuilder.Entity("Self_Suficient_Inventory_System.Models.AuditModels.BillDetailAudit", b =>
-                {
-                    b.HasBaseType("Self_Suficient_Inventory_System.Models.AuditModels.AuditBase");
-
-                    b.Property<int>("Cantidad")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IdFactura")
-                        .HasColumnType("int");
-
-                    b.Property<string>("IdProducto")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Precio")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("Subtotal")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.ToTable("Audits", t =>
-                        {
-                            t.Property("Cantidad")
-                                .HasColumnName("BillDetailAudit_Cantidad");
-                        });
-
-                    b.HasDiscriminator().HasValue("BillDetailAudit");
-                });
-
-            modelBuilder.Entity("Self_Suficient_Inventory_System.Models.AuditModels.OrderAudit", b =>
-                {
-                    b.HasBaseType("Self_Suficient_Inventory_System.Models.AuditModels.AuditBase");
-
-                    b.Property<string>("Estado")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("FechaSolicitud")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("IdOp")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("IdProv")
-                        .HasColumnType("int");
-
-                    b.Property<int>("OcId")
-                        .HasColumnType("int");
-
-                    b.ToTable("Audits", t =>
-                        {
-                            t.Property("IdOp")
-                                .HasColumnName("OrderAudit_IdOp");
-                        });
-
-                    b.HasDiscriminator().HasValue("OrderAudit");
-                });
-
-            modelBuilder.Entity("Self_Suficient_Inventory_System.Models.AuditModels.ProductAudit", b =>
-                {
-                    b.HasBaseType("Self_Suficient_Inventory_System.Models.AuditModels.AuditBase");
-
-                    b.Property<string>("Descripcion")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("Descuento")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("FechaBaja")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("Ganancia")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("PrecioUnitario")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("ProdId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("Stock")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("StockMin")
-                        .HasColumnType("int");
-
-                    b.HasDiscriminator().HasValue("ProductAudit");
-                });
-
-            modelBuilder.Entity("Self_Suficient_Inventory_System.Models.AuditModels.SupplierAudit", b =>
-                {
-                    b.HasBaseType("Self_Suficient_Inventory_System.Models.AuditModels.AuditBase");
-
-                    b.Property<string>("Contacto")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Direccion")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Mail")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ProvId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Referencia")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasDiscriminator().HasValue("SupplierAudit");
-                });
-
-            modelBuilder.Entity("Self_Suficient_Inventory_System.Models.AuditModels.SystemOperatorAudit", b =>
-                {
-                    b.HasBaseType("Self_Suficient_Inventory_System.Models.AuditModels.AuditBase");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("FechaBaja")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Rol")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.ToTable("Audits", t =>
-                        {
-                            t.Property("FechaBaja")
-                                .HasColumnName("SystemOperatorAudit_FechaBaja");
-                        });
-
-                    b.HasDiscriminator().HasValue("SystemOperatorAudit");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using RESTful_API.Data;
+using Self_Suficient_Inventory_System.Data;
 using Self_Suficient_Inventory_System.Models.AuditModels;
 
 namespace Self_Suficient_Inventory_System.Controllers
@@ -23,28 +23,6 @@ namespace Self_Suficient_Inventory_System.Controllers
             throw new NotImplementedException();
         }
 
-        [HttpGet("audit-results/{auditType}")]
-        public async Task<IActionResult> GetAuditResultsByType(string auditType)
-        {
-            try
-            {
-                var audits = await _dbContext.Audits
-                                             .Where(a => a.AuditType == auditType)
-                                             .ToListAsync();
-
-                if (audits == null || !audits.Any())
-                {
-                    return NotFound($"No audit records found for type: {auditType}");
-                }
-
-                return Ok(audits);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
         [HttpGet("ExceptionLogEntries")]
         public async Task<IActionResult> GetExceptionLogs()
         {
@@ -57,11 +35,38 @@ namespace Self_Suficient_Inventory_System.Controllers
             return Ok(await _dbContext.ResponseLogEntries.ToListAsync());
         }
 
-        [Authorize]
-        [HttpGet("sensitive-data")]
-        public IActionResult GetSensitiveData()
+        [HttpGet("ProductAudit-entries")]
+        public async Task<IActionResult> GetProductEntries()
         {
-            return Ok("Información confidencial para admins");
+            return Ok(await _dbContext.ProductAudits.ToListAsync());
+        }
+
+        [HttpGet("SupplierAudit-entries")]
+        public async Task<IActionResult> GetSupplierEntries()
+        {
+            return Ok(await _dbContext.SupplierAudits.ToListAsync());
+        }
+
+        [HttpGet("BillAudit-entries")]
+        public async Task<IActionResult> GetBillEntries()
+        {
+            return Ok(await _dbContext.BillAudits.ToListAsync());
+        }
+        [HttpGet("BillDetailAudit-entries")]
+        public async Task<IActionResult> GetBillDetailEntries()
+        {
+            return Ok(await _dbContext.BillDetailAudits.ToListAsync());
+        }
+
+        [HttpGet("OrderAudit-entries")]
+        public async Task<IActionResult> GetOrderEntries()
+        {
+            return Ok(await _dbContext.OrderAudits.ToListAsync());
+        }
+        [HttpGet("OrderDetailAudit-entries")]
+        public async Task<IActionResult> GetOrderDetailEntries()
+        {
+            return Ok(await _dbContext.OrderDetailAudits.ToListAsync());
         }
     }
 }
