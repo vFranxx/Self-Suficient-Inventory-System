@@ -148,10 +148,10 @@ namespace Self_Suficient_Inventory_System.Data
                       .HasColumnType("decimal(12,2)");
 
                 entity.Property(p => p.Ganancia)
-                      .HasColumnType("decimal(5,2)");
+                      .HasColumnType("decimal(12,2)");
 
                 entity.Property(p => p.Descuento)
-                      .HasColumnType("decimal(2,1)");
+                      .HasColumnType("decimal(12,2)");
             });
 
             modelBuilder.Entity<Supplier>(entity =>
