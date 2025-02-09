@@ -36,6 +36,15 @@ namespace Self_Suficient_Inventory_System.Controllers
                 Direccion = addSupplierDto.Direccion
             };
 
+            if (await _dbContext.Suppliers.AnyAsync())
+            {
+                supplier.ProvId = await _dbContext.Suppliers.MaxAsync(s => s.ProvId) + 1;
+            }
+            else
+            {
+                supplier.ProvId = 1;
+            }
+
             await _dbContext.Suppliers.AddAsync(supplier);
             await _dbContext.SaveChangesAsync();
 
@@ -117,6 +126,10 @@ namespace Self_Suficient_Inventory_System.Controllers
         [HttpPost("supplier-list")]
         public async Task<IActionResult> InsertSupplierList(List<AddSupplierDto> supplierDto)
         {
+            int nextProvId = await _dbContext.Suppliers.AnyAsync()
+            ? await _dbContext.Suppliers.MaxAsync(s => s.ProvId) + 1
+            : 1;
+
             foreach (var item in supplierDto)
             {
                 // Validar existencia del proveedor
@@ -126,6 +139,7 @@ namespace Self_Suficient_Inventory_System.Controllers
                 {
                     var newSupplier = new Supplier
                     {
+                        ProvId = nextProvId,
                         Referencia = item.Referencia,
                         Contacto = item.Contacto,
                         Direccion = item.Direccion,
@@ -133,6 +147,7 @@ namespace Self_Suficient_Inventory_System.Controllers
                     };
 
                     await _dbContext.Suppliers.FindAsync(newSupplier);
+                    nextProvId++;
                 }
             }
 

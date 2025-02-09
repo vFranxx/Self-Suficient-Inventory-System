@@ -158,10 +158,7 @@ namespace Self_Suficient_Inventory_System.Migrations
             modelBuilder.Entity("RESTful_API.Models.Entities.Bill", b =>
                 {
                     b.Property<int>("FacId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FacId"));
 
                     b.Property<DateTime>("FechaHora")
                         .HasColumnType("datetime2");
@@ -183,10 +180,7 @@ namespace Self_Suficient_Inventory_System.Migrations
             modelBuilder.Entity("RESTful_API.Models.Entities.BillDetail", b =>
                 {
                     b.Property<int>("FacDetId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FacDetId"));
 
                     b.Property<int>("Cantidad")
                         .HasColumnType("int");
@@ -216,10 +210,7 @@ namespace Self_Suficient_Inventory_System.Migrations
             modelBuilder.Entity("RESTful_API.Models.Entities.Order", b =>
                 {
                     b.Property<int>("OcId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OcId"));
 
                     b.Property<string>("Estado")
                         .IsRequired()
@@ -248,10 +239,7 @@ namespace Self_Suficient_Inventory_System.Migrations
             modelBuilder.Entity("RESTful_API.Models.Entities.OrderDetail", b =>
                 {
                     b.Property<int>("DetOcId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DetOcId"));
 
                     b.Property<int>("Cantidad")
                         .HasColumnType("int");
@@ -270,56 +258,6 @@ namespace Self_Suficient_Inventory_System.Migrations
                     b.HasIndex("IdProd");
 
                     b.ToTable("OrderDetails");
-                });
-
-            modelBuilder.Entity("RESTful_API.Models.Entities.OrderDetailAudit", b =>
-                {
-                    b.Property<int>("AuditId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AuditId"));
-
-                    b.Property<string>("AuditAction")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AuditType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Cantidad")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DetOcId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IdOc")
-                        .HasColumnType("int");
-
-                    b.Property<string>("IdProd")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ModifiedColumns")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NewValues")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OriginalValues")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("TimeStamp")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("AuditId");
-
-                    b.ToTable("OrderDetailAudits");
                 });
 
             modelBuilder.Entity("RESTful_API.Models.Entities.Product", b =>
@@ -359,10 +297,7 @@ namespace Self_Suficient_Inventory_System.Migrations
             modelBuilder.Entity("RESTful_API.Models.Entities.Supplier", b =>
                 {
                     b.Property<int>("ProvId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProvId"));
 
                     b.Property<string>("Contacto")
                         .HasMaxLength(20)
@@ -621,6 +556,56 @@ namespace Self_Suficient_Inventory_System.Migrations
                     b.HasKey("AuditId");
 
                     b.ToTable("OrderAudits");
+                });
+
+            modelBuilder.Entity("Self_Suficient_Inventory_System.Models.AuditModels.OrderDetailAudit", b =>
+                {
+                    b.Property<int>("AuditId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AuditId"));
+
+                    b.Property<string>("AuditAction")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AuditType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DetOcId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IdOc")
+                        .HasColumnType("int");
+
+                    b.Property<string>("IdProd")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModifiedColumns")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NewValues")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OriginalValues")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("TimeStamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("AuditId");
+
+                    b.ToTable("OrderDetailAudits");
                 });
 
             modelBuilder.Entity("Self_Suficient_Inventory_System.Models.AuditModels.ProductAudit", b =>

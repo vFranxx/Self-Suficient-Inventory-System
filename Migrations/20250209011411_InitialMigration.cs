@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Self_Suficient_Inventory_System.Migrations
 {
     /// <inheritdoc />
-    public partial class NewMigration : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -199,8 +199,8 @@ namespace Self_Suficient_Inventory_System.Migrations
                     ProdId = table.Column<string>(type: "nvarchar(13)", maxLength: 13, nullable: false),
                     Descripcion = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false),
                     PrecioUnitario = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
-                    Ganancia = table.Column<decimal>(type: "decimal(5,2)", nullable: false),
-                    Descuento = table.Column<decimal>(type: "decimal(2,1)", nullable: true),
+                    Ganancia = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
+                    Descuento = table.Column<decimal>(type: "decimal(12,2)", nullable: true),
                     Stock = table.Column<int>(type: "int", nullable: true),
                     StockMin = table.Column<int>(type: "int", nullable: true),
                     FechaBaja = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -258,8 +258,7 @@ namespace Self_Suficient_Inventory_System.Migrations
                 name: "Suppliers",
                 columns: table => new
                 {
-                    ProvId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProvId = table.Column<int>(type: "int", nullable: false),
                     Referencia = table.Column<string>(type: "nvarchar(80)", maxLength: 80, nullable: false),
                     Contacto = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     Mail = table.Column<string>(type: "nvarchar(80)", maxLength: 80, nullable: true),
@@ -380,8 +379,7 @@ namespace Self_Suficient_Inventory_System.Migrations
                 name: "Bills",
                 columns: table => new
                 {
-                    FacId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FacId = table.Column<int>(type: "int", nullable: false),
                     FechaHora = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Total = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     IdOp = table.Column<string>(type: "nvarchar(450)", nullable: false)
@@ -401,8 +399,7 @@ namespace Self_Suficient_Inventory_System.Migrations
                 name: "Orders",
                 columns: table => new
                 {
-                    OcId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OcId = table.Column<int>(type: "int", nullable: false),
                     FechaSolicitud = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Estado = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     IdOp = table.Column<string>(type: "nvarchar(450)", nullable: false),
@@ -453,8 +450,7 @@ namespace Self_Suficient_Inventory_System.Migrations
                 name: "BillDetails",
                 columns: table => new
                 {
-                    FacDetId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FacDetId = table.Column<int>(type: "int", nullable: false),
                     Cantidad = table.Column<int>(type: "int", nullable: false),
                     Precio = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
                     Subtotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
@@ -482,8 +478,7 @@ namespace Self_Suficient_Inventory_System.Migrations
                 name: "OrderDetails",
                 columns: table => new
                 {
-                    DetOcId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    DetOcId = table.Column<int>(type: "int", nullable: false),
                     Cantidad = table.Column<int>(type: "int", nullable: false),
                     IdProd = table.Column<string>(type: "nvarchar(13)", nullable: false),
                     IdOc = table.Column<int>(type: "int", nullable: false)

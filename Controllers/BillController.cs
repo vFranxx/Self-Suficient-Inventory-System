@@ -126,6 +126,15 @@ namespace Self_Suficient_Inventory_System.Controllers
                 //Operators = systemOperatorW
             };
 
+            if (await _dbContext.Bills.AnyAsync())
+            {
+                bill.FacId = await _dbContext.Bills.MaxAsync(b => b.FacId) + 1;
+            }
+            else
+            {
+                bill.FacId = 1;
+            }
+
             await _dbContext.Bills.AddAsync(bill);
             await _dbContext.SaveChangesAsync();
 

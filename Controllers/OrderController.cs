@@ -99,6 +99,15 @@ namespace Self_Suficient_Inventory_System.Controllers
                 IdProv = orderDto.IdProv
             };
 
+            if (await _dbContext.Orders.AnyAsync())
+            {
+                order.OcId = await _dbContext.Orders.MaxAsync(o => o.OcId) + 1;
+            }
+            else
+            {
+                order.OcId = 1;
+            }
+
             await _dbContext.Orders.AddAsync(order);
             await _dbContext.SaveChangesAsync();
 

@@ -76,6 +76,15 @@ namespace Self_Suficient_Inventory_System.Controllers
                     IdOc = id
                 };
 
+                if (await _dbContext.OrderDetails.AnyAsync())
+                {
+                    detail.DetOcId = await _dbContext.OrderDetails.MaxAsync(s => s.DetOcId) + 1;
+                }
+                else
+                {
+                    detail.DetOcId = 1;
+                }
+
                 // Agregar el detalle directamente al contexto
                 await _dbContext.OrderDetails.AddAsync(detail);
 
@@ -117,5 +126,7 @@ namespace Self_Suficient_Inventory_System.Controllers
 
             return Ok($"Detalle {id} actualizado correctamente");
         }
+        
+        
     }
 }

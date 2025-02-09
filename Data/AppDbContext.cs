@@ -59,7 +59,7 @@ namespace Self_Suficient_Inventory_System.Data
 
                 // Configuración de los atributos
                 entity.Property(b => b.FacId)
-                      .UseIdentityColumn(); // Identity
+                      .ValueGeneratedNever();
 
                 entity.Property(b => b.Total)
                       .HasColumnType("decimal(18,2)");
@@ -76,7 +76,7 @@ namespace Self_Suficient_Inventory_System.Data
                 entity.HasKey(bd => bd.FacDetId);
 
                 entity.Property(bd => bd.FacDetId)
-                      .UseIdentityColumn();
+                      .ValueGeneratedNever();
 
                 entity.Property(bd => bd.Precio)
                       .HasColumnType("decimal(12,2)");
@@ -100,7 +100,7 @@ namespace Self_Suficient_Inventory_System.Data
                 entity.HasKey(o => o.OcId);
 
                 entity.Property(o => o.OcId)
-                      .UseIdentityColumn();
+                      .ValueGeneratedNever();
 
                 entity.Property(o => o.Estado)
                       .HasMaxLength(20);
@@ -121,7 +121,7 @@ namespace Self_Suficient_Inventory_System.Data
                 entity.HasKey(od => od.DetOcId);
 
                 entity.Property(od => od.DetOcId)
-                      .UseIdentityColumn();
+                      .ValueGeneratedNever();
 
                 entity.HasOne(od => od.Orders)
                       .WithMany()
@@ -159,7 +159,7 @@ namespace Self_Suficient_Inventory_System.Data
                 entity.HasKey(s => s.ProvId);
 
                 entity.Property(s => s.ProvId)
-                      .UseIdentityColumn();
+                      .ValueGeneratedNever();
 
                 entity.Property(s => s.Referencia)
                       .HasMaxLength(80);

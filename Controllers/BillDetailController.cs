@@ -87,6 +87,15 @@ namespace Self_Suficient_Inventory_System.Controllers
                     Subtotal = subtotal
                 };
 
+                if (await _dbContext.BillDetails.AnyAsync())
+                {
+                    detail.FacDetId = await _dbContext.BillDetails.MaxAsync(d => d.FacDetId) + 1;
+                }
+                else
+                {
+                    detail.FacDetId = 1;
+                }
+
                 // Agregar el detalle directamente al contexto
                 await _dbContext.BillDetails.AddAsync(detail);
 
