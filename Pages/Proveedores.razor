@@ -1,0 +1,124 @@
+﻿@page "/Proveedores"
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@using FrontendBlazor.Models.Entities
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<h3>Gestión de Proveedores</h3>
+
+@if (proveedores == null || !proveedores.Any())
+{
+    <p>Cargando proveedores...</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Referencia</th>
+                <th>Contacto</th>
+                <th>Email</th>
+                <th>Dirección</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var proveedor in proveedores)
+            {
+                <tr>
+                    <td>@proveedor.ProvId</td>
+                    <td>@proveedor.Referencia</td>
+                    <td>@proveedor.Contacto</td>
+                    <td>@proveedor.Mail</td>
+                    <td>@proveedor.Direccion</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => EditarProveedor(proveedor)">Editar</button>
+                        <button class="btn btn-danger" @onclick="() => EliminarProveedor(proveedor.ProvId)">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<button class="btn btn-success" @onclick="NuevoProveedor">Agregar Proveedor</button>
+
+@if (proveedorSeleccionado != null)
+{
+    <EditForm Model="proveedorSeleccionado" OnValidSubmit="GuardarProveedor">
+        <DataAnnotationsValidator />
+        <div>
+            <label>Referencia:</label>
+            <InputText @bind="proveedorSeleccionado.Referencia" />
+        </div>
+        <div>
+            <label>Contacto:</label>
+            <InputText @bind="proveedorSeleccionado.Contacto" />
+        </div>
+        <div>
+            <label>Email:</label>
+            <InputText @bind="proveedorSeleccionado.Mail" />
+        </div>
+        <div>
+            <label>Dirección:</label>
+            <InputText @bind="proveedorSeleccionado.Direccion" />
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <button type="button" class="btn btn-secondary" @onclick="CancelarEdicion">Cancelar</button>
+    </EditForm>
+}
+
+@code {
+    private List<Supplier> proveedores = new List<Supplier>();
+    private Supplier proveedorSeleccionado;
+
+    protected override async Task OnInitializedAsync()
+    {
+        proveedores = await Http.GetFromJsonAsync<List<Supplier>>("api/proveedores") ?? new List<Supplier>();
+    }
+
+    private void NuevoProveedor()
+    {
+        proveedorSeleccionado = new Supplier { Referencia = "", Contacto = "", Mail = "", Direccion = "" };
+    }
+
+    private void EditarProveedor(Supplier proveedor)
+    {
+        proveedorSeleccionado = new Supplier
+            {
+                ProvId = proveedor.ProvId,
+                Referencia = proveedor.Referencia,
+                Contacto = proveedor.Contacto,
+                Mail = proveedor.Mail,
+                Direccion = proveedor.Direccion
+            };
+    }
+
+    private async Task GuardarProveedor()
+    {
+        if (proveedorSeleccionado.ProvId == 0)
+        {
+            await Http.PostAsJsonAsync("api/proveedores", proveedorSeleccionado);
+        }
+        else
+        {
+            await Http.PutAsJsonAsync($"api/proveedores/{proveedorSeleccionado.ProvId}", proveedorSeleccionado);
+        }
+
+        proveedores = await Http.GetFromJsonAsync<List<Supplier>>("api/proveedores") ?? new List<Supplier>();
+        proveedorSeleccionado = null;
+    }
+
+    private async Task EliminarProveedor(int id)
+    {
+        await Http.DeleteAsync($"api/proveedores/{id}");
+        proveedores = await Http.GetFromJsonAsync<List<Supplier>>("api/proveedores") ?? new List<Supplier>();
+    }
+
+    private void CancelarEdicion()
+    {
+        proveedorSeleccionado = null;
+    }
+}

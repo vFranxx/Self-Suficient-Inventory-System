@@ -1,7 +1,8 @@
 ﻿@page "/Sales"
-
-@using BlazorFront.Models.Entities
+@using FrontendBlazor.Models.Entities
+@using FrontendBlazor.Services
 @using System.Linq
+@using Microsoft.AspNetCore.Components.Web
 @inject NavigationManager Navigation
 
 <h3>Venta de Productos</h3>
@@ -54,7 +55,14 @@ else
 
 @code {
     private Bill Factura = new Bill { Detalles = new List<BillDetail>() };
-    private BillDetail NuevoDetalle = new BillDetail();
+    private BillDetail NuevoDetalle = new BillDetail
+        {
+            IdProducto = string.Empty,
+            Cantidad = 1,
+            Precio = 0m,
+            Subtotal = 0m,
+            IdFactura = 0
+        };
 
     private void AgregarProducto()
     {
@@ -66,14 +74,22 @@ else
         NuevoDetalle.Subtotal = NuevoDetalle.Cantidad * NuevoDetalle.Precio;
         Factura.Detalles.Add(new BillDetail
             {
-                IdProducto = NuevoDetalle.IdProducto,
-                Cantidad = NuevoDetalle.Cantidad,
-                Precio = NuevoDetalle.Precio,
-                Subtotal = NuevoDetalle.Subtotal
+                IdProducto = string.Empty,
+                Cantidad = 1,
+                Precio = 0m,
+                Subtotal = 0m,
+                IdFactura = 0
             });
 
         Factura.Total = Factura.Detalles.Sum(d => d.Subtotal);
-        NuevoDetalle = new BillDetail();
+        NuevoDetalle = new BillDetail
+            {
+                IdProducto = string.Empty,
+                Cantidad = 1,
+                Precio = 0m,
+                Subtotal = 0m,
+                IdFactura = 0
+            };
     }
 
     private void RegistrarVenta()

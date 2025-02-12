@@ -1,0 +1,173 @@
+﻿@page "/productos"
+@using FrontendBlazor.Models.Entities;
+@using Microsoft.AspNetCore.Components.Forms;
+@using FrontendBlazor.Services;
+@using Microsoft.AspNetCore.Components.Web;
+@inject ProductService ProductService
+
+<h3>Lista de Productos</h3>
+
+@if (productos == null)
+{
+    <p><em>Cargando...</em></p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>Descripción</th>
+                <th>Precio Unitario</th>
+                <th>Ganancia</th>
+                <th>Descuento</th>
+                <th>Stock</th>
+                <th>Stock Mínimo</th>
+                <th>Fecha de Baja</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var producto in productos)
+            {
+                <tr>
+                    <td>@producto.ProdId</td>
+                    <td>@producto.Descripcion</td>
+                    <td>@producto.PrecioUnitario.ToString("C")</td>
+                    <td>@producto.Ganancia.ToString("C")</td>
+                    <td>@(producto.Descuento?.ToString("C") ?? "N/A")</td>
+                    <td>@(producto.Stock?.ToString() ?? "N/A")</td>
+                    <td>@(producto.StockMin?.ToString() ?? "N/A")</td>
+                    <td>@(producto.FechaBaja?.ToShortDateString() ?? "N/A")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h3 class="mt-5">Agregar Nuevo Producto</h3>
+
+<EditForm Model="@nuevoProducto" OnValidSubmit="@AgregarProducto" class="border p-3 rounded">
+    <DataAnnotationsValidator />
+    <ValidationSummary class="text-danger" />
+
+    <!-- ID del Producto (en el futuro se usará el lector de código de barras) -->
+    <div class="form-group">
+        <label for="prodId">ID del Producto:</label>
+        <InputText @bind-Value="nuevoProducto.ProdId"
+                   class="form-control"
+                   placeholder="Ej: PROD-001 o Código de Barras" />
+    </div>
+
+    <!-- Descripción -->
+    <div class="form-group">
+        <label for="descripcion">Descripción:</label>
+        <InputText @bind-Value="nuevoProducto.Descripcion"
+                   class="form-control"
+                   placeholder="Ej: Laptop HP 15.6''" />
+    </div>
+
+    <div class="row">
+        <!-- Precio Unitario -->
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>Precio Unitario:</label>
+                <InputNumber @bind-Value="nuevoProducto.PrecioUnitario"
+                             class="form-control"
+                             format="C" />
+            </div>
+        </div>
+        <!-- Ganancia -->
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>Ganancia:</label>
+                <InputNumber @bind-Value="nuevoProducto.Ganancia"
+                             class="form-control"
+                             format="C" />
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <!-- Descuento -->
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>Descuento:</label>
+                <InputNumber @bind-Value="nuevoProducto.Descuento"
+                             class="form-control"
+                             format="C" />
+            </div>
+        </div>
+        <!-- Stock -->
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>Stock:</label>
+                <InputNumber @bind-Value="nuevoProducto.Stock"
+                             class="form-control" />
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <!-- Stock Mínimo -->
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>Stock Mínimo:</label>
+                <InputNumber @bind-Value="nuevoProducto.StockMin"
+                             class="form-control" />
+            </div>
+        </div>
+        <!-- Fecha de Baja -->
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>Fecha de Baja:</label>
+                <InputDate @bind-Value="nuevoProducto.FechaBaja"
+                           class="form-control" />
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-success mt-3">
+        <i class="bi bi-plus-circle"></i> Agregar Producto
+    </button>
+</EditForm>
+
+@code {
+    private List<Product> productos = new List<Product>();
+    private Product nuevoProducto = new Product();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarProductos();
+    }
+
+    private async Task CargarProductos()
+    {
+        try
+        {
+            var result = await ProductService.GetProductsAsync();
+            productos = result ?? new List<Product>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando productos: {ex.Message}");
+            productos = new List<Product>();
+        }
+    }
+
+    private async Task AgregarProducto()
+    {
+        try
+        {
+            var resultado = await ProductService.AddProductAsync(nuevoProducto);
+            if (resultado)
+            {
+                await CargarProductos();
+                nuevoProducto = new Product();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error agregando producto: {ex.Message}");
+        }
+    }
+}
