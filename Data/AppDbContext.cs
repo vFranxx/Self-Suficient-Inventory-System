@@ -1,22 +1,20 @@
 ﻿// Aca es donde se configura el contexto de la base de datos
 // Se realizan especificaciones de las entidades y sus relaciones
 
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using RESTful_API.Models.Entities;
-using Self_Suficient_Inventory_System.Models.AuditModels;
-using Self_Suficient_Inventory_System.Models.LogModels;
-using System.Collections.Specialized;
+using API.Models.AuditModels;
+using API.Models.Entities;
+using API.Models.LogModels;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
-using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using System.Reflection;
-using System.Text.Json;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Reflection;
+using System.Security.Claims;
+using System.Text.Json;
 
 
-namespace Self_Suficient_Inventory_System.Data
+namespace API.Data
 {
     public class AppDbContext : IdentityDbContext<SystemOperator>
     {

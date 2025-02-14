@@ -1,11 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using API.Data;
+using API.Models.Entities;
+using API.Shared.DTOs.OrderDetail;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using RESTful_API.Models.Entities;
-using Self_Suficient_Inventory_System.Data;
-using Self_Suficient_Inventory_System.Shared.DTOs.OrderDetail;
 
-namespace Self_Suficient_Inventory_System.Controllers
+namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -119,14 +118,14 @@ namespace Self_Suficient_Inventory_System.Controllers
             }
 
             // Actualizar los campos necesarios
-            detail.Cantidad = units; 
+            detail.Cantidad = units;
 
             _dbContext.OrderDetails.Update(detail);
             await _dbContext.SaveChangesAsync();
 
             return Ok($"Detalle {id} actualizado correctamente");
         }
-        
-        
+
+
     }
 }

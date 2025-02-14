@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>Self_Suficient_Inventory_System</RootNamespace>
+    <RootNamespace>API</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

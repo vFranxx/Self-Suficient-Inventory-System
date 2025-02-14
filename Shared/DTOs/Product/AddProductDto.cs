@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Shared.DTOs.Product
+namespace API.Shared.DTOs.Product
 {
     public class AddProductDto
     {

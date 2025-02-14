@@ -1,4 +1,4 @@
-﻿namespace Shared.DTOs.Product
+﻿namespace API.Shared.DTOs.Product
 {
     public class UpdateProductStockDto
     {

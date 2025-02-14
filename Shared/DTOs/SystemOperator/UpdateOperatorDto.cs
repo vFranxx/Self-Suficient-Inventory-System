@@ -1,4 +1,4 @@
-﻿namespace Shared.DTOs.SystemOperator
+﻿namespace API.Shared.DTOs.SystemOperator
 {
     public class UpdateOperatorDto
     {

@@ -1,12 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using API.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using RESTful_API.Models.Entities;
-using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
 
-namespace Self_Suficient_Inventory_System.Controllers
+namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -90,7 +86,7 @@ namespace Self_Suficient_Inventory_System.Controllers
             {
                 return BadRequest("No se puede revocar el último administrador");
             }
-            
+
             // Revocar el rol
             var result = await _userManager.RemoveFromRoleAsync(user, normalizedRoleName);
 

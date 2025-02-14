@@ -1,6 +1,6 @@
-using Self_Suficient_Inventory_System.Data;
+using API.Data;
 
-namespace Self_Suficient_Inventory_System.LogHandling.ExceptionHandling
+namespace API.LogHandling.ExceptionHandling
 {
     public class ExceptionMiddleware
     {

@@ -1,7 +1,7 @@
-﻿namespace RESTful_API.Models.Entities
+﻿namespace API.Models.Entities
 {
     // Factura
-    public class Bill 
+    public class Bill
     {
         public int FacId { get; set; }
         public required DateTime FechaHora { get; set; } = DateTime.Now;

@@ -1,4 +1,4 @@
-﻿namespace Self_Suficient_Inventory_System.Models.LogModels
+﻿namespace API.Models.LogModels
 {
     public class ExceptionLogEntry
     {

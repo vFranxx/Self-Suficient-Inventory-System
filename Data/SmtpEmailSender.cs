@@ -2,7 +2,7 @@
 using System.Net;
 using System.Net.Mail;
 
-namespace Self_Suficient_Inventory_System.Data
+namespace API.Data
 {
     public class SmtpEmailSender : IEmailSender, IDisposable
     {

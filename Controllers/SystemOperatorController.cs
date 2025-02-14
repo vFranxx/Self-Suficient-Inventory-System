@@ -1,14 +1,13 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using API.Data;
+using API.Models.Entities;
+using API.Shared.DTOs.SystemOperator;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using RESTful_API.Models.Entities;
-using Self_Suficient_Inventory_System.Data;
-using Shared.DTOs.SystemOperator;
 using System.Security.Claims;
 
-namespace Self_Suficient_Inventory_System.Controllers
+namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

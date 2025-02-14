@@ -1,9 +1,8 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Self_Suficient_Inventory_System.Migrations
+namespace API.Migrations
 {
     /// <inheritdoc />
     public partial class InitialMigration : Migration

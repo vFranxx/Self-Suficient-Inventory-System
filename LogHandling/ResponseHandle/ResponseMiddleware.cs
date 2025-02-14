@@ -1,6 +1,6 @@
-﻿using Self_Suficient_Inventory_System.Data;
+﻿using API.Data;
 
-namespace Self_Suficient_Inventory_System.LogHandling.ResponseHandle
+namespace API.LogHandling.ResponseHandle
 {
     public class ResponseMiddleware
     {

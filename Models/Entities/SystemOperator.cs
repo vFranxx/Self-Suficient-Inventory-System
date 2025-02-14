@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace RESTful_API.Models.Entities
+namespace API.Models.Entities
 {
     public class SystemOperator : IdentityUser
     {

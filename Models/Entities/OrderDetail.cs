@@ -1,4 +1,4 @@
-﻿namespace RESTful_API.Models.Entities
+﻿namespace API.Models.Entities
 {
     public class OrderDetail
     {
@@ -7,6 +7,6 @@
         public required string IdProd { get; set; }
         public required int IdOc { get; set; }
         public Product Products { get; set; }
-        public Order Orders { get; set; }   
+        public Order Orders { get; set; }
     }
 }

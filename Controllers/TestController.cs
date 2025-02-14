@@ -1,11 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using API.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Self_Suficient_Inventory_System.Data;
-using Self_Suficient_Inventory_System.Models.AuditModels;
 
-namespace Self_Suficient_Inventory_System.Controllers
+namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

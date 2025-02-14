@@ -1,11 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using API.Data;
+using API.Models.Entities;
+using API.Shared.DTOs.Order;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using RESTful_API.Models.Entities;
-using Self_Suficient_Inventory_System.Data;
-using Self_Suficient_Inventory_System.Shared.DTOs.Order;
 
-namespace Self_Suficient_Inventory_System.Controllers
+namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -124,7 +123,7 @@ namespace Self_Suficient_Inventory_System.Controllers
                 return NotFound($"No se encontró el pedido de compra {id}.");
             }
 
-            if (order.Estado == "FINALIZADO") 
+            if (order.Estado == "FINALIZADO")
             {
                 return BadRequest("No se pueden eliminar pedidos de compra concretados");
             }
@@ -138,7 +137,7 @@ namespace Self_Suficient_Inventory_System.Controllers
         [HttpPut("status/{id}")]
         public async Task<IActionResult> ChangeOrderStatus(int id, string status)
         {
-            if (!IsStatusValid(status)) 
+            if (!IsStatusValid(status))
             {
                 return BadRequest($"El estado '{status}' no es válido.");
             }

@@ -1,6 +1,4 @@
-﻿using RESTful_API.Models.Entities;
-
-namespace Self_Suficient_Inventory_System.Models.AuditModels
+﻿namespace API.Models.AuditModels
 {
     public class BillAudit : AuditBase
     {

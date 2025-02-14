@@ -1,8 +1,8 @@
-using Self_Suficient_Inventory_System.Data;
-using Self_Suficient_Inventory_System.Models.LogModels;
+using API.Data;
+using API.Models.LogModels;
 using System.Net;
 
-namespace Self_Suficient_Inventory_System.LogHandling.ExceptionHandling
+namespace API.LogHandling.ExceptionHandling
 {
     public static class ExceptionHandler
     {

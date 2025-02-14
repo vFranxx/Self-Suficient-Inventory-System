@@ -1,4 +1,4 @@
-﻿namespace Shared.DTOs.Supplier
+﻿namespace API.Shared.DTOs.Supplier
 {
     public class AddSupplierDto
     {

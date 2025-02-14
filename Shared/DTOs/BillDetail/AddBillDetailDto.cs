@@ -1,4 +1,4 @@
-﻿namespace Shared.DTOs.BillDetail
+﻿namespace API.Shared.DTOs.BillDetail
 {
     public class AddBillDetailDto
     {

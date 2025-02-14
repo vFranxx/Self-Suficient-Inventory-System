@@ -1,8 +1,8 @@
-﻿using Self_Suficient_Inventory_System.Models.LogModels;
+﻿using API.Data;
+using API.Models.LogModels;
 using Newtonsoft.Json;
-using Self_Suficient_Inventory_System.Data;
 
-namespace Self_Suficient_Inventory_System.LogHandling.ResponseHandle
+namespace API.LogHandling.ResponseHandle
 {
     public static class ResponseHandler
     {

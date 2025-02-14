@@ -1,4 +1,4 @@
-namespace Self_Suficient_Inventory_System.LogHandling.ExceptionHandling
+namespace API.LogHandling.ExceptionHandling
 {
     public class UnhandledExceptionModel
     {

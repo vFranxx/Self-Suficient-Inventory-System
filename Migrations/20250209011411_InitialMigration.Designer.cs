@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Self_Suficient_Inventory_System.Data;
+using API.Data;
 
 #nullable disable
 
-namespace Self_Suficient_Inventory_System.Migrations
+namespace API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     [Migration("20250209011411_InitialMigration")]
@@ -158,7 +158,7 @@ namespace Self_Suficient_Inventory_System.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("RESTful_API.Models.Entities.Bill", b =>
+            modelBuilder.Entity("API.Models.Entities.Bill", b =>
                 {
                     b.Property<int>("FacId")
                         .HasColumnType("int");
@@ -180,7 +180,7 @@ namespace Self_Suficient_Inventory_System.Migrations
                     b.ToTable("Bills");
                 });
 
-            modelBuilder.Entity("RESTful_API.Models.Entities.BillDetail", b =>
+            modelBuilder.Entity("API.Models.Entities.BillDetail", b =>
                 {
                     b.Property<int>("FacDetId")
                         .HasColumnType("int");
@@ -210,7 +210,7 @@ namespace Self_Suficient_Inventory_System.Migrations
                     b.ToTable("BillDetails");
                 });
 
-            modelBuilder.Entity("RESTful_API.Models.Entities.Order", b =>
+            modelBuilder.Entity("API.Models.Entities.Order", b =>
                 {
                     b.Property<int>("OcId")
                         .HasColumnType("int");
@@ -239,7 +239,7 @@ namespace Self_Suficient_Inventory_System.Migrations
                     b.ToTable("Orders");
                 });
 
-            modelBuilder.Entity("RESTful_API.Models.Entities.OrderDetail", b =>
+            modelBuilder.Entity("API.Models.Entities.OrderDetail", b =>
                 {
                     b.Property<int>("DetOcId")
                         .HasColumnType("int");
@@ -263,7 +263,7 @@ namespace Self_Suficient_Inventory_System.Migrations
                     b.ToTable("OrderDetails");
                 });
 
-            modelBuilder.Entity("RESTful_API.Models.Entities.Product", b =>
+            modelBuilder.Entity("API.Models.Entities.Product", b =>
                 {
                     b.Property<string>("ProdId")
                         .HasMaxLength(13)
@@ -297,7 +297,7 @@ namespace Self_Suficient_Inventory_System.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("RESTful_API.Models.Entities.Supplier", b =>
+            modelBuilder.Entity("API.Models.Entities.Supplier", b =>
                 {
                     b.Property<int>("ProvId")
                         .HasColumnType("int");
@@ -324,7 +324,7 @@ namespace Self_Suficient_Inventory_System.Migrations
                     b.ToTable("Suppliers");
                 });
 
-            modelBuilder.Entity("RESTful_API.Models.Entities.SupplierProduct", b =>
+            modelBuilder.Entity("API.Models.Entities.SupplierProduct", b =>
                 {
                     b.Property<int>("IdProv")
                         .HasColumnType("int");
@@ -339,7 +339,7 @@ namespace Self_Suficient_Inventory_System.Migrations
                     b.ToTable("SupplierProducts");
                 });
 
-            modelBuilder.Entity("RESTful_API.Models.Entities.SystemOperator", b =>
+            modelBuilder.Entity("API.Models.Entities.SystemOperator", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -407,7 +407,7 @@ namespace Self_Suficient_Inventory_System.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Self_Suficient_Inventory_System.Models.AuditModels.BillAudit", b =>
+            modelBuilder.Entity("API.Models.AuditModels.BillAudit", b =>
                 {
                     b.Property<int>("AuditId")
                         .ValueGeneratedOnAdd()
@@ -454,7 +454,7 @@ namespace Self_Suficient_Inventory_System.Migrations
                     b.ToTable("BillAudits");
                 });
 
-            modelBuilder.Entity("Self_Suficient_Inventory_System.Models.AuditModels.BillDetailAudit", b =>
+            modelBuilder.Entity("API.Models.AuditModels.BillDetailAudit", b =>
                 {
                     b.Property<int>("AuditId")
                         .ValueGeneratedOnAdd()
@@ -507,7 +507,7 @@ namespace Self_Suficient_Inventory_System.Migrations
                     b.ToTable("BillDetailAudits");
                 });
 
-            modelBuilder.Entity("Self_Suficient_Inventory_System.Models.AuditModels.OrderAudit", b =>
+            modelBuilder.Entity("API.Models.AuditModels.OrderAudit", b =>
                 {
                     b.Property<int>("AuditId")
                         .ValueGeneratedOnAdd()
@@ -561,7 +561,7 @@ namespace Self_Suficient_Inventory_System.Migrations
                     b.ToTable("OrderAudits");
                 });
 
-            modelBuilder.Entity("Self_Suficient_Inventory_System.Models.AuditModels.OrderDetailAudit", b =>
+            modelBuilder.Entity("API.Models.AuditModels.OrderDetailAudit", b =>
                 {
                     b.Property<int>("AuditId")
                         .ValueGeneratedOnAdd()
@@ -611,7 +611,7 @@ namespace Self_Suficient_Inventory_System.Migrations
                     b.ToTable("OrderDetailAudits");
                 });
 
-            modelBuilder.Entity("Self_Suficient_Inventory_System.Models.AuditModels.ProductAudit", b =>
+            modelBuilder.Entity("API.Models.AuditModels.ProductAudit", b =>
                 {
                     b.Property<int>("AuditId")
                         .ValueGeneratedOnAdd()
@@ -674,7 +674,7 @@ namespace Self_Suficient_Inventory_System.Migrations
                     b.ToTable("ProductAudits");
                 });
 
-            modelBuilder.Entity("Self_Suficient_Inventory_System.Models.AuditModels.SupplierAudit", b =>
+            modelBuilder.Entity("API.Models.AuditModels.SupplierAudit", b =>
                 {
                     b.Property<int>("AuditId")
                         .ValueGeneratedOnAdd()
@@ -727,7 +727,7 @@ namespace Self_Suficient_Inventory_System.Migrations
                     b.ToTable("SupplierAudits");
                 });
 
-            modelBuilder.Entity("Self_Suficient_Inventory_System.Models.LogModels.ExceptionLogEntry", b =>
+            modelBuilder.Entity("API.Models.LogModels.ExceptionLogEntry", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -767,7 +767,7 @@ namespace Self_Suficient_Inventory_System.Migrations
                     b.ToTable("ExceptionLogEntries");
                 });
 
-            modelBuilder.Entity("Self_Suficient_Inventory_System.Models.LogModels.ResponseLogEntry", b =>
+            modelBuilder.Entity("API.Models.LogModels.ResponseLogEntry", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -817,7 +817,7 @@ namespace Self_Suficient_Inventory_System.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("RESTful_API.Models.Entities.SystemOperator", null)
+                    b.HasOne("API.Models.Entities.SystemOperator", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -826,7 +826,7 @@ namespace Self_Suficient_Inventory_System.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("RESTful_API.Models.Entities.SystemOperator", null)
+                    b.HasOne("API.Models.Entities.SystemOperator", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -841,7 +841,7 @@ namespace Self_Suficient_Inventory_System.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("RESTful_API.Models.Entities.SystemOperator", null)
+                    b.HasOne("API.Models.Entities.SystemOperator", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -850,16 +850,16 @@ namespace Self_Suficient_Inventory_System.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("RESTful_API.Models.Entities.SystemOperator", null)
+                    b.HasOne("API.Models.Entities.SystemOperator", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("RESTful_API.Models.Entities.Bill", b =>
+            modelBuilder.Entity("API.Models.Entities.Bill", b =>
                 {
-                    b.HasOne("RESTful_API.Models.Entities.SystemOperator", "Operators")
+                    b.HasOne("API.Models.Entities.SystemOperator", "Operators")
                         .WithMany()
                         .HasForeignKey("IdOp")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -868,15 +868,15 @@ namespace Self_Suficient_Inventory_System.Migrations
                     b.Navigation("Operators");
                 });
 
-            modelBuilder.Entity("RESTful_API.Models.Entities.BillDetail", b =>
+            modelBuilder.Entity("API.Models.Entities.BillDetail", b =>
                 {
-                    b.HasOne("RESTful_API.Models.Entities.Bill", "Facturas")
+                    b.HasOne("API.Models.Entities.Bill", "Facturas")
                         .WithMany()
                         .HasForeignKey("IdFactura")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("RESTful_API.Models.Entities.Product", "Productos")
+                    b.HasOne("API.Models.Entities.Product", "Productos")
                         .WithMany()
                         .HasForeignKey("IdProducto")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -887,15 +887,15 @@ namespace Self_Suficient_Inventory_System.Migrations
                     b.Navigation("Productos");
                 });
 
-            modelBuilder.Entity("RESTful_API.Models.Entities.Order", b =>
+            modelBuilder.Entity("API.Models.Entities.Order", b =>
                 {
-                    b.HasOne("RESTful_API.Models.Entities.SystemOperator", "Operators")
+                    b.HasOne("API.Models.Entities.SystemOperator", "Operators")
                         .WithMany()
                         .HasForeignKey("IdOp")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("RESTful_API.Models.Entities.Supplier", "Suppliers")
+                    b.HasOne("API.Models.Entities.Supplier", "Suppliers")
                         .WithMany()
                         .HasForeignKey("IdProv")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -906,15 +906,15 @@ namespace Self_Suficient_Inventory_System.Migrations
                     b.Navigation("Suppliers");
                 });
 
-            modelBuilder.Entity("RESTful_API.Models.Entities.OrderDetail", b =>
+            modelBuilder.Entity("API.Models.Entities.OrderDetail", b =>
                 {
-                    b.HasOne("RESTful_API.Models.Entities.Order", "Orders")
+                    b.HasOne("API.Models.Entities.Order", "Orders")
                         .WithMany()
                         .HasForeignKey("IdOc")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("RESTful_API.Models.Entities.Product", "Products")
+                    b.HasOne("API.Models.Entities.Product", "Products")
                         .WithMany()
                         .HasForeignKey("IdProd")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -925,15 +925,15 @@ namespace Self_Suficient_Inventory_System.Migrations
                     b.Navigation("Products");
                 });
 
-            modelBuilder.Entity("RESTful_API.Models.Entities.SupplierProduct", b =>
+            modelBuilder.Entity("API.Models.Entities.SupplierProduct", b =>
                 {
-                    b.HasOne("RESTful_API.Models.Entities.Product", "Products")
+                    b.HasOne("API.Models.Entities.Product", "Products")
                         .WithMany()
                         .HasForeignKey("IdProd")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("RESTful_API.Models.Entities.Supplier", "Suppliers")
+                    b.HasOne("API.Models.Entities.Supplier", "Suppliers")
                         .WithMany()
                         .HasForeignKey("IdProv")
                         .OnDelete(DeleteBehavior.Restrict)

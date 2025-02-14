@@ -1,4 +1,4 @@
-﻿namespace Self_Suficient_Inventory_System.Shared.DTOs.Identity
+﻿namespace API.Shared.DTOs.Identity
 {
     public class ConfirmEmailRequestDTO
     {

@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using API.Data;
+using API.Models.Entities;
+using API.Shared.DTOs.SupplierProduct;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Writers;
-using RESTful_API.Models.Entities;
-using Self_Suficient_Inventory_System.Data;
-using Shared.DTOs.SupplierProduct;
 
-namespace Self_Suficient_Inventory_System.Controllers
+namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

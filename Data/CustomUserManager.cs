@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using API.Models.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
-using RESTful_API.Models.Entities;
 
-namespace Self_Suficient_Inventory_System.Data
+namespace API.Data
 {
     public class CustomUserManager : UserManager<SystemOperator>
     {

@@ -1,19 +1,16 @@
-using Azure.Core;
+using API.Data;
+using API.LogHandling.ExceptionHandling;
+using API.LogHandling.ResponseHandle;
+using API.Models.Entities;
+using API.Shared.DTOs.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using RESTful_API.Models.Entities;
-using Self_Suficient_Inventory_System.Data;
-using Self_Suficient_Inventory_System.LogHandling.ExceptionHandling;
-using Self_Suficient_Inventory_System.LogHandling.ResponseHandle;
-using Self_Suficient_Inventory_System.Shared;
-using Self_Suficient_Inventory_System.Shared.DTOs.Identity;
 using System.Security.Claims;
 using System.Text;
 
@@ -40,7 +37,7 @@ builder.Services.AddSwaggerGen(options =>
     };
 
     options.AddSecurityDefinition("Bearer", jwtSecurityScheme);
-    
+
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         { jwtSecurityScheme, Array.Empty<string>() }
@@ -49,7 +46,7 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddDbContext<AppDbContext>((serviceProvider,options) =>
+builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
@@ -85,10 +82,10 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["JwtSettings:Issuer"], 
-        ValidAudience = builder.Configuration["JwtSettings:Audience"], 
+        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+        ValidAudience = builder.Configuration["JwtSettings:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"])),
-        
+
         NameClaimType = ClaimTypes.NameIdentifier,
         RoleClaimType = ClaimTypes.Role
     };

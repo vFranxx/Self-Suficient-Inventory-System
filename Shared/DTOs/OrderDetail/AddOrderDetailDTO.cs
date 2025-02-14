@@ -1,4 +1,4 @@
-﻿namespace Self_Suficient_Inventory_System.Shared.DTOs.OrderDetail
+﻿namespace API.Shared.DTOs.OrderDetail
 {
     public class AddOrderDetailDTO
     {
