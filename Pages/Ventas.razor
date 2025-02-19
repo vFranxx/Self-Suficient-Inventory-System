@@ -279,7 +279,7 @@
 </div>
 
 @code {
-    // Modelos de datos
+
     private class Product
     {
         public string Barcode { get; set; } = "";
@@ -295,7 +295,7 @@
         public int Quantity { get; set; } = 1;
     }
 
-    // Variables de estado
+
     private List<Product> products = new();
     private List<CartItem> cartItems = new();
     private Product newProduct = new();
@@ -307,22 +307,24 @@
     private string paymentMethod = "Efectivo";
     private decimal receivedAmount;
 
-    // Funcionalidades
     protected override async Task OnInitializedAsync()
     {
-        await LoadProducts();
+        await LoadProducts();  
     }
+
 
     private async Task LoadProducts()
     {
-        // Simular carga de productos desde API
-        products = new List<Product>
+            products = new List<Product>
         {
             new Product { Barcode = "779080032109", Description = "LECHE ENTERA SANCOR", Price = 10.00m, Stock = 50, Category = "Almacén" },
             new Product { Barcode = "779080056418", Description = "GASEOSA COCA COLA 3L", Price = 25.00m, Stock = 30, Category = "Bebidas" },
             new Product { Barcode = "779085095714", Description = "JUGO ARCOR MANZANA", Price = 2.50m, Stock = 100, Category = "Bebidas" }
         };
+
+            await Task.CompletedTask;
     }
+
 
     private IEnumerable<Product> filteredProducts =>
         products.Where(p => p.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
@@ -361,19 +363,17 @@
     {
         if (paymentMethod == "Efectivo" && receivedAmount < total)
         {
-            // Mostrar error
             return;
         }
 
-        // Simular guardado de venta
-        var success = true; // Simular éxito
+        var success = true; 
 
         if (success)
         {
             cartItems.Clear();
             discountPercentage = 0;
             receivedAmount = 0;
-            // Cerrar modal
+
         }
     }
 
@@ -385,12 +385,11 @@
 
     private async Task AddNewProduct()
     {
-        // Validación básica
         if (string.IsNullOrWhiteSpace(newProduct.Description) || newProduct.Price <= 0)
             return;
 
         products.Add(newProduct);
-        newProduct = new Product(); // Resetear formulario
-                                    // Cerrar modal
+        newProduct = new Product(); 
+                                    
     }
 }

@@ -1,0 +1,90 @@
+﻿@page "/pedidos-proveedores"
+@inject HttpClient Http
+
+<h3>Pedidos a Proveedores</h3>
+
+<EditForm Model="pedido" OnValidSubmit="GuardarPedido">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="mb-3">
+        <label>Fecha del Pedido:</label>
+        <InputDate @bind-Value="pedido.FechaPedido" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label>Proveedor:</label>
+        <InputText @bind-Value="pedido.Proveedor" class="form-control" placeholder="Nombre del proveedor" />
+    </div>
+    <div class="mb-3">
+        <label>Productos (Descripción, Cantidad):</label>
+        <InputText @bind-Value="pedido.Productos" class="form-control" placeholder="Ej: LECHE, 10; GASEOSA, 5" />
+    </div>
+    <button type="submit" class="btn btn-primary">Registrar Pedido</button>
+</EditForm>
+
+<hr />
+
+<h4>Historial de Pedidos</h4>
+@if(pedidos == null)
+{
+    <p>Cargando pedidos...</p>
+}
+else if(!pedidos.Any())
+{
+    <p>No hay pedidos registrados.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Proveedor</th>
+                <th>Productos</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var p in pedidos)
+            {
+                <tr>
+                    <td>@p.FechaPedido.ToShortDateString()</td>
+                    <td>@p.Proveedor</td>
+                    <td>@p.Productos</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Pedido pedido = new Pedido();
+    private List<Pedido> pedidos = new List<Pedido>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Simula la carga de pedidos
+        pedidos = new List<Pedido>
+        {
+            new Pedido { FechaPedido = DateTime.Today.AddDays(-1), Proveedor = "Proveedor A", Productos = "LECHE, 10; GASEOSA, 5" }
+        };
+        await Task.CompletedTask;
+    }
+
+    private async Task GuardarPedido()
+    {
+        pedidos.Add(new Pedido 
+        {
+            FechaPedido = pedido.FechaPedido,
+            Proveedor = pedido.Proveedor,
+            Productos = pedido.Productos
+        });
+        pedido = new Pedido();
+        await Task.CompletedTask;
+    }
+
+    public class Pedido
+    {
+        public DateTime FechaPedido { get; set; } = DateTime.Today;
+        public string Proveedor { get; set; } = "";
+        public string Productos { get; set; } = "";
+    }
+}

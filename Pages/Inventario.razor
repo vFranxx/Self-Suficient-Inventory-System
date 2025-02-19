@@ -1,0 +1,111 @@
+﻿@page "/inventario"
+@using BlazorFront.Models.Entities;
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Web;
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<h3>Gestión de Inventario</h3>
+
+<!-- Sección de busqueda y filtros -->
+<div class="mb-3">
+    <input type="text" class="form-control" placeholder="Buscar producto..." @bind="searchTerm" @bind:event="oninput" />
+</div>
+
+<!-- Tabla de productos -->
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Descripción</th>
+            <th>Stock</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var producto in productosFiltrados)
+        {
+            <tr>
+                <td>@producto.ProdId</td>
+                <td>@producto.Descripcion</td>
+                <td>@producto.Stock</td>
+                <td>
+                    <button class="btn btn-success btn-sm" @onclick="() => ModificarStock(producto, 1)">+</button>
+                    <button class="btn btn-danger btn-sm" @onclick="() => ModificarStock(producto, -1)">-</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<button class="btn btn-primary" @onclick="NuevoProducto">Agregar Producto</button>
+
+@if (productoSeleccionado != null)
+{
+    <EditForm Model="productoSeleccionado" OnValidSubmit="GuardarProducto">
+        <DataAnnotationsValidator />
+        <div>
+            <label>Descripción:</label>
+            <InputText @bind-Value="productoSeleccionado.Descripcion" class="form-control" />
+        </div>
+        <div>
+            <label>Stock:</label>
+            <InputNumber @bind-Value="productoSeleccionado.Stock" class="form-control" TValue="int?" />
+        </div>
+        <button type="submit" class="btn btn-success">Guardar</button>
+        <button type="button" class="btn btn-secondary" @onclick="CancelarEdicion">Cancelar</button>
+    </EditForm>
+}
+
+@code {
+    private List<Product> productos = new();
+    private Product productoSeleccionado;
+    private string searchTerm = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        productos = await Http.GetFromJsonAsync<List<Product>>("api/products") ?? new();
+    }
+
+    private IEnumerable<Product> productosFiltrados =>
+        productos.Where(p => p.Descripcion.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+
+    private void NuevoProducto()
+    {
+        productoSeleccionado = new Product
+            {
+                ProdId = Guid.NewGuid().ToString(), // Asigna un GUID único
+                Descripcion = "",
+                PrecioUnitario = 0m, // Asigna un valor por defecto
+                Ganancia = 0m, // Asigna un valor por defecto
+                Stock = 0
+            };
+    }
+
+    private async Task GuardarProducto()
+    {
+        if (string.IsNullOrEmpty(productoSeleccionado.ProdId))
+        {
+            await Http.PostAsJsonAsync("api/products", productoSeleccionado);
+        }
+        else
+        {
+            await Http.PutAsJsonAsync($"api/products/{productoSeleccionado.ProdId}", productoSeleccionado);
+        }
+        productos = await Http.GetFromJsonAsync<List<Product>>("api/products") ?? new();
+        productoSeleccionado = null;
+    }
+
+    private async Task ModificarStock(Product producto, int cantidad)
+    {
+        producto.Stock += cantidad;
+        await Http.PutAsJsonAsync($"api/products/{producto.ProdId}", producto);
+        productos = await Http.GetFromJsonAsync<List<Product>>("api/products") ?? new();
+    }
+
+    private void CancelarEdicion()
+    {
+        productoSeleccionado = null;
+    }
+}
+

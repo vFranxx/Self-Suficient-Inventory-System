@@ -1,9 +1,12 @@
 ﻿@page "/Sales"
-@using FrontendBlazor.Models.Entities
-@using FrontendBlazor.Services
+@using BlazorFront.Services
+@using BlazorFront.Models.Entities
 @using System.Linq
+@using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Web
+@inject HttpClient Http
 @inject NavigationManager Navigation
+@inject ProductService productService
 
 <h3>Venta de Productos</h3>
 
@@ -72,16 +75,11 @@ else
         }
 
         NuevoDetalle.Subtotal = NuevoDetalle.Cantidad * NuevoDetalle.Precio;
-        Factura.Detalles.Add(new BillDetail
-            {
-                IdProducto = string.Empty,
-                Cantidad = 1,
-                Precio = 0m,
-                Subtotal = 0m,
-                IdFactura = 0
-            });
+
+        Factura.Detalles.Add(NuevoDetalle);
 
         Factura.Total = Factura.Detalles.Sum(d => d.Subtotal);
+
         NuevoDetalle = new BillDetail
             {
                 IdProducto = string.Empty,
@@ -94,7 +92,6 @@ else
 
     private void RegistrarVenta()
     {
-        // Aquí se enviaría la factura a la API para registrarla en la base de datos
         Console.WriteLine("Venta registrada con éxito");
         Factura = new Bill { Detalles = new List<BillDetail>() };
     }

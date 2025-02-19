@@ -1,7 +1,7 @@
 ﻿@page "/create-product"
 @using Microsoft.AspNetCore.Components.Forms
-@using FrontendBlazor.Services
-@using FrontendBlazor.Models.Entities
+@using BlazorFront.Services
+@using BlazorFront.Models.Entities
 @inject NavigationManager NavigationManager
 @inject ProductService productService
 
@@ -26,7 +26,7 @@
 @code {
     private Product newProduct = new()
         {
-            ProdId = "", 
+            ProdId = "",
             Descripcion = "",
             PrecioUnitario = 0,
             Ganancia = 0

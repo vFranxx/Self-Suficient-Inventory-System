@@ -1,0 +1,49 @@
+﻿@page "/metodos-pago"
+@inject HttpClient Http
+
+<h3>Control de Métodos de Pago</h3>
+
+<EditForm Model="pago" OnValidSubmit="ProcesarPago">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="mb-3">
+        <label>Método de Pago:</label>
+        <select class="form-select" @bind="pago.Metodo">
+            <option value="Efectivo">Efectivo</option>
+            <option value="Débito">Débito</option>
+            <option value="Crédito">Crédito</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label>Total a Pagar:</label>
+        <InputNumber @bind-Value="pago.Total" class="form-control" />
+    </div>
+    @if(pago.Metodo == "Efectivo")
+    {
+        <div class="mb-3">
+            <label>Monto Recibido:</label>
+            <InputNumber @bind-Value="pago.MontoRecibido" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label>Vuelto:</label>
+            <p>@(pago.MontoRecibido - pago.Total >= 0 ? (pago.MontoRecibido - pago.Total).ToString("C") : "0.00")</p>
+        </div>
+    }
+    <button type="submit" class="btn btn-primary">Procesar Pago</button>
+</EditForm>
+
+@code {
+    private Pago pago = new Pago();
+
+    private async Task ProcesarPago()
+    {
+        await Task.CompletedTask;
+    }
+
+    public class Pago
+    {
+        public string Metodo { get; set; } = "Efectivo";
+        public decimal Total { get; set; }
+        public decimal MontoRecibido { get; set; }
+    }
+}
