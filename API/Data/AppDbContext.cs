@@ -1,6 +1,7 @@
 ﻿// Aca es donde se configura el contexto de la base de datos
 // Se realizan especificaciones de las entidades y sus relaciones
 
+using API.Models;
 using API.Models.AuditModels;
 using API.Models.Entities;
 using API.Models.LogModels;
@@ -45,6 +46,8 @@ namespace API.Data
         public DbSet<OrderAudit> OrderAudits { get; set; }
         public DbSet<OrderDetailAudit> OrderDetailAudits { get; set; }
         public DbSet<SupplierAudit> SupplierAudits { get; set; }
+        // Jwt Token
+        public DbSet<UserRefreshJwtToken> UserRefreshJwtTokens { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -223,6 +226,13 @@ namespace API.Data
             ConfigureAudit(modelBuilder.Entity<OrderAudit>());
             ConfigureAudit(modelBuilder.Entity<OrderDetailAudit>());
             ConfigureAudit(modelBuilder.Entity<SupplierAudit>());
+
+            modelBuilder.Entity<UserRefreshJwtToken>(entity =>
+            {
+                entity.HasKey(t => t.Id);
+                entity.Property(t => t.Id)
+                      .ValueGeneratedOnAdd();
+            });
         }
 
         public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
@@ -268,7 +278,7 @@ namespace API.Data
 
             var auditEntry = (AuditBase)Activator.CreateInstance(auditType);
             auditEntry.AuditAction = entry.State.ToString();
-            auditEntry.TimeStamp = DateTime.Now;
+            auditEntry.TimeStamp = DateTime.UtcNow;
             auditEntry.UserId = userId;
 
             PopulateAuditData(entry, auditEntry);

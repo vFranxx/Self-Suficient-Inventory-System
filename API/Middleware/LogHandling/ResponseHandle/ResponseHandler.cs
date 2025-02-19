@@ -2,7 +2,7 @@
 using API.Models.LogModels;
 using Newtonsoft.Json;
 
-namespace API.LogHandling.ResponseHandle
+namespace API.Middleware.LogHandling.ResponseHandle
 {
     public static class ResponseHandler
     {
@@ -21,7 +21,7 @@ namespace API.LogHandling.ResponseHandle
             // Detalles de la respuesta
             var responseLogEntry = new ResponseLogEntry
             {
-                Timestamp = DateTime.Now,
+                Timestamp = DateTime.UtcNow,
                 RequestUrl = context.Request.Path,
                 HttpMethod = context.Request.Method,
                 StatusCode = context.Response.StatusCode,

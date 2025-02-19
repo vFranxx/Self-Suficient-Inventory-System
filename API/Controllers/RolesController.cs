@@ -1,12 +1,14 @@
 ﻿using API.Models.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Shared.DTO;
 
 namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize(Roles = "ADMIN")] // Solo administradores pueden acceder
+    [Authorize(Roles = "ADMIN")] // Solo administradores pueden acceder
     public class RolesController : ControllerBase
     {
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -26,19 +28,16 @@ namespace API.Controllers
         }
 
         [HttpPost("assign-role")]
-        public async Task<IActionResult> AssignAdminRole(string userId)
+        public async Task<IActionResult> AssignRole([FromBody] AssignRoleDTO dto)
         {
-            // Buscar usuario por ID o email
-            var user = await _userManager.FindByIdAsync(userId)
-                     ?? await _userManager.FindByEmailAsync(userId);
-
+            var user = await _userManager.FindByIdAsync(dto.UserId);
             if (user == null)
             {
                 return NotFound("Usuario no encontrado");
             }
 
             // Verificar si el rol existe
-            string normalizedRoleName = "ADMIN";
+            string normalizedRoleName = dto.Role.ToUpper();
             if (!await _roleManager.RoleExistsAsync(normalizedRoleName))
             {
                 return BadRequest($"El rol '{normalizedRoleName}' no existe");

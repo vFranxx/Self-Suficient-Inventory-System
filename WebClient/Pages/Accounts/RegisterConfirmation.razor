@@ -1,0 +1,37 @@
+﻿@page "/Accounts/Register/Confirmation"
+
+@inject NavigationManager navigationManager
+
+<div class="ma-6 d-flex justify-center">
+    <h3>Usuario registrado con éxito! Redirigiendo en @remainingTime...</h3>
+</div>
+
+@code {
+    private int remainingTime = 5;
+    private Timer timer;
+
+    protected override void OnInitialized()
+    {
+        timer = new Timer(_ =>
+        {
+            remainingTime--;
+
+            if (remainingTime <= 0)
+            {
+                InvokeAsync(() => navigationManager.NavigateTo("/Accounts/Login"));
+
+                timer?.Dispose();
+            }
+            else
+            {
+                InvokeAsync(StateHasChanged);
+            }
+        }, null, 1000, 1000);
+    }
+
+    public void Dispose()
+    {
+        timer?.Dispose();
+        GC.SuppressFinalize(this);
+    }
+}

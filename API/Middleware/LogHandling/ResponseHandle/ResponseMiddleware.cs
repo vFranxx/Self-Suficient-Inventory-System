@@ -1,6 +1,6 @@
 ﻿using API.Data;
 
-namespace API.LogHandling.ResponseHandle
+namespace API.Middleware.LogHandling.ResponseHandle
 {
     public class ResponseMiddleware
     {

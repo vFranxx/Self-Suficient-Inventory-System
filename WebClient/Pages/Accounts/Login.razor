@@ -1,0 +1,197 @@
+﻿@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@using System.Text.Json
+@using System.Text
+@using Blazored.LocalStorage
+@using WebClient.Models.DTOs
+@using Microsoft.AspNetCore.Components
+
+@page "/Accounts/Login"
+
+@using WebClient.Models.DTOs
+@using WebClient.Models.Errors
+@using WebClient.Shared.Providers
+@using global::Shared.DTO
+
+@inject IHttpClientFactory _httpFactory
+@inject NavigationManager navigationManager
+@inject ILocalStorageService _localStorage
+@inject AuthenticationStateProvider _auth
+
+<div class="ma-6 d-flex justify-center">
+    <h3>LOGIN</h3>
+</div>
+
+<MudContainer MaxWidth="MaxWidth.ExtraSmall">
+    <MudPaper Class="pa-4">
+        @if (apiErrors.Length > 0)
+        {
+            <MudAlert Severity="Severity.Error" Class="mb-4">
+                @foreach (var error in apiErrors)
+                {
+                    <div>@error</div>
+                }
+            </MudAlert>
+        }
+
+        <MudGrid Justify="Justify.Center">
+            <MudItem xs="12">
+                <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@formErrors">
+
+                    <MudTextField T="string" Label="Usuario" @bind-Value="_model.User"
+                    Required="true" RequiredError="Ingrese su Usuario/Email!" />
+
+                    <MudTextField T="string" Label="Contraseña" @bind-Value="_model.Password"
+                    InputType="PasswordInput"
+                    Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon"
+                    OnAdornmentClick="ButtonTestclick" AdornmentAriaLabel="Mostrar contraseña"
+                    Required="true" RequiredError="Ingrese su contraseña!" />
+
+                    <MudButton Variant="Variant.Filled"
+                    Color="Color.Primary"
+                    Disabled="@(!success)"
+                    OnClick="@SignIn"
+                    Class="mt-4 ml-auto">
+                        Ingresar
+                    </MudButton>
+                </MudForm>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthState { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = (await AuthState).User;
+        if (user.Identity.IsAuthenticated) 
+        {
+            navigationManager.NavigateTo("/");
+        }
+        
+        await base.OnInitializedAsync();
+    }
+
+    bool isShow;
+    InputType PasswordInput = InputType.Password;
+    string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+    bool success;
+    string[] apiErrors = Array.Empty<string>();
+    string[] formErrors = Array.Empty<string>();
+    MudForm form;
+    LoginModelDTO _model = new LoginModelDTO();
+
+    private async Task SignIn()
+    {
+        apiErrors = Array.Empty<string>();
+        await form.Validate();
+
+        if (form.IsValid)
+        {
+            try
+            {
+                var httpClient = _httpFactory.CreateClient("API");
+
+                var response = await httpClient.PostAsJsonAsync("api/Auth/login", _model);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = await response.Content.ReadFromJsonAsync<JwtTokenResponseDTO>();
+
+                    if (result != null)
+                    {
+                        await _localStorage.SetItemAsync("token", result.Token);
+                        await _localStorage.SetItemAsync("refresh-token", result.RefreshToken);
+                        await _localStorage.SetItemAsync("token-expiration", result.Expiration);
+                        (_auth as CustomAuthProvider).NotifyAuthState();
+                        navigationManager.NavigateTo("/");
+                    }
+                    else
+                    {
+                        apiErrors = new[] { "Error al procesar la respuesta" };
+                    }
+                }
+                else
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    ParseErrors(content);
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                apiErrors = new[] { $"Error de conexión: {ex.Message}" };
+            }
+            catch (Exception ex)
+            {
+                apiErrors = new[] { "Error interno inesperado" };
+            }
+        }
+    }
+
+    private void ParseErrors(string content)
+    {
+        try
+        {
+            // Primero intentar con el formato de mensaje simple
+            var messageError = JsonSerializer.Deserialize<MessageError>(content);
+            if (!string.IsNullOrEmpty(messageError.Message))
+            {
+                apiErrors = new[] { messageError.Message };
+                return;
+            }
+        }
+        catch { }
+
+        try
+        {
+            // Intentar con formato de array de ApiError
+            var errors = JsonSerializer.Deserialize<ApiError[]>(content);
+            if (errors?.Length > 0)
+            {
+                apiErrors = errors.Select(e => e.Description).ToArray();
+                return;
+            }
+        }
+        catch { }
+
+        try
+        {
+            // Intentar con formato de diccionario
+            var errorDict = JsonSerializer.Deserialize<Dictionary<string, string[]>>(content);
+            apiErrors = errorDict.SelectMany(x => x.Value).ToArray();
+        }
+        catch
+        {
+            try
+            {
+                // Intentar como array simple
+                apiErrors = JsonSerializer.Deserialize<string[]>(content) ?? new[] { "Error desconocido" };
+            }
+            catch
+            {
+                // Mostrar el contenido crudo
+                apiErrors = new[] { content };
+            }
+        }
+    }
+
+    void ButtonTestclick()
+    {
+        @if (isShow)
+        {
+            isShow = false;
+            PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+            PasswordInput = InputType.Password;
+        }
+        else
+        {
+            isShow = true;
+            PasswordInputIcon = Icons.Material.Filled.Visibility;
+            PasswordInput = InputType.Text;
+        }
+    }
+}

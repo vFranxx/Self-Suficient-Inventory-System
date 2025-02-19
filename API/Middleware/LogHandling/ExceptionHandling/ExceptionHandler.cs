@@ -1,8 +1,9 @@
 using API.Data;
+using API.Middleware.LogHandling.ExceptionHandling;
 using API.Models.LogModels;
 using System.Net;
 
-namespace API.LogHandling.ExceptionHandling
+namespace API.Middleware.LogHandling.ExceptionHandling
 {
     public static class ExceptionHandler
     {
@@ -34,7 +35,7 @@ namespace API.LogHandling.ExceptionHandling
                 {
                     RequestUrl = context.Request.Path,
                     StatusCode = context.Response.StatusCode,
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ExceptionType = ex.GetType().ToString(),
                     ExceptionMessage = model.ErrorMessage,
                     StackTrace = model.StackTrace,
@@ -67,7 +68,7 @@ namespace API.LogHandling.ExceptionHandling
                 {
                     RequestUrl = context.Request.Path,
                     StatusCode = context.Response.StatusCode,
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     Origin = "API",
                 };
 

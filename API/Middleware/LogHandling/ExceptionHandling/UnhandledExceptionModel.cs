@@ -1,4 +1,4 @@
-namespace API.LogHandling.ExceptionHandling
+namespace API.Middleware.LogHandling.ExceptionHandling
 {
     public class UnhandledExceptionModel
     {

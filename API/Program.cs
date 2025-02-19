@@ -1,6 +1,7 @@
 using API.Data;
-using API.LogHandling.ExceptionHandling;
-using API.LogHandling.ResponseHandle;
+using API.Middleware;
+using API.Middleware.LogHandling.ExceptionHandling;
+using API.Middleware.LogHandling.ResponseHandle;
 using API.Models.Entities;
 using API.Shared.DTOs.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -13,6 +14,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,7 +62,6 @@ builder.Services.AddIdentity<SystemOperator, IdentityRole>(options =>
     options.User.RequireUniqueEmail = true;
 })
 .AddEntityFrameworkStores<AppDbContext>()
-.AddUserManager<CustomUserManager>()
 .AddRoleManager<RoleManager<IdentityRole>>()
 .AddDefaultTokenProviders()
 .AddApiEndpoints();
@@ -87,8 +88,21 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"])),
 
         NameClaimType = ClaimTypes.NameIdentifier,
-        RoleClaimType = ClaimTypes.Role
+        RoleClaimType = ClaimTypes.Role,
+
+        ClockSkew = TimeSpan.Zero
     };
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazorClient", policy =>
+    {
+        policy.WithOrigins("https://localhost:7106") // URL del cliente Blazor
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
 });
 
 // Configuración de autorización
@@ -111,7 +125,11 @@ app.UseMiddleware<ResponseMiddleware>();
 
 app.UseMiddleware<ExceptionMiddleware>();
 
+//app.UseMiddleware<RolesMiddleware>();
+
 app.UseHttpsRedirection();
+
+app.UseCors("AllowBlazorClient");
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -216,7 +234,7 @@ app.MapRazorPages();
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    var roles = new[] { "ADMIN", "OPERADOR" };
+    var roles = new[] { "Admin", "Operador" };
 
     foreach (var role in roles)
     {

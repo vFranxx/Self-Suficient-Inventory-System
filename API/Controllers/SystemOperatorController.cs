@@ -11,7 +11,7 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize(Roles = "ADMIN")]
+    [Authorize(Roles = "ADMIN")]
     public class SystemOperatorController : ControllerBase
     {
 
@@ -154,7 +154,7 @@ namespace API.Controllers
                 return BadRequest($"El usuario {id} ya está dado de baja.");
             }
 
-            systemOperator.FechaBaja = DateTime.Now;
+            systemOperator.FechaBaja = DateTime.UtcNow;
 
             _dbContext.SystemOperators.Update(systemOperator);
             await _dbContext.SaveChangesAsync();
@@ -183,6 +183,57 @@ namespace API.Controllers
             await _dbContext.SaveChangesAsync();
 
             return Ok(systemOperator);
+        }
+
+
+        [HttpDelete("Reject/{id}")]
+        public async Task<IActionResult> RejectOperator(string id)
+        {
+            var systemOperator = await _userManager.FindByIdAsync(id);
+            if (systemOperator == null)
+            {
+                return NotFound();
+            }
+
+            var roles = await _userManager.GetRolesAsync(systemOperator);
+            if (roles.Any())
+            {
+                return BadRequest($"El usuario {id} tiene roles asignados y no puede ser eliminado.");
+            }
+
+            var result = await _userManager.DeleteAsync(systemOperator);
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
+
+            return Ok($"El usuario {id} ha sido eliminado.");
+        }
+
+        [HttpGet("pending")]
+        public async Task<IActionResult> GetPendingOperators()
+        {
+            var users = await _userManager.Users.Where(u => u.FechaBaja == null).ToListAsync();
+            var operators = new List<object>();
+            
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                if (!roles.Any())
+                {
+                    operators.Add(new
+                    {
+                        user.Id,
+                        user.UserName,
+                        user.Email,
+                        user.PhoneNumber,
+                        user.FechaBaja,
+                        Roles = roles
+                    });
+                }
+            }
+            
+            return Ok(operators);
         }
     }
 }

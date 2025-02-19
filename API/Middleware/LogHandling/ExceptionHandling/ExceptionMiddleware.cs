@@ -1,6 +1,6 @@
 using API.Data;
 
-namespace API.LogHandling.ExceptionHandling
+namespace API.Middleware.LogHandling.ExceptionHandling
 {
     public class ExceptionMiddleware
     {

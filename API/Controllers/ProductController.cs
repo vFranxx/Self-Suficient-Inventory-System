@@ -118,7 +118,7 @@ namespace API.Controllers
                 return BadRequest($"El producto {id} se encuentra dado de baja.");
             }
 
-            product.FechaBaja = DateTime.Now;
+            product.FechaBaja = DateTime.UtcNow;
 
 
             await _dbContext.SaveChangesAsync();

@@ -1,16 +1,90 @@
-﻿@inherits LayoutComponentBase
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+﻿@using System.Security.Claims
+@using WebClient.Shared.Providers
+@using Blazored.LocalStorage
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+@inherits LayoutComponentBase
+
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Color="Color.Primary">
+
+        <MudMenu Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" AriaLabel="Menú" Edge="Edge.Start">
+            <!-- Opciones comunes para todos los usuarios -->
+            <MudMenuItem Label="Home" Href="/" />
+
+            <!-- Opciones para los ADMIN -->
+            <AuthorizeView Roles="ADMIN">
+                <Authorized>
+                    <MudMenuItem Label="Solicitudes" Href="/Accounts/Manage-requests" />
+                </Authorized>
+            </AuthorizeView>
+
+            <!-- Opciones para los OPERADORES -->
+            <AuthorizeView Roles="OPERADOR">
+                <Authorized>
+
+                </Authorized>
+            </AuthorizeView>
+
+            <!-- Opciones para los NO AUTORIZADOS -->
+            <AuthorizeView>
+                <NotAuthorized>
+                    <MudMenuItem Label="About us" Href="" />
+                </NotAuthorized>
+            </AuthorizeView>
+        </MudMenu>
+
+        <div style="position: absolute; left: -50px; transform: translate(50vw, 0);">
+            <MudImage Src="/images/YPF-logo.png" Alt="YPF SERVICOMPRAS" Elevation="0" Class="rounded-lg" 
+                      Width="85" Style="filter: grayscale(100%) brightness(1000%);" />
         </div>
+        <MudSpacer/>
+        <AuthorizeView>
+            <Authorized>                
+                <MudText Typo="Typo.subtitle1" Class="mr-3">
+                    @DisplayUsername(context.User.Claims)
+                </MudText>
 
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+                <MudIconButton Icon="@Icons.Material.Filled.Logout"
+                               Color="Color.Inherit"
+                               OnClick="Logout" />
+            </Authorized>
+
+            <NotAuthorized>
+                <MudIconButton Icon="@Icons.Custom.Brands.GitHub"
+                               Color="Color.Inherit"
+                               Href="https://github.com/vFranxx/Self-Suficient-Inventory-System"
+                               Target="_blank" />
+            </NotAuthorized>
+        </AuthorizeView>   
+        
+    </MudAppBar>
+
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout>
+
+@code{
+    [Inject] private NavigationManager Navigation { get; set; }
+    [Inject] private ILocalStorageService LocalStorage { get; set; }
+    [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; }
+
+    private string DisplayUsername(IEnumerable<Claim> claims) 
+    {
+        return claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+    }
+
+    private async Task Logout()
+    {
+        await LocalStorage.RemoveItemAsync("token");
+        await LocalStorage.RemoveItemAsync("refresh-token");
+        await LocalStorage.RemoveItemAsync("token-expiration");
+        (AuthStateProvider as CustomAuthProvider)?.NotifyAuthState();
+        Navigation.NavigateTo("/");
+    }
+}
