@@ -40,7 +40,7 @@
 
         <div style="position: absolute; left: -50px; transform: translate(50vw, 0);">
             <MudImage Src="/images/YPF-logo.png" Alt="YPF SERVICOMPRAS" Elevation="0" Class="rounded-lg" 
-                      Width="85" Style="filter: grayscale(100%) brightness(1000%);" />
+            Width="85" Style="filter: grayscale(100%) brightness(1000%);" />
         </div>
         <MudSpacer/>
         <AuthorizeView>
@@ -50,18 +50,18 @@
                 </MudText>
 
                 <MudIconButton Icon="@Icons.Material.Filled.Logout"
-                               Color="Color.Inherit"
-                               OnClick="Logout" />
+                Color="Color.Inherit"
+                OnClick="Logout" />
             </Authorized>
 
             <NotAuthorized>
                 <MudIconButton Icon="@Icons.Custom.Brands.GitHub"
-                               Color="Color.Inherit"
-                               Href="https://github.com/vFranxx/Self-Suficient-Inventory-System"
-                               Target="_blank" />
+                Color="Color.Inherit"
+                Href="https://github.com/vFranxx/Self-Suficient-Inventory-System"
+                Target="_blank" />
             </NotAuthorized>
         </AuthorizeView>   
-        
+
     </MudAppBar>
 
     <MudMainContent>
@@ -70,6 +70,9 @@
 </MudLayout>
 
 @code{
+    [Inject] private IHttpClientFactory HttpFactory { get; set; }
+    [Inject] private ISnackbar Snackbar { get; set; }
+
     [Inject] private NavigationManager Navigation { get; set; }
     [Inject] private ILocalStorageService LocalStorage { get; set; }
     [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; }
@@ -81,10 +84,28 @@
 
     private async Task Logout()
     {
-        await LocalStorage.RemoveItemAsync("token");
-        await LocalStorage.RemoveItemAsync("refresh-token");
-        await LocalStorage.RemoveItemAsync("token-expiration");
-        (AuthStateProvider as CustomAuthProvider)?.NotifyAuthState();
-        Navigation.NavigateTo("/");
+        var httpClient = HttpFactory.CreateClient("API");
+
+        try
+        {
+            var response = await httpClient.PostAsync("/api/Auth/logout", null);
+            if (!response.IsSuccessStatusCode)
+            {
+                Snackbar.Add($"Error al cerrar sesión: {response.ReasonPhrase}", Severity.Error);
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error de conexión: {ex.Message}", Severity.Error);
+        }
+        finally 
+        {
+            await LocalStorage.RemoveItemAsync("token");
+            await LocalStorage.RemoveItemAsync("refresh-token");
+            await LocalStorage.RemoveItemAsync("token-expiration");
+            (AuthStateProvider as CustomAuthProvider)?.NotifyAuthState();
+            Navigation.NavigateTo("/", forceLoad: true);
+        }   
     }
 }

@@ -1,6 +1,7 @@
 ﻿using API.Data;
 using API.Models;
 using API.Models.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -193,6 +194,27 @@ namespace API.Controllers
             };
 
             return (null, response);
+        }
+
+        [HttpPost("logout")]
+        [Authorize]  // Requiere autenticación
+        public async Task<IActionResult> Logout()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // Invalidar todos los tokens del usuario
+            var tokens = await _dbContext.UserRefreshJwtTokens
+                .Where(t => t.UserId == userId)
+                .ToListAsync();
+
+            foreach (var token in tokens)
+            {
+                token.Invalidated = true;
+            }
+
+            await _dbContext.SaveChangesAsync();
+
+            return Ok();
         }
     }
 }
