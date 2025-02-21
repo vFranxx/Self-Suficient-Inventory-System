@@ -1,12 +1,12 @@
 ﻿@page "/Accounts/Register/Confirmation"
 
-@inject NavigationManager navigationManager
-
 <div class="ma-6 d-flex justify-center">
     <h3>Usuario registrado con éxito! Redirigiendo en @remainingTime...</h3>
 </div>
 
 @code {
+    [Inject] private NavigationManager navigationManager { get; set; }
+
     private int remainingTime = 5;
     private Timer timer;
 

@@ -1,6 +1,6 @@
 ﻿using API.Data;
 using API.Models.Entities;
-using API.Shared.DTOs.SupplierProduct;
+using Shared.DTO.SupplierProduct;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,0 +1,121 @@
+﻿@page "/Manage/Users"
+
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@using global::Shared.DTO
+
+@attribute [Authorize(Roles = "ADMIN")]
+
+@if (!IsAdmin && !IsLoading)
+{
+    _navigationManager.NavigateTo("/Unauthorized");
+    <p>Redirigiendo...</p>
+    return;
+}
+
+<div class="ma-6 d-flex justify-center">
+    <h3>GESTION DE USUARIOS</h3>
+</div>
+
+<MudContainer MaxWidth="MaxWidth.Small">
+    <MudPaper Class="pa-4">
+
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <MudAlert Severity="Severity.Error" Class="mb-4">
+                @ErrorMessage
+            </MudAlert>
+        }
+
+        <MudGrid Justify="Justify.Center">
+            @if (Usuarios == null)
+            {
+                <MudItem xs="12" Class="d-flex justify-center">
+                    <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+                </MudItem>
+                <MudItem xs="12" Class="d-flex justify-center">
+                    <MudText>Cargando solicitudes...</MudText>
+                </MudItem>
+            }
+            else if (!Usuarios.Any())
+            {
+                <MudItem xs="12">
+                    <MudAlert Severity="Severity.Info" Class="mb-3">
+                        No hay usuarios registrados en el sistema.
+                    </MudAlert>
+                </MudItem>
+            }
+            else
+            {
+                <MudItem xs="12">
+                    <MudTable Items="Usuarios" Hover="true" Elevation="2" Class="mt-2">
+                        <HeaderContent>
+                            <MudTh>Nombre</MudTh>
+                            <MudTh>Email</MudTh>
+                            <MudTh>Teléfono</MudTh>
+                        </HeaderContent>
+                        <RowTemplate Context="usuario">
+                            <MudTd>@usuario.Name</MudTd>
+                            <MudTd>@usuario.Email</MudTd>
+                            <MudTd>@usuario.Phone</MudTd>
+
+                            <MudTd>
+                                @* Añadir icono + botón ("Añadir/Quitar rol - Dar de baja") *@
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </MudItem>
+            }
+        </MudGrid>
+    </MudPaper>
+</MudContainer>
+
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthState { get; set; }
+
+    [Inject] private NavigationManager _navigationManager { get; set; }
+    [Inject] private IHttpClientFactory _httpFactory { get; set; }
+
+    private List<Usuario> Usuarios;
+    private string ErrorMessage;
+    private bool IsAdmin = false;
+    private bool IsLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = (await AuthState).User;
+        if (!user.Identity.IsAuthenticated)
+        {
+            _navigationManager.NavigateTo("/");
+        }
+
+        IsAdmin = user.IsInRole("ADMIN");
+        IsLoading = false;
+
+        await CargarUsuarios();
+    }
+
+    private async Task CargarUsuarios()
+    {
+        try
+        {
+            var httpClient = _httpFactory.CreateClient("API");
+
+            Usuarios = await httpClient.GetFromJsonAsync<List<Usuario>>("/api/SystemOperator");
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error al cargar usuarios: {ex.Message}";
+        }
+    }
+
+    public class Usuario
+    {
+        public string Id { get; set; }
+        public string Email { get; set; }
+        public string Name { get; set; }
+        public string Phone { get; set; }
+    }
+}

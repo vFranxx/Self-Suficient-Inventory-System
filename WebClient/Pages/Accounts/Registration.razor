@@ -1,16 +1,12 @@
-﻿@using System.Text.RegularExpressions
+﻿@page "/Accounts/Registration"
+
+@using System.Text.RegularExpressions
 @using System.ComponentModel.DataAnnotations
 @using System.Text.Json
 @using System.Text
 @using WebClient.Models.Errors
-@using WebClient.Models.DTOs
+@using global::Shared.DTO
 @using Microsoft.AspNetCore.Components
-
-@page "/Accounts/Registration"
-
-@* @inject HttpClient _http *@
-@inject IHttpClientFactory _httpFactory
-@inject NavigationManager navigationManager
 
 <div class="ma-6 d-flex justify-center">
     <h3>Formulario de registro</h3>
@@ -64,6 +60,9 @@
 @code {
     [CascadingParameter]
     public Task<AuthenticationState> AuthState { get; set; }
+
+    [Inject] private NavigationManager navigationManager { get; set; }
+    [Inject] private IHttpClientFactory _httpFactory { get; set; }
 
     protected override async Task OnInitializedAsync()
     {

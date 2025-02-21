@@ -1,0 +1,409 @@
+﻿@page "/Accounts/Settings"
+
+@using Blazored.Toast.Services
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+@using WebClient.Components
+@using WebClient.Shared.Providers
+@using global::Shared.DTO
+@using global::Shared.DTO.SystemOperator
+@using global::Shared.DTO.Token
+
+@attribute [Authorize]
+
+<div class="ma-6 d-flex justify-center">
+    <h3>Configuración de cuenta</h3>
+</div>
+
+<MudContainer MaxWidth="MaxWidth.ExtraSmall">
+    <MudPaper Class="pa-4">
+        <MudGrid Justify="Justify.Center">
+            <MudItem xs="12" Class="d-flex flex-column">
+                Usuario
+                <MudText Typo="Typo.h6">@Username</MudText>
+                <MudButton Variant="Variant.Filled"
+                           OnClick="OpenChangeNameDialog"
+                           Color="Color.Primary"
+                           Class="mt-4 mr-auto">
+                    Cambiar nombre
+                </MudButton>
+            </MudItem>
+
+            <MudItem xs="12" Class="d-flex flex-column">
+                Email
+                <MudText Typo="Typo.h6">@Email</MudText>
+                <MudButton Variant="Variant.Filled"
+                           OnClick="OpenChangeEmailDialog"
+                           Color="Color.Primary"
+                           Class="mt-4 mr-auto">
+                    Cambiar email
+                </MudButton>
+            </MudItem>
+
+            <MudItem xs="12" Class="d-flex flex-column">
+                N° teléfono
+                @if (!string.IsNullOrEmpty(@PhoneNumber))
+                {
+                    <MudText Typo="Typo.h6">@PhoneNumber</MudText>
+                }
+                else 
+                {
+                    <MudText Typo="Typo.h6">No disponible</MudText>
+                }
+                
+                <MudButton Variant="Variant.Filled"
+                           OnClick="OpenChangePhonenumberDialog"
+                           Color="Color.Primary"
+                           Class="mt-4 mr-auto">
+                    Cambiar teléfono
+                </MudButton>
+            </MudItem>
+
+            <MudItem xs="12" Class="d-flex flex-column">
+                Contraseña
+                <MudButton Variant="Variant.Filled"
+                           OnClick="OpenChangePasswordDialog"
+                           Color="Color.Primary"
+                           Class="mt-4 mr-auto">
+                    Cambiar contraseña
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthState { get; set; }
+
+    [Inject] private IDialogService _dialogService { get; set; }
+    [Inject] private NavigationManager _navigationManager { get; set; }
+    [Inject] private IHttpClientFactory _httpFactory { get; set; }
+    [Inject] private IToastService _toastService { get; set; }
+    [Inject] private ILocalStorageService _localStorage { get; set; }
+    [Inject] private AuthenticationStateProvider _auth { get; set; }
+
+    private string Username { get; set; }
+    private string Email { get; set; }
+    private string PhoneNumber { get; set; }
+    private string ErrorMessage { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = (await AuthState).User;
+        if (!user.Identity.IsAuthenticated)
+        {
+            _navigationManager.NavigateTo("/");
+        }
+
+        Username = user.FindFirst(ClaimTypes.Name)?.Value;
+        Email = user.FindFirst(ClaimTypes.Email)?.Value;
+        PhoneNumber = user.FindFirst(ClaimTypes.MobilePhone)?.Value ?? "No disponible";
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task OpenChangeNameDialog()
+    {
+        // Configurar los parámetros que quieras enviar al diálogo
+        var parameters = new DialogParameters
+        {
+            { "Title", "Cambiar nombre" },
+            { "Label", "Nuevo nombre" },
+            { "SaveButtonText", "Guardar" },
+            { "CancelButtonText", "Cancelar" }
+        };
+
+        var dialog = _dialogService.Show<GenericInputDialog>("Cambiar nombre", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var newName = result.Data as string;
+
+            // Validar que el nuevo nombre no esté vacío
+            if (string.IsNullOrWhiteSpace(newName))
+            {
+                _toastService.ShowError("El nombre no puede estar vacío");
+                return;
+            }
+
+            var user = (await AuthState).User;
+            var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var httpClient = _httpFactory.CreateClient("API");
+            var response = await httpClient.PutAsJsonAsync($"/api/SystemOperator/{userId}/username", newName );
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Actualizar el nombre en la UI
+                Username = newName;
+
+                StateHasChanged();
+
+                _toastService.ShowSuccess("Nombre actualizado correctamente");
+
+                // Actualizar el token
+                // Paso 1: Solicitar renovación del token
+                var refreshToken = await _localStorage.GetItemAsync<string>("refresh-token");
+
+                if (!string.IsNullOrEmpty(refreshToken))
+                {
+                    // Paso 2: Enviar la solicitud de renovación al servidor
+                    var renewTokenRequest = new RenewTokenRequestDTO
+                        {
+                            RefreshToken = refreshToken,
+                            UserId = userId
+                        };
+
+                    var renewResponse = await httpClient.PostAsJsonAsync("api/Auth/refresh-token", renewTokenRequest);
+
+                    if (renewResponse.IsSuccessStatusCode)
+                    {
+                        // Paso 3: Obtener el nuevo token desde la respuesta
+                        var resultEndpoint = await renewResponse.Content.ReadFromJsonAsync<JwtTokenResponseDto>();
+                        if (resultEndpoint != null)
+                        {
+                            // Paso 4: Almacenar el nuevo token y refresh token en el localStorage
+                            await _localStorage.SetItemAsync("token", resultEndpoint.Token);
+                            await _localStorage.SetItemAsync("refresh-token", resultEndpoint.RefreshToken);
+                            await _localStorage.SetItemAsync("token-expiration", resultEndpoint.Expiration);
+
+                            // Paso 5: Notificar a la UI que el estado de autenticación ha cambiado
+                            (_auth as CustomAuthProvider).NotifyAuthState();
+                        }
+                        else
+                        {
+                            _toastService.ShowError("No se pudo renovar el token.");
+                        }
+                    }
+                    else
+                    {
+                        _toastService.ShowError("Error al renovar el token.");
+                    }
+                }
+                else
+                {
+                    _toastService.ShowError("No se encontró el refresh token.");
+                }
+
+            }
+            else
+            {
+                _toastService.ShowError("Error al actualizar el Email");
+            }
+        }
+    }
+
+    private async Task OpenChangeEmailDialog()
+    {
+        var parameters = new DialogParameters
+    {
+        { "Title", "Cambiar email" },
+        { "Label", "Nuevo email" },
+        { "SaveButtonText", "Guardar" },
+        { "CancelButtonText", "Cancelar" }
+    };
+
+        var dialog = _dialogService.Show<GenericInputDialog>("", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var newEmail = result.Data as string;
+            if (string.IsNullOrWhiteSpace(newEmail))
+            {
+                _toastService.ShowError("El Email no puede estar vacío");
+                return;
+            }
+
+            var user = (await AuthState).User;
+            var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var httpClient = _httpFactory.CreateClient("API");
+            var response = await httpClient.PutAsJsonAsync($"/api/SystemOperator/{userId}/email", newEmail);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Actualizar el nombre en la UI
+                Email = newEmail;
+
+                StateHasChanged();
+
+                _toastService.ShowSuccess("Email actualizado correctamente");
+
+                var refreshToken = await _localStorage.GetItemAsync<string>("refresh-token");
+
+                if (!string.IsNullOrEmpty(refreshToken))
+                {
+                    var renewTokenRequest = new RenewTokenRequestDTO
+                        {
+                            RefreshToken = refreshToken,
+                            UserId = userId
+                        };
+
+                    var renewResponse = await httpClient.PostAsJsonAsync("api/Auth/refresh-token", renewTokenRequest);
+
+                    if (renewResponse.IsSuccessStatusCode)
+                    {
+                        // Paso 3: Obtener el nuevo token desde la respuesta
+                        var resultEndpoint = await renewResponse.Content.ReadFromJsonAsync<JwtTokenResponseDto>();
+                        if (resultEndpoint != null)
+                        {
+                            // Paso 4: Almacenar el nuevo token y refresh token en el localStorage
+                            await _localStorage.SetItemAsync("token", resultEndpoint.Token);
+                            await _localStorage.SetItemAsync("refresh-token", resultEndpoint.RefreshToken);
+                            await _localStorage.SetItemAsync("token-expiration", resultEndpoint.Expiration);
+
+                            // Paso 5: Notificar a la UI que el estado de autenticación ha cambiado
+                            (_auth as CustomAuthProvider).NotifyAuthState();
+                        }
+                        else
+                        {
+                            _toastService.ShowError("No se pudo renovar el token.");
+                        }
+                    }
+                    else
+                    {
+                        _toastService.ShowError("Error al renovar el token.");
+                    }
+                }
+                else
+                {
+                    _toastService.ShowError("No se encontró el refresh token.");
+                }
+
+            }
+            else
+            {
+                _toastService.ShowError("Error al actualizar el Email");
+            }
+        }
+    }
+
+    private async Task OpenChangePasswordDialog()
+    {
+        var parameters = new DialogParameters
+        {
+            { "Title", "Cambiar contraseña" },
+            { "Label", "Nueva contraseña" },
+            { "SaveButtonText", "Guardar" },
+            { "CancelButtonText", "Cancelar" },
+            { "IsPassword", true }
+        };
+
+        var dialog = _dialogService.Show<GenericInputDialog>("", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var newPassword = result.Data as string;
+            if (string.IsNullOrWhiteSpace(newPassword))
+            {
+                _toastService.ShowError("La contraseña no puede estar vacía");
+                return;
+            }
+
+            var user = (await AuthState).User;
+            var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var httpClient = _httpFactory.CreateClient("API");
+            var response = await httpClient.PutAsJsonAsync($"/api/SystemOperator/{userId}/password", newPassword);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _toastService.ShowSuccess("Contraseña actualizada correctamente");
+            }
+            else
+            {
+                _toastService.ShowError("Error al actualizar la contraseña");
+            }
+        }
+    }
+
+    private async Task OpenChangePhonenumberDialog() 
+    {
+        var parameters = new DialogParameters
+        {
+            { "Title", "Cambiar teléfono" },
+            { "Label", "Nuevo número" },
+            { "SaveButtonText", "Guardar" },
+            { "CancelButtonText", "Cancelar" }
+        };
+
+        var dialog = _dialogService.Show<GenericInputDialog>("", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var newPhonenumber = result.Data as string;
+            if (string.IsNullOrWhiteSpace(newPhonenumber))
+            {
+                _toastService.ShowError("El N° teléfono no puede estar vacío");
+                return;
+            }
+
+            var user = (await AuthState).User;
+            var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var httpClient = _httpFactory.CreateClient("API");
+            var response = await httpClient.PutAsJsonAsync($"/api/SystemOperator/{userId}/phone", newPhonenumber);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Actualizar el nombre en la UI
+                PhoneNumber = newPhonenumber;
+
+                StateHasChanged();
+
+                _toastService.ShowSuccess("N° teléfono actualizado correctamente");
+
+                var refreshToken = await _localStorage.GetItemAsync<string>("refresh-token");
+
+                if (!string.IsNullOrEmpty(refreshToken))
+                {
+                    var renewTokenRequest = new RenewTokenRequestDTO
+                        {
+                            RefreshToken = refreshToken,
+                            UserId = userId
+                        };
+
+                    var renewResponse = await httpClient.PostAsJsonAsync("api/Auth/refresh-token", renewTokenRequest);
+
+                    if (renewResponse.IsSuccessStatusCode)
+                    {
+                        // Paso 3: Obtener el nuevo token desde la respuesta
+                        var resultEndpoint = await renewResponse.Content.ReadFromJsonAsync<JwtTokenResponseDto>();
+                        if (resultEndpoint != null)
+                        {
+                            // Paso 4: Almacenar el nuevo token y refresh token en el localStorage
+                            await _localStorage.SetItemAsync("token", resultEndpoint.Token);
+                            await _localStorage.SetItemAsync("refresh-token", resultEndpoint.RefreshToken);
+                            await _localStorage.SetItemAsync("token-expiration", resultEndpoint.Expiration);
+
+                            // Paso 5: Notificar a la UI que el estado de autenticación ha cambiado
+                            (_auth as CustomAuthProvider).NotifyAuthState();
+                        }
+                        else
+                        {
+                            _toastService.ShowError("No se pudo renovar el token.");
+                        }
+                    }
+                    else
+                    {
+                        _toastService.ShowError("Error al renovar el token.");
+                    }
+                }
+                else
+                {
+                    _toastService.ShowError("No se encontró el refresh token.");
+                }
+
+            }
+            else
+            {
+                _toastService.ShowError("Error al actualizar el Email");
+            }
+        }
+    }
+}

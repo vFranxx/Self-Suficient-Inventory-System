@@ -5,6 +5,7 @@ using MudBlazor.Services;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using WebClient.Shared.Providers;
+using Blazored.Toast;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -20,6 +21,8 @@ builder.Services.AddHttpClient("API", options =>
 builder.Services.AddMudServices();
 
 builder.Services.AddBlazoredLocalStorage();
+
+builder.Services.AddBlazoredToast();
 
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthProvider>();
 builder.Services.AddAuthorizationCore();

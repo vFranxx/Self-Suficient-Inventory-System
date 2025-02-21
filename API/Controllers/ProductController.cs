@@ -1,6 +1,6 @@
 ﻿using API.Data;
 using API.Models.Entities;
-using API.Shared.DTOs.Product;
+using Shared.DTO.Product;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

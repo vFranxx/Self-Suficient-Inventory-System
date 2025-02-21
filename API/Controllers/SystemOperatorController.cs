@@ -1,6 +1,6 @@
 ﻿using API.Data;
 using API.Models.Entities;
-using API.Shared.DTOs.SystemOperator;
+using Shared.DTO.SystemOperator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +14,6 @@ namespace API.Controllers
     [Authorize(Roles = "ADMIN")]
     public class SystemOperatorController : ControllerBase
     {
-
         private readonly AppDbContext _dbContext;
         private readonly UserManager<SystemOperator> _userManager;
         public SystemOperatorController(AppDbContext dbContext, UserManager<SystemOperator> userManager)
@@ -71,9 +70,9 @@ namespace API.Controllers
             return Ok(operatorData);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id}/username")]
         [Authorize(Roles = "OPERADOR, ADMIN")]
-        public async Task<IActionResult> UpdateOperator(string id, UpdateOperatorDto updateOperatorDto)
+        public async Task<IActionResult> UpdateUsername(string id, [FromBody] string newUsername)
         {
             // Verificaciones
             if (User.IsInRole("OPERADOR") && User.FindFirst(ClaimTypes.NameIdentifier)?.Value != id)
@@ -82,46 +81,115 @@ namespace API.Controllers
             }
 
             var systemOperator = await _userManager.FindByIdAsync(id);
-
             if (systemOperator == null)
             {
                 return NotFound("Usuario no encontrado");
             }
 
-            if (systemOperator.UserName != updateOperatorDto.UserName)
+            // Verificar que el nuevo nombre no esté en uso
+            var existingUser = await _userManager.FindByNameAsync(newUsername);
+            if (existingUser != null && existingUser.Id != id)
             {
-                var existingUser = await _userManager.FindByNameAsync(updateOperatorDto.UserName);
-                if (existingUser != null && existingUser.Id != id)
-                {
-                    return BadRequest($"El nombre de usuario '{updateOperatorDto.UserName}' ya está en uso.");
-                }
+                return BadRequest($"El nombre de usuario '{newUsername}' ya está en uso.");
             }
 
-            if (systemOperator.Email != updateOperatorDto.Email)
+            systemOperator.UserName = newUsername;
+            systemOperator.NormalizedUserName = _userManager.NormalizeName(newUsername);
+
+            var result = await _userManager.UpdateAsync(systemOperator);
+            if (!result.Succeeded)
             {
-                var existingEmail = await _userManager.FindByEmailAsync(updateOperatorDto.Email);
-                if (existingEmail != null && existingEmail.Id != id)
-                {
-                    return BadRequest($"El email '{updateOperatorDto.Email}' ya está en uso.");
-                }
+                return BadRequest(result.Errors);
             }
 
-            // Actualizar campos básicos
-            systemOperator.UserName = updateOperatorDto.UserName;
-            systemOperator.PhoneNumber = updateOperatorDto.PhoneNumber;
+            return Ok(systemOperator);
+        }
 
-            // Actualizar email (requiere validación)
-            var emailResult = await _userManager.SetEmailAsync(systemOperator, updateOperatorDto.Email);
-            if (!emailResult.Succeeded)
+        [HttpPut("{id}/email")]
+        [Authorize(Roles = "OPERADOR, ADMIN")]
+        public async Task<IActionResult> UpdateEmail(string id, [FromBody] string newEmail)
+        {
+            // Verificaciones
+            if (User.IsInRole("OPERADOR") && User.FindFirst(ClaimTypes.NameIdentifier)?.Value != id)
             {
-                return BadRequest(emailResult.Errors);
+                return Forbid(); // Operador solo puede modificarse a sí mismo
             }
 
-            // Actualizar contraseña (solo si se proporciona)
-            if (!string.IsNullOrEmpty(updateOperatorDto.Password))
+            var systemOperator = await _userManager.FindByIdAsync(id);
+            if (systemOperator == null)
+            {
+                return NotFound("Usuario no encontrado");
+            }
+
+            // Verificar que el nuevo email no esté en uso
+            var existingEmail = await _userManager.FindByEmailAsync(newEmail);
+            if (existingEmail != null && existingEmail.Id != id)
+            {
+                return BadRequest($"El email '{newEmail}' ya está en uso.");
+            }
+
+            systemOperator.Email = newEmail;
+            systemOperator.NormalizedEmail = _userManager.NormalizeEmail(newEmail);
+
+            var result = await _userManager.UpdateAsync(systemOperator);
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
+
+            return Ok(systemOperator);
+        }
+
+        [HttpPut("{id}/phone")]
+        [Authorize(Roles = "OPERADOR, ADMIN")]
+        public async Task<IActionResult> UpdatePhone(string id, [FromBody] string newPhoneNumber)
+        {
+            // Verificaciones
+            if (User.IsInRole("OPERADOR") && User.FindFirst(ClaimTypes.NameIdentifier)?.Value != id)
+            {
+                return Forbid(); // Operador solo puede modificarse a sí mismo
+            }
+
+            var systemOperator = await _userManager.FindByIdAsync(id);
+            if (systemOperator == null)
+            {
+                return NotFound("Usuario no encontrado");
+            }
+
+            if (!string.IsNullOrEmpty(newPhoneNumber))
+            {
+                systemOperator.PhoneNumber = newPhoneNumber;
+            }
+
+            var result = await _userManager.UpdateAsync(systemOperator);
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
+
+            return Ok(systemOperator);
+        }
+
+        [HttpPut("{id}/password")]
+        [Authorize(Roles = "OPERADOR, ADMIN")]
+        public async Task<IActionResult> UpdatePassword(string id, [FromBody] string newPassword)
+        {
+            // Verificaciones
+            if (User.IsInRole("OPERADOR") && User.FindFirst(ClaimTypes.NameIdentifier)?.Value != id)
+            {
+                return Forbid(); // Operador solo puede modificarse a sí mismo
+            }
+
+            var systemOperator = await _userManager.FindByIdAsync(id);
+            if (systemOperator == null)
+            {
+                return NotFound("Usuario no encontrado");
+            }
+
+            if (!string.IsNullOrEmpty(newPassword))
             {
                 var token = await _userManager.GeneratePasswordResetTokenAsync(systemOperator);
-                var passwordResult = await _userManager.ResetPasswordAsync(systemOperator, token, updateOperatorDto.Password);
+                var passwordResult = await _userManager.ResetPasswordAsync(systemOperator, token, newPassword);
 
                 if (!passwordResult.Succeeded)
                 {
@@ -129,7 +197,6 @@ namespace API.Controllers
                 }
             }
 
-            // Guardar cambios
             var result = await _userManager.UpdateAsync(systemOperator);
             if (!result.Succeeded)
             {

@@ -3,7 +3,8 @@ using API.Middleware;
 using API.Middleware.LogHandling.ExceptionHandling;
 using API.Middleware.LogHandling.ResponseHandle;
 using API.Models.Entities;
-using API.Shared.DTOs.Identity;
+using API.Services.Token;
+using Shared.DTO.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
@@ -109,6 +110,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddAuthorization();
 
 builder.Services.AddTransient<IEmailSender, SmtpEmailSender>();
+builder.Services.AddScoped<IJwtService, JwtService>();
 
 builder.Services.AddRazorPages();
 

@@ -1,6 +1,6 @@
 ﻿using API.Data;
 using API.Models.Entities;
-using API.Shared.DTOs.OrderDetail;
+using Shared.DTO.OrderDetail;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,22 +1,15 @@
-﻿@using System.Text.RegularExpressions
+﻿@page "/Accounts/Login"
+
+@using System.Text.RegularExpressions
 @using System.ComponentModel.DataAnnotations
 @using System.Text.Json
 @using System.Text
 @using Blazored.LocalStorage
-@using WebClient.Models.DTOs
 @using Microsoft.AspNetCore.Components
-
-@page "/Accounts/Login"
-
-@using WebClient.Models.DTOs
 @using WebClient.Models.Errors
 @using WebClient.Shared.Providers
 @using global::Shared.DTO
-
-@inject IHttpClientFactory _httpFactory
-@inject NavigationManager navigationManager
-@inject ILocalStorageService _localStorage
-@inject AuthenticationStateProvider _auth
+@using global::Shared.DTO.Token
 
 <div class="ma-6 d-flex justify-center">
     <h3>LOGIN</h3>
@@ -64,6 +57,11 @@
     [CascadingParameter]
     public Task<AuthenticationState> AuthState { get; set; }
 
+    [Inject] private IHttpClientFactory _httpFactory { get; set; }
+    [Inject] private NavigationManager navigationManager { get; set; }
+    [Inject] private ILocalStorageService _localStorage { get; set; }
+    [Inject] private AuthenticationStateProvider _auth { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         var user = (await AuthState).User;
@@ -83,7 +81,7 @@
     string[] apiErrors = Array.Empty<string>();
     string[] formErrors = Array.Empty<string>();
     MudForm form;
-    LoginModelDTO _model = new LoginModelDTO();
+    LoginModelDto _model = new LoginModelDto();
 
     private async Task SignIn()
     {
@@ -100,7 +98,7 @@
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var result = await response.Content.ReadFromJsonAsync<JwtTokenResponseDTO>();
+                    var result = await response.Content.ReadFromJsonAsync<JwtTokenResponseDto>();
 
                     if (result != null)
                     {

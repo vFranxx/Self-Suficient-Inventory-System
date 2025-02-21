@@ -1,0 +1,169 @@
+﻿@page "/Manage/Requests"
+
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@using global::Shared.DTO
+
+@attribute [Authorize(Roles = "ADMIN")]
+
+@if (!IsAdmin && !IsLoading)
+{
+    _navigationManager.NavigateTo("/Unauthorized");
+    <p>Redirigiendo...</p>
+    return;
+}
+
+<div class="ma-6 d-flex justify-center">
+    <h3>GESTION DE SOLICITUDES</h3>
+</div>
+
+<MudContainer MaxWidth="MaxWidth.Small">
+    <MudPaper Class="pa-4">
+
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <MudAlert Severity="Severity.Error" Class="mb-4">
+                @ErrorMessage
+            </MudAlert>
+        }
+
+        <MudGrid Justify="Justify.Center">
+            @if (UsuariosPendientes == null)
+            {
+                <MudItem xs="12" Class="d-flex justify-center">
+                    <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+                </MudItem>
+                <MudItem xs="12" Class="d-flex justify-center">
+                    <MudText>Cargando solicitudes...</MudText>
+                </MudItem>
+            }
+            else if (!UsuariosPendientes.Any())
+            {
+                <MudItem xs="12">
+                    <MudAlert Severity="Severity.Info" Class="mb-3">
+                        No hay solicitudes pendientes.
+                    </MudAlert>
+                </MudItem>
+            }
+            else
+            {
+                <MudItem xs="12">
+                    <MudTable Items="UsuariosPendientes" Hover="true" Elevation="2" Class="mt-2">
+                        <HeaderContent>
+                            <MudTh>Email</MudTh>
+                            <MudTh>Acciones</MudTh>
+                        </HeaderContent>
+                        <RowTemplate Context="usuario">
+                            <MudTd>@usuario.Email</MudTd>
+                            <MudTd>
+                                <MudButton Color="Color.Success" OnClick="() => ActivarUsuario(usuario.Id)">
+                                    <MudIcon Icon="mdi-check" /> Activar
+                                </MudButton>
+                                <MudButton Color="Color.Error" OnClick="() => RechazarUsuario(usuario.Id)" Class="ml-2">
+                                    <MudIcon Icon="mdi-close" /> Rechazar
+                                </MudButton>
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </MudItem>
+            }
+        </MudGrid>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthState { get; set; }
+
+    [Inject] private IHttpClientFactory _httpFactory { get; set; }
+    [Inject] private NavigationManager _navigationManager { get; set; }
+
+    private List<Usuario> UsuariosPendientes;
+    private string ErrorMessage;
+    private bool IsAdmin = false;
+    private bool IsLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = (await AuthState).User;
+        if (!user.Identity.IsAuthenticated)
+        {
+            _navigationManager.NavigateTo("/");
+        }
+
+        IsAdmin = user.IsInRole("ADMIN");
+        IsLoading = false;
+
+        await CargarUsuariosPendientes();
+    }
+
+    private async Task CargarUsuariosPendientes()
+    {
+        try
+        {
+            var httpClient = _httpFactory.CreateClient("API");
+
+            UsuariosPendientes = await httpClient.GetFromJsonAsync<List<Usuario>>("/api/SystemOperator/pending");
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error al cargar usuarios: {ex.Message}";
+        }
+    }
+
+    private async Task ActivarUsuario(string userId)
+    {
+        try
+        {
+            var httpClient = _httpFactory.CreateClient("API");
+
+            // Asignar rol "OPERADOR" 
+            var response = await httpClient.PostAsJsonAsync("/api/Roles/assign-role", new AssignRoleDto { Role = "operador", UserId = userId });
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Recargar la lista de usuarios
+                await CargarUsuariosPendientes();
+            }
+            else
+            {
+                ErrorMessage = await response.Content.ReadAsStringAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error al activar usuario: {ex.Message}";
+        }
+    }
+
+    private async Task RechazarUsuario(string userId)
+    {
+        try
+        {
+            var httpClient = _httpFactory.CreateClient("API");
+
+            // Rechazar usuario 
+            var response = await httpClient.DeleteAsync($"/api/SystemOperator/Reject/{userId}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Recargar la lista de usuarios
+                await CargarUsuariosPendientes();
+            }
+            else
+            {
+                ErrorMessage = await response.Content.ReadAsStringAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error al rechazar usuario: {ex.Message}";
+        }
+    }
+
+    public class Usuario
+    {
+        public string Id { get; set; }
+        public string Email { get; set; }
+    }
+}

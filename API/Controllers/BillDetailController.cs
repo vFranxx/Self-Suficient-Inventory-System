@@ -1,6 +1,6 @@
 ﻿using API.Data;
 using API.Models.Entities;
-using API.Shared.DTOs.BillDetail;
+using Shared.DTO.BillDetail;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

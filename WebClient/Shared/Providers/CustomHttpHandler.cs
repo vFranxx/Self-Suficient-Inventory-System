@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Shared.DTO;
+using Shared.DTO.Token;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -70,7 +71,7 @@ namespace WebClient.Shared.Providers
 
             if (response.IsSuccessStatusCode)
             {
-                var result = await response.Content.ReadFromJsonAsync<JwtTokenResponseDTO>();
+                var result = await response.Content.ReadFromJsonAsync<JwtTokenResponseDto>();
                 if (result != null) 
                 {
                     await _localStorage.SetItemAsync("token", result.Token);

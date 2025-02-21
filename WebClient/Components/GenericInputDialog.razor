@@ -1,0 +1,84 @@
+﻿<MudDialog>
+    <TitleContent>@Title</TitleContent>
+
+    <DialogContent>
+        @if (!IsPassword)
+        {
+            <MudTextField @bind-Value="InputValue" Label="@Label" />
+        }
+        else
+        {
+            <MudTextField @bind-Value="InputValue" 
+                Label="@Label"
+                InputType="PasswordInput"
+                Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon"
+                OnAdornmentClick="ButtonTestclick" AdornmentAriaLabel="Mostrar contraseña" 
+                Class="mb-2" />
+        }
+
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <MudText Typo="Typo.caption" Color="Color.Error" Class="mt-1">
+                @ErrorMessage
+            </MudText>
+        }
+    </DialogContent>
+    
+    <DialogActions>
+        <div class="pb-2">
+            <MudButton OnClick="Save" Color="Color.Primary" Variant="Variant.Filled">
+                @SaveButtonText
+            </MudButton>
+            <MudButton OnClick="Cancel" Color="Color.Secondary" Variant="Variant.Outlined">
+                @CancelButtonText
+            </MudButton>
+        </div>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    // Parámetros que se pueden establecer al invocar el diálogo
+    [Parameter] public string Title { get; set; } = "Título";
+    [Parameter] public string Label { get; set; } = "Ingrese valor";
+    [Parameter] public string SaveButtonText { get; set; } = "Guardar";
+    [Parameter] public string CancelButtonText { get; set; } = "Cancelar";
+    [Parameter] public bool IsPassword { get; set; } = false;
+    [Parameter] public string ErrorMessage { get; set; } = string.Empty;
+
+    private string InputValue { get; set; }
+
+    private bool isShow;
+    InputType PasswordInput = InputType.Password;
+    string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+    private void Save()
+    {
+        // Cierra el diálogo devolviendo el valor ingresado
+        MudDialog.Close(DialogResult.Ok(InputValue));
+    }
+
+    private void Cancel()
+    {
+        // Cierra el diálogo sin devolver nada
+        MudDialog.Cancel();
+    }
+
+    void ButtonTestclick()
+    {
+        @if (isShow)
+        {
+            isShow = false;
+            PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+            PasswordInput = InputType.Password;
+        }
+        else
+        {
+            isShow = true;
+            PasswordInputIcon = Icons.Material.Filled.Visibility;
+            PasswordInput = InputType.Text;
+        }
+    }
+}

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Shared.DTO
 {
-    public class AssignRoleDTO
+    public class AssignRoleDto
     {
         public string UserId { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;

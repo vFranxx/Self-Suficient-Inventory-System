@@ -28,7 +28,7 @@ namespace API.Controllers
         }
 
         [HttpPost("assign-role")]
-        public async Task<IActionResult> AssignRole([FromBody] AssignRoleDTO dto)
+        public async Task<IActionResult> AssignRole([FromBody] AssignRoleDto dto)
         {
             var user = await _userManager.FindByIdAsync(dto.UserId);
             if (user == null)
