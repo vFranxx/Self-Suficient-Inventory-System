@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using Shared.DTO;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace API.Controllers
 {
@@ -206,52 +208,51 @@ namespace API.Controllers
             return Ok(systemOperator);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> SoftDeleteOperator(string id)
+        [HttpPut("{id}/status")]
+        public async Task<IActionResult> UpdateUserStatus(string id, [FromQuery] bool active)
         {
-            var systemOperator = await _userManager.FindByIdAsync(id);
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return NotFound();
 
-            if (systemOperator == null)
+            if (active)
             {
-                return NotFound();
+                if (user.FechaBaja == null)
+                    return BadRequest($"El usuario {id} ya está activo");
+
+                user.FechaBaja = null;
+            }
+            else
+            {
+                if (user.FechaBaja != null)
+                    return BadRequest($"El usuario {id} ya está inactivo");
+
+                user.FechaBaja = DateTime.UtcNow;
             }
 
-            if (systemOperator.FechaBaja != null)
-            {
-                return BadRequest($"El usuario {id} ya está dado de baja.");
-            }
-
-            systemOperator.FechaBaja = DateTime.UtcNow;
-
-            _dbContext.SystemOperators.Update(systemOperator);
+            _dbContext.SystemOperators.Update(user);
             await _dbContext.SaveChangesAsync();
 
-            return Ok(systemOperator);
+            return Ok(user);
         }
 
-        [HttpPost("{id}")]
-        public async Task<IActionResult> ActivateOperator(string id)
+        [HttpPut("{userId}/roles")]
+        public async Task<IActionResult> UpdateUserRoles(string userId, string[] roles)
         {
-            var systemOperator = await _userManager.FindByIdAsync(id);
-
-            if (systemOperator == null)
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
             {
-                return NotFound();
+                return NotFound("Usuario no encontrado");
             }
 
-            if (systemOperator.FechaBaja == null)
-            {
-                return BadRequest($"El usuario {id} ya está dado de alta");
-            }
+            // Eliminar roles actuales
+            var userRoles = await _userManager.GetRolesAsync(user);
+            await _userManager.RemoveFromRolesAsync(user, userRoles.ToArray());
 
-            systemOperator.FechaBaja = null;
+            // Asignar nuevos roles
+            await _userManager.AddToRolesAsync(user, roles);
 
-            _dbContext.SystemOperators.Update(systemOperator);
-            await _dbContext.SaveChangesAsync();
-
-            return Ok(systemOperator);
+            return Ok();
         }
-
 
         [HttpDelete("Reject/{id}")]
         public async Task<IActionResult> RejectOperator(string id)

@@ -1,0 +1,84 @@
+﻿@using global::Shared.DTO
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">Detalles de Usuario</MudText>
+    </TitleContent>
+
+    <DialogContent>
+        <MudGrid Spacing="2">
+            <!-- Mostrar datos del usuario en TextFields inhabilitados -->
+            <MudItem xs="12">
+                <MudTextField Label="Nombre de Usuario" Value="@User.UserName" Disabled="true" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField Label="Email" Value="@User.Email" Disabled="true" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField Label="Teléfono" 
+                              Value="@(User.PhoneNumber == null
+                                    ? "-" 
+                                    : User.PhoneNumber)"
+                              Disabled="true" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField Label="Roles" Value="@string.Join(", ", User.Roles ?? new List<string>())" Disabled="true" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField Label="Estado Actual"
+                              Value="@(User.FechaBaja == null
+                                         ? "Activo"
+                                         : $"Inactivo desde {User.FechaBaja.Value.ToString("dd/MM/yyyy HH:mm")}")"
+                              Disabled="true" />
+            </MudItem>
+
+            <!-- Slider (switch) para cambiar el estado -->
+            <MudItem xs="12" Class="mt-3">
+                <MudText Typo="Typo.body1">Cambiar estado:</MudText>
+                <MudSwitch T="bool" @bind-Value="isActive" Color="Color.Success" UnCheckedColor="Color.Error">
+                    @if (isActive)
+                    {
+                        <span>Activo</span>
+                    }
+                    else
+                    {
+                        <span>Inactivo</span>
+                    }
+                </MudSwitch>
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="Confirm" Color="Color.Primary" Variant="Variant.Filled">
+            Confirmar
+        </MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Secondary" Variant="Variant.Outlined">
+            Cancelar
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] 
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter] 
+    public required UserDto User { get; set; }
+
+    private bool isActive;
+
+    protected override void OnParametersSet()
+    {
+        isActive = User.FechaBaja == null;
+        base.OnParametersSet();
+    }
+
+    private void Confirm()
+    {
+        // Al confirmar se devuelve el valor del switch
+        MudDialog.Close(DialogResult.Ok(isActive));
+    }
+    
+    private void Cancel() => MudDialog.Cancel();
+}

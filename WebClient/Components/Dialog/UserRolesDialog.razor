@@ -1,0 +1,124 @@
+﻿@using global::Shared.DTO
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">Asignar Roles</MudText>
+    </TitleContent>
+
+    <DialogContent>
+        <MudGrid Spacing="2">
+            <!-- Datos del usuario -->
+            <MudItem xs="12">
+                <MudTextField Label="Nombre de Usuario" Value="@User.UserName" Disabled="true" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField Label="Email" Value="@User.Email" Disabled="true" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField Label="Teléfono"
+                              Value="@(User.PhoneNumber == null
+                                    ? "-"
+                                    : User.PhoneNumber)"
+                              Disabled="true" />
+            </MudItem>
+
+            <!-- Lista de roles con checkboxes -->
+            <MudItem xs="12" Class="mt-3">
+                <MudText Typo="Typo.subtitle1" Class="mb-2">Seleccionar Roles:</MudText>
+                @if (isLoading)
+                {
+                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                }
+                else
+                {
+                    foreach (var role in availableRoles)
+                    {
+                        <MudItem xs="12" Class="my-2">
+                            <MudCheckBox T="bool"
+                                         Label="@role"
+                                         Value="@selectedRoles.Contains(role)"
+                                         ValueChanged="async (isChecked) => await HandleRoleSelection(role, isChecked)" />
+                        </MudItem>
+                    }
+                }
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="Confirm" Color="Color.Primary" Variant="Variant.Filled">
+            Guardar
+        </MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Secondary" Variant="Variant.Outlined">
+            Cancelar
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Inject] private IHttpClientFactory _httpFactory { get; set; }
+
+    [Parameter] public required UserDto User { get; set; }
+
+    private List<string> availableRoles = new();
+    private HashSet<string> selectedRoles = new();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadRoles();
+
+        // Sincronizar solo después de cargar los roles disponibles
+        if (User?.Roles != null && availableRoles.Count > 0)
+        {
+            selectedRoles = new HashSet<string>(
+                User.Roles.Intersect(availableRoles),
+                StringComparer.OrdinalIgnoreCase
+            );
+        }
+
+        isLoading = false;
+        StateHasChanged(); // Forzar actualización visual
+    }
+
+    private async Task LoadRoles()
+    {
+        try
+        {
+            var httpClient = _httpFactory.CreateClient("API");
+            var response = await httpClient.GetAsync("/api/Roles");
+
+            if (response.IsSuccessStatusCode)
+            {
+                availableRoles = await response.Content.ReadFromJsonAsync<List<string>>() ?? new();
+            }
+        }
+        catch
+        {
+            // Manejar error
+        }
+    }
+
+    private async Task HandleRoleSelection(string role, bool isChecked)
+    {
+        if (isChecked)
+        {
+            selectedRoles.Add(role);
+        }
+        else
+        {
+            selectedRoles.Remove(role);
+        }
+    }
+
+    private void Confirm()
+    {
+        // Al confirmar se devuelve el valor del switch
+        MudDialog.Close(DialogResult.Ok(selectedRoles.ToList()));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

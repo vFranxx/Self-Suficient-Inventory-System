@@ -37,7 +37,7 @@ namespace API.Services.Token
             new Claim(ClaimTypes.NameIdentifier, user.Id),
             new Claim(ClaimTypes.Name, user.UserName),
             new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.MobilePhone, user.PhoneNumber),
+            new Claim(ClaimTypes.MobilePhone, user.PhoneNumber ?? string.Empty),
             new Claim(JwtRegisteredClaimNames.Jti, jti)
         };
 

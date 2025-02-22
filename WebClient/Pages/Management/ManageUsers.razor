@@ -2,7 +2,11 @@
 
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
+@using System.Security.Claims
+@using WebClient.Components.Dialog
+@using WebClient.Shared.Providers
 @using global::Shared.DTO
+@using global::Shared.DTO.Token
 
 @attribute [Authorize(Roles = "ADMIN")]
 
@@ -17,7 +21,7 @@
     <h3>GESTION DE USUARIOS</h3>
 </div>
 
-<MudContainer MaxWidth="MaxWidth.Small">
+<MudContainer MaxWidth="MaxWidth.Medium">
     <MudPaper Class="pa-4">
 
         @if (!string.IsNullOrEmpty(ErrorMessage))
@@ -34,7 +38,7 @@
                     <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
                 </MudItem>
                 <MudItem xs="12" Class="d-flex justify-center">
-                    <MudText>Cargando solicitudes...</MudText>
+                    <MudText>Cargando usuarios...</MudText>
                 </MudItem>
             }
             else if (!Usuarios.Any())
@@ -49,20 +53,66 @@
             {
                 <MudItem xs="12">
                     <MudTable Items="Usuarios" Hover="true" Elevation="2" Class="mt-2">
+
                         <HeaderContent>
                             <MudTh>Nombre</MudTh>
                             <MudTh>Email</MudTh>
                             <MudTh>Teléfono</MudTh>
+                            <MudTh>Estado</MudTh>
+                            <MudTh>
+                                <span>Roles</span>
+                                <MudIconButton Icon="@Icons.Material.Filled.Info"
+                                               Size="Size.Small"
+                                               Color="Color.Primary"
+                                               Class="ml-1" />
+                            </MudTh>
                         </HeaderContent>
-                        <RowTemplate Context="usuario">
-                            <MudTd>@usuario.Name</MudTd>
-                            <MudTd>@usuario.Email</MudTd>
-                            <MudTd>@usuario.Phone</MudTd>
 
+                        <RowTemplate Context="UserDto">
+                            <MudTd>@UserDto.UserName</MudTd>
+                            <MudTd>@UserDto.Email</MudTd>
+                            <MudTd>@UserDto.PhoneNumber</MudTd>
                             <MudTd>
-                                @* Añadir icono + botón ("Añadir/Quitar rol - Dar de baja") *@
+                                <MudChip T="string"
+                                Color="@(UserDto.FechaBaja == null ? Color.Success : Color.Error)"
+                                Variant="Variant.Filled"
+                                Size="Size.Medium"
+                                Class="text-uppercase"
+                                OnClick="() => ShowStatusDialog(UserDto)"
+                                Style="cursor: pointer;" >
+
+                                    @if (UserDto.FechaBaja == null)
+                                    {
+                                        <MudIcon Icon="@Icons.Material.Filled.LockOpen" Class="mr-1" Size="Size.Small" />
+                                        <span>Activo</span>
+                                    }
+                                    else
+                                    {
+                                        <div style="display: flex; flex-direction: column; align-items: center; line-height: 1.2">
+                                            <div>
+                                                <MudIcon Icon="@Icons.Material.Filled.Lock" Class="mr-1" Size="Size.Small" />
+                                                Inactivo
+                                            </div>
+                                            <div style="font-size: 0.8em">
+                                                @UserDto.FechaBaja?.ToString()
+                                            </div>
+                                        </div>
+                                    }
+                                </MudChip>
+                            </MudTd>
+                            <MudTd>
+                                @string.Join(", ", UserDto.Roles)
+                                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                OnClick="() => ShowRolesDialog(UserDto)"
+                                Color="Color.Primary"
+                                Class="mr-2" />
                             </MudTd>
                         </RowTemplate>
+
+                        <PagerContent>
+                            <MudTablePager />
+                        </PagerContent>
+
                     </MudTable>
                 </MudItem>
             }
@@ -70,15 +120,25 @@
     </MudPaper>
 </MudContainer>
 
-
 @code {
+    // TO DO: 
+    // Implementar validación: No se permite borrar el rol "admin" si es el único disponible
+    // Implementar validación: No se permite dar de baja a uno mismo
+    // Implementar validación: El usuario debe tener al menos un rol
+    // Implementar validación: No se permite dar de baja a un usuario con rol "admin"
+    // Generar componente inteligente de dialogo para Ver, agregar y eliminar errores - NO NECESARIO
+
     [CascadingParameter]
     public Task<AuthenticationState> AuthState { get; set; }
 
     [Inject] private NavigationManager _navigationManager { get; set; }
     [Inject] private IHttpClientFactory _httpFactory { get; set; }
+    [Inject] private IDialogService _dialogService { get; set; }
+    [Inject] private ILocalStorageService _localStorage { get; set; }
+    [Inject] private AuthenticationStateProvider _auth { get; set; }
 
-    private List<Usuario> Usuarios;
+
+    private List<UserDto> Usuarios;
     private string ErrorMessage;
     private bool IsAdmin = false;
     private bool IsLoading = true;
@@ -103,7 +163,10 @@
         {
             var httpClient = _httpFactory.CreateClient("API");
 
-            Usuarios = await httpClient.GetFromJsonAsync<List<Usuario>>("/api/SystemOperator");
+            Usuarios = await httpClient.GetFromJsonAsync<List<UserDto>>("/api/SystemOperator");
+
+            // Filtrar usuarios que tienen al menos un rol
+            Usuarios = Usuarios?.Where(u => u.Roles?.Any() == true).ToList();
         }
         catch (Exception ex)
         {
@@ -111,11 +174,131 @@
         }
     }
 
-    public class Usuario
+    private async Task EditUserRoles(string userId, string[] roles)
     {
-        public string Id { get; set; }
-        public string Email { get; set; }
-        public string Name { get; set; }
-        public string Phone { get; set; }
+        var currentUserDto = Usuarios?.FirstOrDefault(u => u.Id == userId);
+        bool alreadyHasAdmin = currentUserDto?.Roles?.Any(r => r.Equals("admin", StringComparison.OrdinalIgnoreCase)) ?? false;
+
+        if (roles.Any(r => r.Equals("admin", StringComparison.OrdinalIgnoreCase)) && !alreadyHasAdmin)
+        {
+            // Mostrar un mensaje de confirmación
+            bool confirmed = await _dialogService.ShowMessageBox(
+                "Confirmación",
+                "Está seguro de agregar el rol 'admin'? Esta acción puede otorgar privilegios elevados. ¿Desea continuar?",
+                yesText: "Sí",
+                cancelText: "No"
+            ) ?? false;
+
+            if (!confirmed)
+            {
+                // Si el usuario cancela, se termina el método sin hacer cambios
+                return;
+            }
+        }
+
+        try
+        {
+            var httpClient = _httpFactory.CreateClient("API");
+            var response = await httpClient.PutAsJsonAsync($"/api/SystemOperator/{userId}/roles", roles);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var currentUser = (await AuthState).User;
+                var currentUserId = currentUser.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (userId == currentUserId)
+                {
+                    // Refrescar el token solo si estoy modificando mis propios roles
+                    var refreshToken = await _localStorage.GetItemAsync<string>("refresh-token");
+
+                    if (!string.IsNullOrEmpty(refreshToken))
+                    {
+                        var renewTokenRequest = new RenewTokenRequestDTO
+                            {
+                                RefreshToken = refreshToken,
+                                UserId = userId
+                            };
+
+                        var renewResponse = await httpClient.PostAsJsonAsync("/api/Auth/refresh-token", renewTokenRequest);
+
+                        if (renewResponse.IsSuccessStatusCode)
+                        {
+                            var resultEndpoint = await renewResponse.Content.ReadFromJsonAsync<JwtTokenResponseDto>();
+
+                            await _localStorage.SetItemAsync("token", resultEndpoint.Token);
+                            await _localStorage.SetItemAsync("refresh-token", resultEndpoint.RefreshToken);
+                            await _localStorage.SetItemAsync("token-expiration", resultEndpoint.Expiration);
+                            (_auth as CustomAuthProvider).NotifyAuthState();
+                        }
+                    }
+                }
+
+                // Recargar la lista de usuarios
+                await CargarUsuarios();
+            }
+            else
+            {
+                ErrorMessage = await response.Content.ReadAsStringAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error al editar roles: {ex.Message}";
+        }
+    }
+
+    private async Task ShowRolesDialog(UserDto user)
+    {
+        var parameters = new DialogParameters { { "User", user } };
+        var dialog = _dialogService.Show<UserRolesDialog>("Asignar roles", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data is List<string> selectedRoles)
+        {
+            await EditUserRoles(user.Id, selectedRoles.ToArray());
+        }
+    }
+
+    private async Task EditUserStatus(string userId, bool active)
+    {
+        try
+        {
+            var httpClient = _httpFactory.CreateClient("API");
+            var response = await httpClient.PutAsync(
+                $"/api/SystemOperator/{userId}/status?active={active}",
+                null);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Actualizar estado localmente
+                var user = Usuarios.FirstOrDefault(u => u.Id == userId);
+                if (user != null)
+                {
+                    user.FechaBaja = active ? null : DateTime.Now;
+                }
+                StateHasChanged();
+            }
+            else
+            {
+                ErrorMessage = await response.Content.ReadAsStringAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error al actualizar estado: {ex.Message}";
+        }
+    }
+
+    private async Task ShowStatusDialog(UserDto user)
+    {
+        var parameters = new DialogParameters { { "User", user } };
+
+        var dialog = _dialogService.Show<UserStatusDialog>("Cambiar estado", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data is bool active) 
+        {
+            await EditUserStatus(user.Id, active);
+        }
     }
 }
