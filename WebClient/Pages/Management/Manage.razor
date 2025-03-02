@@ -1,0 +1,28 @@
+﻿@page "/Manage"
+
+@using MudBlazor
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-6">
+    <MudCard>
+        <MudCardContent>
+            <MudText Typo="Typo.h6" Class="mb-2">
+                ¿Qué deseas gestionar?
+            </MudText>
+            <MudText Class="mb-4">
+                Puedes gestionar las solicitudes pendientes o administrar los usuarios.
+            </MudText>
+            <MudStack Direction="Row" Spacing="2">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/Manage/Requests">
+                    Gestión de Solicitudes
+                </MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/Manage/Users">
+                    Gestión de Usuarios
+                </MudButton>
+            </MudStack>
+        </MudCardContent>
+    </MudCard>
+</MudContainer>
+
+@code {
+
+}

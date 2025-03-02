@@ -11,8 +11,7 @@ namespace API.Data
 
         public SmtpEmailSender(IConfiguration configuration)
         {
-            _fromEmail = configuration["FromEmail"];
-
+            _fromEmail = configuration["Smtp:FromEmail"];
             _smtpClient = new SmtpClient
             {
                 Host = configuration["Smtp:Host"],
@@ -34,9 +33,6 @@ namespace API.Data
             await _smtpClient.SendMailAsync(mailMessage);
         }
 
-        public void Dispose()
-        {
-            _smtpClient?.Dispose();
-        }
+        public void Dispose() => _smtpClient?.Dispose();
     }
 }

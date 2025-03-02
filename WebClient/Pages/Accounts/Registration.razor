@@ -4,7 +4,7 @@
 @using System.ComponentModel.DataAnnotations
 @using System.Text.Json
 @using System.Text
-@using WebClient.Models.Errors
+@using WebClient.Shared
 @using global::Shared.DTO
 @using Microsoft.AspNetCore.Components
 
@@ -14,33 +14,26 @@
 
 <MudContainer MaxWidth="MaxWidth.ExtraSmall" >
     <MudPaper Class="pa-4">
-        @if (apiErrors.Length > 0)
-        {
-            <MudAlert Severity="Severity.Error" Class="mb-4">
-                @foreach (var error in apiErrors)
-                {
-                    <div>@error</div>
-                }
-            </MudAlert>
-        }
-
         <MudGrid Justify="Justify.Center" >
             <MudItem xs="12">
-                <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@formErrors">
+
+                <MudForm @ref="form" @bind-IsValid="@success">
 
                     <MudTextField T="string" Label="Email" @bind-Value="_model.Email"
                     Required="true" RequiredError="Ingrese su Email!"
-                    Validation="@(new EmailAddressAttribute() {ErrorMessage = "El email es inválido"})" />
+                    Validation="@(new EmailAddressAttribute() {ErrorMessage = "El email es inválido"})"
+                    InputType="InputType.Email" />
 
                     <MudTextField T="string" Label="Contraseña" @ref="pwField1" @bind-Value="_model.Password"
                     InputType="@PasswordInput"
-                    Validation="@(new Func<string, IEnumerable<string>>(PasswordStrength))" Required="true"
+                    Validation="@(new Func<string, IEnumerable<string>>(Validations.PasswordStrength))" Required="true"
                     Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon"
                     OnAdornmentClick="ButtonTestclick" AdornmentAriaLabel="Mostrar contraseña"
                     RequiredError="Ingrese su contraseña!" />
 
                     <MudTextField T="string" Label="Repetir Contraseña" InputType="@PasswordInput"
-                    Validation="@(new Func<string, string>(PasswordMatch))"
+                    @bind-Value="confirmPassword"
+                    Validation="@((Func<string, IEnumerable<string>>)(arg => Validations.PasswordMatch(_model.Password, arg)))"
                     Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon"
                     OnAdornmentClick="ButtonTestclick" AdornmentAriaLabel="Mostrar contraseña"/>
 
@@ -63,6 +56,7 @@
 
     [Inject] private NavigationManager navigationManager { get; set; }
     [Inject] private IHttpClientFactory _httpFactory { get; set; }
+    [Inject] private IToastService _toastService { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -75,96 +69,45 @@
         await base.OnInitializedAsync();
     }
 
+    private string confirmPassword;
+
     bool isShow;
     InputType PasswordInput = InputType.Password;
     string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
 
     bool success;
-    string[] formErrors = { }; // Errores de validacion del form
-    string[] apiErrors = Array.Empty<string>(); // Errores de la API
     MudTextField<string> pwField1;
     MudForm form;
     RegisterRequestDTO _model = new RegisterRequestDTO();
 
-    private IEnumerable<string> PasswordStrength(string pw)
-    {
-        if (string.IsNullOrWhiteSpace(pw))
-        {
-            yield return "Es necesario ingresar una contraseña!";
-            yield break;
-        }
-        if (pw.Length < 8)
-            yield return "Las contraseñas deben tener minimo 8 caracteres de largo";
-        if (!Regex.IsMatch(pw, @"[A-Z]"))
-            yield return "Las contraseñas deben tener al menos una letra mayúscula";
-        if (!Regex.IsMatch(pw, @"[a-z]"))
-            yield return "Las contraseñas deben tener al menos una letra minúscula";
-        if (!Regex.IsMatch(pw, @"[0-9]"))
-            yield return "Las contraseñas deben tener al menos un número";
-    }
-
-    private string PasswordMatch(string arg)
-    {
-        if (pwField1.Value != arg)
-            return "Las contraseñas no coinciden...";
-        return "";
-    }
-
     private async Task Register()
-    {
-        apiErrors = Array.Empty<string>(); // Limpiar errores anteriores
-
-        await form.Validate();
-
-        if (form.IsValid)
-        {
-            try
-            {
-                var httpClient = _httpFactory.CreateClient("API");
-
-                // Call API
-                var response = await httpClient.PostAsJsonAsync("identity/register", _model);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    navigationManager.NavigateTo("/Accounts/Register/Confirmation");
-                    return;
-                }
-
-                var content = await response.Content.ReadAsStringAsync();
-                ParseErrors(content);               
-            }
-            catch (HttpRequestException ex)
-            {
-                apiErrors = new[] { $"Error de conexión: {ex.Message}" };
-            }
-            catch (Exception ex)
-            {
-                apiErrors = new[] { "Error interno inesperado" };
-            }
-        }
-    }
-
-    private void ParseErrors(string content)
     {
         try
         {
-            var errors = JsonSerializer.Deserialize<ApiError[]>(content);
-            apiErrors = errors.Select(e => e.Description).ToArray();
-            apiErrors = apiErrors.Distinct().ToArray();
+            var httpClient = _httpFactory.CreateClient("API");
+
+            // Call API
+            var response = await httpClient.PostAsJsonAsync("identity/register", _model);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _toastService.ShowSuccess("Operación existosa! Podras ingresar en cuanto seas dado de alta por un administrador");
+                navigationManager.NavigateTo("/Accounts/Register/Confirmation");
+                return;
+            }
+            else
+            {
+                var errorMessage = await HandleApiError.GetErrorMessage(response);
+                _toastService.ShowError(errorMessage);
+            }
         }
-        catch
+        catch (HttpRequestException ex)
         {
-            // Fallback para otros formatos
-            try
-            {
-                var errorDict = JsonSerializer.Deserialize<Dictionary<string, string[]>>(content);
-                apiErrors = errorDict.SelectMany(x => x.Value).ToArray();
-            }
-            catch
-            {
-                apiErrors = new[] { "Error desconocido al procesar la respuesta" };
-            }
+            _toastService.ShowError($"Error de conexión: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _toastService.ShowError("Error inesperado");
         }
     }
 

@@ -2,25 +2,30 @@
     <TitleContent>@Title</TitleContent>
 
     <DialogContent>
-        @if (!IsPassword)
-        {
-            <MudTextField @bind-Value="InputValue" Label="@Label" />
-        }
-        else
-        {
-            <MudTextField @bind-Value="InputValue" 
-                Label="@Label"
-                InputType="PasswordInput"
-                Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon"
-                OnAdornmentClick="ButtonTestclick" AdornmentAriaLabel="Mostrar contraseña" 
-                Class="mb-2" />
-        }
-
         @if (!string.IsNullOrEmpty(ErrorMessage))
         {
             <MudText Typo="Typo.caption" Color="Color.Error" Class="mt-1">
                 @ErrorMessage
             </MudText>
+        }
+
+        @if (IsPassword)
+        {
+            <MudTextField @bind-Value="InputValue"
+                          Label="@Label"
+                          InputType="PasswordInput"
+                          Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon"
+                          OnAdornmentClick="ButtonTestclick" AdornmentAriaLabel="Mostrar contraseña" />
+        }
+        else if (IsEmail)
+        {
+            <MudTextField @bind-Value="InputValue"
+                          Label="@Label"
+                          InputType="EmailInput"/>
+        }
+        else
+        {
+            <MudTextField @bind-Value="InputValue" Label="@Label" />
         }
     </DialogContent>
     
@@ -46,12 +51,14 @@
     [Parameter] public string SaveButtonText { get; set; } = "Guardar";
     [Parameter] public string CancelButtonText { get; set; } = "Cancelar";
     [Parameter] public bool IsPassword { get; set; } = false;
+    [Parameter] public bool IsEmail { get; set; } = false;
     [Parameter] public string ErrorMessage { get; set; } = string.Empty;
 
     private string InputValue { get; set; }
 
     private bool isShow;
     InputType PasswordInput = InputType.Password;
+    InputType EmailInput = InputType.Email;
     string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
 
     private void Save()

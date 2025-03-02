@@ -4,6 +4,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using System.Security.Claims
 @using WebClient.Components.Dialog
+@using WebClient.Shared
 @using WebClient.Shared.Providers
 @using global::Shared.DTO
 @using global::Shared.DTO.SystemOperator
@@ -50,11 +51,11 @@
                 {
                     <MudText Typo="Typo.h6">No disponible</MudText>
                 }
-                
+
                 <MudButton Variant="Variant.Filled"
-                           OnClick="OpenChangePhonenumberDialog"
-                           Color="Color.Primary"
-                           Class="mt-4 mr-auto">
+                OnClick="OpenChangePhonenumberDialog"
+                Color="Color.Primary"
+                Class="mt-4 mr-auto">
                     Cambiar teléfono
                 </MudButton>
             </MudItem>
@@ -62,9 +63,9 @@
             <MudItem xs="12" Class="d-flex flex-column">
                 Contraseña
                 <MudButton Variant="Variant.Filled"
-                           OnClick="OpenChangePasswordDialog"
-                           Color="Color.Primary"
-                           Class="mt-4 mr-auto">
+                OnClick="OpenChangePasswordDialog"
+                Color="Color.Primary"
+                Class="mt-4 mr-auto">
                     Cambiar contraseña
                 </MudButton>
             </MudItem>
@@ -131,6 +132,12 @@
             var user = (await AuthState).User;
             var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
+            if (newName == user.FindFirst(ClaimTypes.Name)?.Value)
+            {
+                _toastService.ShowError("No puedes elegir el mismo nombre de usuario");
+                return;
+            }
+
             var httpClient = _httpFactory.CreateClient("API");
             var response = await httpClient.PutAsJsonAsync($"/api/SystemOperator/{userId}/username", newName );
 
@@ -143,54 +150,12 @@
 
                 _toastService.ShowSuccess("Nombre actualizado correctamente");
 
-                // Actualizar el token
-                // Paso 1: Solicitar renovación del token
-                var refreshToken = await _localStorage.GetItemAsync<string>("refresh-token");
-
-                if (!string.IsNullOrEmpty(refreshToken))
-                {
-                    // Paso 2: Enviar la solicitud de renovación al servidor
-                    var renewTokenRequest = new RenewTokenRequestDTO
-                        {
-                            RefreshToken = refreshToken,
-                            UserId = userId
-                        };
-
-                    var renewResponse = await httpClient.PostAsJsonAsync("api/Auth/refresh-token", renewTokenRequest);
-
-                    if (renewResponse.IsSuccessStatusCode)
-                    {
-                        // Paso 3: Obtener el nuevo token desde la respuesta
-                        var resultEndpoint = await renewResponse.Content.ReadFromJsonAsync<JwtTokenResponseDto>();
-                        if (resultEndpoint != null)
-                        {
-                            // Paso 4: Almacenar el nuevo token y refresh token en el localStorage
-                            await _localStorage.SetItemAsync("token", resultEndpoint.Token);
-                            await _localStorage.SetItemAsync("refresh-token", resultEndpoint.RefreshToken);
-                            await _localStorage.SetItemAsync("token-expiration", resultEndpoint.Expiration);
-
-                            // Paso 5: Notificar a la UI que el estado de autenticación ha cambiado
-                            (_auth as CustomAuthProvider).NotifyAuthState();
-                        }
-                        else
-                        {
-                            _toastService.ShowError("No se pudo renovar el token.");
-                        }
-                    }
-                    else
-                    {
-                        _toastService.ShowError("Error al renovar el token.");
-                    }
-                }
-                else
-                {
-                    _toastService.ShowError("No se encontró el refresh token.");
-                }
-
+                await RenewAuthenticationToken(userId);
             }
             else
             {
-                _toastService.ShowError("Error al actualizar el Email");
+                var errorMessage = await HandleApiError.GetErrorMessage(response);
+                _toastService.ShowError(errorMessage);
             }
         }
     }
@@ -217,6 +182,12 @@
                 return;
             }
 
+            if (!Validations.IsValidEmail(newEmail))
+            {
+                _toastService.ShowError("Formato de email inválido");
+                return;
+            }
+
             var user = (await AuthState).User;
             var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -232,51 +203,12 @@
 
                 _toastService.ShowSuccess("Email actualizado correctamente");
 
-                var refreshToken = await _localStorage.GetItemAsync<string>("refresh-token");
-
-                if (!string.IsNullOrEmpty(refreshToken))
-                {
-                    var renewTokenRequest = new RenewTokenRequestDTO
-                        {
-                            RefreshToken = refreshToken,
-                            UserId = userId
-                        };
-
-                    var renewResponse = await httpClient.PostAsJsonAsync("api/Auth/refresh-token", renewTokenRequest);
-
-                    if (renewResponse.IsSuccessStatusCode)
-                    {
-                        // Paso 3: Obtener el nuevo token desde la respuesta
-                        var resultEndpoint = await renewResponse.Content.ReadFromJsonAsync<JwtTokenResponseDto>();
-                        if (resultEndpoint != null)
-                        {
-                            // Paso 4: Almacenar el nuevo token y refresh token en el localStorage
-                            await _localStorage.SetItemAsync("token", resultEndpoint.Token);
-                            await _localStorage.SetItemAsync("refresh-token", resultEndpoint.RefreshToken);
-                            await _localStorage.SetItemAsync("token-expiration", resultEndpoint.Expiration);
-
-                            // Paso 5: Notificar a la UI que el estado de autenticación ha cambiado
-                            (_auth as CustomAuthProvider).NotifyAuthState();
-                        }
-                        else
-                        {
-                            _toastService.ShowError("No se pudo renovar el token.");
-                        }
-                    }
-                    else
-                    {
-                        _toastService.ShowError("Error al renovar el token.");
-                    }
-                }
-                else
-                {
-                    _toastService.ShowError("No se encontró el refresh token.");
-                }
-
+                await RenewAuthenticationToken(userId);
             }
-            else
+            else 
             {
-                _toastService.ShowError("Error al actualizar el Email");
+                var errorMessage = await HandleApiError.GetErrorMessage(response);
+                _toastService.ShowError(errorMessage);
             }
         }
     }
@@ -316,7 +248,8 @@
             }
             else
             {
-                _toastService.ShowError("Error al actualizar la contraseña");
+                var errorMessage = await HandleApiError.GetErrorMessage(response);
+                _toastService.ShowError(errorMessage);
             }
         }
     }
@@ -358,52 +291,65 @@
 
                 _toastService.ShowSuccess("N° teléfono actualizado correctamente");
 
-                var refreshToken = await _localStorage.GetItemAsync<string>("refresh-token");
-
-                if (!string.IsNullOrEmpty(refreshToken))
-                {
-                    var renewTokenRequest = new RenewTokenRequestDTO
-                        {
-                            RefreshToken = refreshToken,
-                            UserId = userId
-                        };
-
-                    var renewResponse = await httpClient.PostAsJsonAsync("api/Auth/refresh-token", renewTokenRequest);
-
-                    if (renewResponse.IsSuccessStatusCode)
-                    {
-                        // Paso 3: Obtener el nuevo token desde la respuesta
-                        var resultEndpoint = await renewResponse.Content.ReadFromJsonAsync<JwtTokenResponseDto>();
-                        if (resultEndpoint != null)
-                        {
-                            // Paso 4: Almacenar el nuevo token y refresh token en el localStorage
-                            await _localStorage.SetItemAsync("token", resultEndpoint.Token);
-                            await _localStorage.SetItemAsync("refresh-token", resultEndpoint.RefreshToken);
-                            await _localStorage.SetItemAsync("token-expiration", resultEndpoint.Expiration);
-
-                            // Paso 5: Notificar a la UI que el estado de autenticación ha cambiado
-                            (_auth as CustomAuthProvider).NotifyAuthState();
-                        }
-                        else
-                        {
-                            _toastService.ShowError("No se pudo renovar el token.");
-                        }
-                    }
-                    else
-                    {
-                        _toastService.ShowError("Error al renovar el token.");
-                    }
-                }
-                else
-                {
-                    _toastService.ShowError("No se encontró el refresh token.");
-                }
-
+                await RenewAuthenticationToken(userId);
             }
             else
             {
-                _toastService.ShowError("Error al actualizar el Email");
+                var errorMessage = await HandleApiError.GetErrorMessage(response);
+                _toastService.ShowError(errorMessage);
             }
+        }
+    }
+
+    // Método auxiliar para renovación de token
+    private async Task RenewAuthenticationToken(string userId)
+    {
+        try
+        {
+            // Paso 1: Solicitar renovación del token
+            var httpClient = _httpFactory.CreateClient("API");
+            var refreshToken = await _localStorage.GetItemAsync<string>("refresh-token");
+
+            if (string.IsNullOrEmpty(refreshToken))
+            {
+                _toastService.ShowError("No se encontró el refresh token.");
+                return;
+            }
+
+            // Paso 2: Enviar la solicitud de renovación al servidor
+            var renewResponse = await httpClient.PostAsJsonAsync("api/Auth/refresh-token",
+                new RenewTokenRequestDTO
+                    {
+                        RefreshToken = refreshToken,
+                        UserId = userId
+                    });
+
+            // if (!renewResponse.IsSuccessStatusCode)
+            // {
+            //     await _errorHandler.HandleApiErrorAsync(renewResponse);
+            //     return;
+            // }
+
+            // Paso 3: Obtener el nuevo token desde la respuesta
+            var resultEndpoint = await renewResponse.Content.ReadFromJsonAsync<JwtTokenResponseDto>();
+            if (resultEndpoint == null)
+            {
+                _toastService.ShowError("Respuesta de token inválida");
+                return;
+            }
+
+            // Paso 4: Almacenar el nuevo token y refresh token en el localStorage
+            await _localStorage.SetItemAsync("token", resultEndpoint.Token);
+            await _localStorage.SetItemAsync("refresh-token", resultEndpoint.RefreshToken);
+            await _localStorage.SetItemAsync("token-expiration", resultEndpoint.Expiration);
+
+            // Paso 5: Notificar a la UI que el estado de autenticación ha cambiado
+            (_auth as CustomAuthProvider)?.NotifyAuthState();
+        }
+        catch (Exception ex)
+        {
+            // _logger.LogError(ex, "Error renovando token");
+            _toastService.ShowError("Error al renovar la sesión");
         }
     }
 }

@@ -6,7 +6,7 @@
 @using System.Text
 @using Blazored.LocalStorage
 @using Microsoft.AspNetCore.Components
-@using WebClient.Models.Errors
+@using System.Net
 @using WebClient.Shared.Providers
 @using global::Shared.DTO
 @using global::Shared.DTO.Token
@@ -17,22 +17,14 @@
 
 <MudContainer MaxWidth="MaxWidth.ExtraSmall">
     <MudPaper Class="pa-4">
-        @if (apiErrors.Length > 0)
-        {
-            <MudAlert Severity="Severity.Error" Class="mb-4">
-                @foreach (var error in apiErrors)
-                {
-                    <div>@error</div>
-                }
-            </MudAlert>
-        }
-
         <MudGrid Justify="Justify.Center">
             <MudItem xs="12">
-                <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@formErrors">
 
+                <MudForm @ref="form" @bind-IsValid="@success">
                     <MudTextField T="string" Label="Usuario" @bind-Value="_model.User"
-                    Required="true" RequiredError="Ingrese su Usuario/Email!" />
+                    Required="true" RequiredError="Ingrese su Usuario/Email!"
+                    Validation="@(new EmailAddressAttribute() {ErrorMessage = "El email es inválido"})"
+                    InputType="InputType.Email"/>
 
                     <MudTextField T="string" Label="Contraseña" @bind-Value="_model.Password"
                     InputType="PasswordInput"
@@ -47,6 +39,10 @@
                     Class="mt-4 ml-auto">
                         Ingresar
                     </MudButton>
+
+                    <MudText Typo="Typo.body2" Class="ml-2">
+                        <MudLink Href="/forgot-password" Color="Color.Primary">¿Olvidaste tu contraseña?</MudLink>
+                    </MudText>
                 </MudForm>
             </MudItem>
         </MudGrid>
@@ -61,6 +57,7 @@
     [Inject] private NavigationManager navigationManager { get; set; }
     [Inject] private ILocalStorageService _localStorage { get; set; }
     [Inject] private AuthenticationStateProvider _auth { get; set; }
+    [Inject] private IToastService _toastService { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -78,104 +75,53 @@
     string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
 
     bool success;
-    string[] apiErrors = Array.Empty<string>();
     string[] formErrors = Array.Empty<string>();
     MudForm form;
     LoginModelDto _model = new LoginModelDto();
 
     private async Task SignIn()
     {
-        apiErrors = Array.Empty<string>();
-        await form.Validate();
 
-        if (form.IsValid)
+        try
         {
-            try
+            var httpClient = _httpFactory.CreateClient("API");
+            var response = await httpClient.PostAsJsonAsync("api/Auth/login", _model);
+
+            if (response.IsSuccessStatusCode)
             {
-                var httpClient = _httpFactory.CreateClient("API");
+                var result = await response.Content.ReadFromJsonAsync<JwtTokenResponseDto>();
 
-                var response = await httpClient.PostAsJsonAsync("api/Auth/login", _model);
-
-                if (response.IsSuccessStatusCode)
+                if (result != null)
                 {
-                    var result = await response.Content.ReadFromJsonAsync<JwtTokenResponseDto>();
+                    await _localStorage.SetItemAsync("token", result.Token);
+                    await _localStorage.SetItemAsync("refresh-token", result.RefreshToken);
+                    await _localStorage.SetItemAsync("token-expiration", result.Expiration);
 
-                    if (result != null)
-                    {
-                        await _localStorage.SetItemAsync("token", result.Token);
-                        await _localStorage.SetItemAsync("refresh-token", result.RefreshToken);
-                        await _localStorage.SetItemAsync("token-expiration", result.Expiration);
-                        (_auth as CustomAuthProvider).NotifyAuthState();
-                        navigationManager.NavigateTo("/");
-                    }
-                    else
-                    {
-                        apiErrors = new[] { "Error al procesar la respuesta" };
-                    }
-                }
-                else
-                {
-                    var content = await response.Content.ReadAsStringAsync();
-                    ParseErrors(content);
+                    (_auth as CustomAuthProvider).NotifyAuthState();
+                    navigationManager.NavigateTo("/");
                 }
             }
-            catch (HttpRequestException ex)
+            else
             {
-                apiErrors = new[] { $"Error de conexión: {ex.Message}" };
+                var errorMessage = await HandleApiError.GetErrorMessage(response);
+                _toastService.ShowError(errorMessage);
             }
-            catch (Exception ex)
+        }
+        catch (HttpRequestException ex)
+        {
+            var statusMessage = ex.StatusCode switch
             {
-                apiErrors = new[] { "Error interno inesperado" };
-            }
+                HttpStatusCode.NotFound => "Servidor no disponible",
+                _ => "Error de conexión"
+            };
+            _toastService.ShowError($"{statusMessage}: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _toastService.ShowError($"Error interno inesperado: {ex.Message}");
         }
     }
-
-    private void ParseErrors(string content)
-    {
-        try
-        {
-            // Primero intentar con el formato de mensaje simple
-            var messageError = JsonSerializer.Deserialize<MessageError>(content);
-            if (!string.IsNullOrEmpty(messageError.Message))
-            {
-                apiErrors = new[] { messageError.Message };
-                return;
-            }
-        }
-        catch { }
-
-        try
-        {
-            // Intentar con formato de array de ApiError
-            var errors = JsonSerializer.Deserialize<ApiError[]>(content);
-            if (errors?.Length > 0)
-            {
-                apiErrors = errors.Select(e => e.Description).ToArray();
-                return;
-            }
-        }
-        catch { }
-
-        try
-        {
-            // Intentar con formato de diccionario
-            var errorDict = JsonSerializer.Deserialize<Dictionary<string, string[]>>(content);
-            apiErrors = errorDict.SelectMany(x => x.Value).ToArray();
-        }
-        catch
-        {
-            try
-            {
-                // Intentar como array simple
-                apiErrors = JsonSerializer.Deserialize<string[]>(content) ?? new[] { "Error desconocido" };
-            }
-            catch
-            {
-                // Mostrar el contenido crudo
-                apiErrors = new[] { content };
-            }
-        }
-    }
+    
 
     void ButtonTestclick()
     {

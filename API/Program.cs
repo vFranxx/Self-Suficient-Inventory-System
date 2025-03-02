@@ -110,6 +110,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddAuthorization();
 
 builder.Services.AddTransient<IEmailSender, SmtpEmailSender>();
+
 builder.Services.AddScoped<IJwtService, JwtService>();
 
 builder.Services.AddRazorPages();
@@ -153,13 +154,26 @@ app.MapPost("/identity/register", async (
 app.MapPost("/identity/forgotPassword", async (
     [FromBody] ForgotPasswordRequest request,
     UserManager<SystemOperator> userManager,
-    IEmailSender emailSender) =>
+    IEmailSender emailSender,
+    IConfiguration configuration) =>
 {
     var user = await userManager.FindByEmailAsync(request.Email);
-    if (user == null) return Results.NotFound();
+    if (user == null)
+    {
+        return Results.NotFound("El mail no existe en la base de datos");
+    }
 
     var token = await userManager.GeneratePasswordResetTokenAsync(user);
-    await emailSender.SendEmailAsync(request.Email, "Resetear contraseña", $"Token: {token}");
+
+    var resetLink = $"{configuration["UrlPrincipal"]}reset-password?token={Uri.EscapeDataString(token)}&email={Uri.EscapeDataString(request.Email)}";
+
+    var htmlMessage = $@"
+        <h1>Restablece tu contraseña</h1>
+        <p>Haz clic <a href='{resetLink}'>aquí</a> para resetear la contraseña</p>
+        <p>Este enlace expirará en 1 hora.</p>";
+
+    await emailSender.SendEmailAsync(request.Email, "Resetear contraseña", htmlMessage);
+
 
     return Results.Ok();
 });
@@ -202,22 +216,20 @@ app.MapPost("/identity/confirmEmail", async (
 app.MapPost("/identity/resendConfirmationEmail", async (
     [FromBody] ResendConfirmationEmailRequest request,
     UserManager<SystemOperator> userManager,
-    IEmailSender emailSender) =>
+    IEmailSender emailSender,
+    IConfiguration configuration) =>
 {
     var user = await userManager.FindByEmailAsync(request.Email);
     if (user == null)
     {
-        return Results.NotFound();
+        return Results.NotFound("El mail no existe en la base de datos");
     }
 
     // Generate an email confirmation token
     var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
 
-    // Optionally, encode the token if needed
-    // token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-
-    // Create the confirmation link. Adjust the URL to your application's frontend route.
-    var confirmationLink = $"https://yourdomain.com/confirm?email={Uri.EscapeDataString(request.Email)}&token={Uri.EscapeDataString(token)}";
+    // Create the confirmation link
+    var confirmationLink = $"{configuration["UrlPrincipal"]}reset-password?token={Uri.EscapeDataString(token)}&email={Uri.EscapeDataString(request.Email)}";
 
     // Send the confirmation email
     await emailSender.SendEmailAsync(

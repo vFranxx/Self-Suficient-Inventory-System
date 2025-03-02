@@ -61,10 +61,10 @@
                             <MudTh>Estado</MudTh>
                             <MudTh>
                                 <span>Roles</span>
-                                <MudIconButton Icon="@Icons.Material.Filled.Info"
+                                @* <MudIconButton Icon="@Icons.Material.Filled.Info"
                                                Size="Size.Small"
                                                Color="Color.Primary"
-                                               Class="ml-1" />
+                                               Class="ml-1" /> *@
                             </MudTh>
                         </HeaderContent>
 
@@ -122,11 +122,8 @@
 
 @code {
     // TO DO: 
-    // Implementar validación: No se permite borrar el rol "admin" si es el único disponible
-    // Implementar validación: No se permite dar de baja a uno mismo
-    // Implementar validación: El usuario debe tener al menos un rol
     // Implementar validación: No se permite dar de baja a un usuario con rol "admin"
-    // Generar componente inteligente de dialogo para Ver, agregar y eliminar errores - NO NECESARIO
+    // Generar componente inteligente de dialogo para Ver, agregar y eliminar roles - NO NECESARIO
 
     [CascadingParameter]
     public Task<AuthenticationState> AuthState { get; set; }
@@ -167,6 +164,8 @@
 
             // Filtrar usuarios que tienen al menos un rol
             Usuarios = Usuarios?.Where(u => u.Roles?.Any() == true).ToList();
+
+            StateHasChanged();
         }
         catch (Exception ex)
         {
@@ -176,24 +175,56 @@
 
     private async Task EditUserRoles(string userId, string[] roles)
     {
+        // Validación: El usuario debe tener al menos un rol
+        if (roles.Length == 0)
+        {
+            ErrorMessage = "El usuario debe tener al menos un rol.";
+            return;
+        }
+
         var currentUserDto = Usuarios?.FirstOrDefault(u => u.Id == userId);
         bool alreadyHasAdmin = currentUserDto?.Roles?.Any(r => r.Equals("admin", StringComparison.OrdinalIgnoreCase)) ?? false;
 
-        if (roles.Any(r => r.Equals("admin", StringComparison.OrdinalIgnoreCase)) && !alreadyHasAdmin)
-        {
-            // Mostrar un mensaje de confirmación
-            bool confirmed = await _dialogService.ShowMessageBox(
-                "Confirmación",
-                "Está seguro de agregar el rol 'admin'? Esta acción puede otorgar privilegios elevados. ¿Desea continuar?",
-                yesText: "Sí",
-                cancelText: "No"
-            ) ?? false;
+        // Determinar el estado del rol admin
+        var adminStatusChange = (
+            WasAdmin: alreadyHasAdmin,
+            WillBeAdmin: roles.Any(r => r.Equals("admin", StringComparison.OrdinalIgnoreCase))
+        );
 
-            if (!confirmed)
-            {
-                // Si el usuario cancela, se termina el método sin hacer cambios
-                return;
-            }
+        switch (adminStatusChange)
+        {
+            // Caso: Está removiendo el rol admin
+            case (WasAdmin: true, WillBeAdmin: false):
+                var otrosAdmins = Usuarios?
+                    .Where(u => u.Id != userId &&
+                               u.Roles?.Any(r => r.Equals("admin", StringComparison.OrdinalIgnoreCase)) == true)
+                    .Count() ?? 0;
+
+                if (otrosAdmins == 0)
+                {
+                    ErrorMessage = "No se puede quitar el rol admin porque es el único administrador.";
+                    return;
+                }
+                break;
+
+            // Caso: Está agregando el rol admin
+            case (WasAdmin: false, WillBeAdmin: true):
+                bool confirmed = await _dialogService.ShowMessageBox(
+                    "Confirmación",
+                    "¿Está seguro de agregar el rol 'admin'? Esta acción puede otorgar privilegios elevados. ¿Desea continuar?",
+                    yesText: "Sí",
+                    cancelText: "No"
+                ) ?? false;
+
+                if (!confirmed) return;
+                break;
+
+            // Casos:
+            // - No hubo cambio en el estado admin
+            // - Quitar admin cuando no lo tenía
+            // - Agregar admin cuando ya lo tenía
+            default:
+                break;
         }
 
         try
@@ -255,12 +286,37 @@
 
         if (!result.Canceled && result.Data is List<string> selectedRoles)
         {
+            // Validación: Al menos un rol seleccionado
+            if (selectedRoles.Count == 0)
+            {
+                ErrorMessage = "El usuario debe tener al menos un rol.";
+                return;
+            }
             await EditUserRoles(user.Id, selectedRoles.ToArray());
         }
     }
 
     private async Task EditUserStatus(string userId, bool active)
     {
+        var currentUser = (await AuthState).User;
+        var currentUserId = currentUser.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        // Validación: No desactivar a uno mismo
+        if (userId == currentUserId && !active)
+        {
+            ErrorMessage = "No puedes darte de baja a ti mismo.";
+            return;
+        }
+
+        var user = Usuarios.FirstOrDefault(u => u.Id == userId);
+
+        // Validación: No desactivar admins
+        if (user.Roles.Any(r => r.Equals("admin", StringComparison.OrdinalIgnoreCase)) && !active)
+        {
+            ErrorMessage = "No se puede dar de baja a un usuario administrador.";
+            return;
+        }
+
         try
         {
             var httpClient = _httpFactory.CreateClient("API");
@@ -271,7 +327,7 @@
             if (response.IsSuccessStatusCode)
             {
                 // Actualizar estado localmente
-                var user = Usuarios.FirstOrDefault(u => u.Id == userId);
+                //var user = Usuarios.FirstOrDefault(u => u.Id == userId);
                 if (user != null)
                 {
                     user.FechaBaja = active ? null : DateTime.Now;

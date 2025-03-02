@@ -1,6 +1,7 @@
 ﻿@using System.Security.Claims
 @using WebClient.Shared.Providers
 @using Blazored.LocalStorage
+@using Blazored.Toast
 
 @inherits LayoutComponentBase
 
@@ -19,8 +20,7 @@
             <!-- Opciones para los ADMIN -->
             <AuthorizeView Roles="ADMIN">
                 <Authorized>
-                    <MudMenuItem Label="Solicitudes" Href="/Manage/Requests" />
-                    <MudMenuItem Label="Operadores" Href="/Manage/Users" />
+                    <MudMenuItem Label="Gestión de usuarios" Href="/Manage" />
                 </Authorized>
             </AuthorizeView>
 
@@ -39,16 +39,26 @@
             </AuthorizeView>
         </MudMenu>
 
-        <div style="position: absolute; left: -50px; transform: translate(50vw, 0);">
-            <MudImage Src="/images/YPF-logo.png" Alt="YPF SERVICOMPRAS" Elevation="0" Class="rounded-lg" 
-            Width="85" Style="filter: grayscale(100%) brightness(1000%);" />
-        </div>
+        <MudLink Href="/" Style="display: contents;">
+            <div style="position: absolute; left: -50px; transform: translate(50vw, 0);">
+                <MudImage Src="/images/YPF-logo.png" Alt="YPF SERVICOMPRAS" Elevation="0" Class="rounded-lg"
+                          Width="85" Style="filter: grayscale(100%) brightness(1000%);" />
+            </div>
+        </MudLink>
+        
         <MudSpacer/>
         <AuthorizeView>
             <Authorized>                
-                <MudText Typo="Typo.subtitle1" Class="mr-3">
-                    @DisplayUsername(context.User.Claims)
-                </MudText>
+                <MudMenu ActivationEvent="@MouseEvent.MouseOver">
+                    <ActivatorContent>
+                        <MudText Typo="Typo.subtitle1" Class="mr-3">
+                            @DisplayUsername(context.User.Claims)
+                        </MudText>
+                    </ActivatorContent>
+                    <ChildContent>
+                        <MudMenuItem Label="Perfil" Href="/Accounts/Settings"/>
+                    </ChildContent>
+                </MudMenu>
 
                 <MudIconButton Icon="@Icons.Material.Filled.Logout"
                 Color="Color.Inherit"
@@ -63,11 +73,22 @@
             </NotAuthorized>
         </AuthorizeView>   
 
+        <div>
+            <BlazoredToasts Position="Blazored.Toast.Configuration.ToastPosition.TopRight"
+                            Timeout="120"
+                            SuccessClass="bg-success text-light"
+                            ErrorClass="bg-danger text-light"
+                            InfoClass="bg-info text-light"
+                            WarningClass="bg-warning text-light" />
+        </div>
+        
     </MudAppBar>
 
     <MudMainContent>
         @Body
     </MudMainContent>
+
+    
 </MudLayout>
 
 @code{

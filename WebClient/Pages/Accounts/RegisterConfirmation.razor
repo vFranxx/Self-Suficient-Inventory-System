@@ -1,10 +1,12 @@
-﻿@page "/Accounts/Register/Confirmation"
+﻿@page "/Accounts/Register/Confirmation" 
 
 <div class="ma-6 d-flex justify-center">
     <h3>Usuario registrado con éxito! Redirigiendo en @remainingTime...</h3>
 </div>
 
 @code {
+    // MODIFICAR TODO, AÑADIR APARTADO DE VALIDACION DE MAIL Y MENSAJE EXPLICANDO QUE DEBE ESPERAR A SER ACEPTADO POR UN ADMIN - OPCIONAL
+
     [Inject] private NavigationManager navigationManager { get; set; }
 
     private int remainingTime = 5;

@@ -79,6 +79,21 @@
                             </p>
                         </div>
                     </div>
+
+                    <div class="mb-5 index-description-box" @onclick="@(() => RedirectTo("/Manage"))" style="cursor: pointer;">
+                        <div class="mb-3">
+                            <h1 class="fa-solid fa-clock"></h1>
+                            <h2>Gestión de usuarios</h2>
+                        </div>
+                        <div>
+                            <p>
+                                Esta sección está diseñada para administrar de manera integral toda la información 
+                                relacionada con los usuarios de la plataforma. Aquí podrás visualizar la lista de usuarios registrados, 
+                                gestionar sus roles y permisos, y realizar acciones específicas para mantener el sistema actualizado 
+                                y seguro.
+                            </p>
+                        </div>
+                    </div>
                 }
                 else if (isOperador)
                 {
@@ -123,7 +138,7 @@
                 <h2>¡Bienvenido al sistema de YPF Servicompras!</h2>
                 <div class="mt-3">
                     <h4 class="fw-light">
-                        PLACEHOLER
+                        Descubre la herramienta que impulsa la eficiencia operativa y optimiza la gestión de tu negocio.
                     </h4>
                 </div>
             </div>
@@ -132,7 +147,7 @@
         <div class="text-center justify-content-center">
             <div class="d-flex flex-column pt-5">
                 <div class="mb-5">
-                    <h3 class="pt-5">¡PLACEHOLER!</h3>
+                    <h3 class="pt-5">¡Accede a tu cuenta!</h3>
 
                     <div class="p-2 pb-5">
                         <a href="/Accounts/Login" class="btn btn-primary flex-grow-0">Ingresar</a>
