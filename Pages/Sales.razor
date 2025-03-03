@@ -6,7 +6,7 @@
 @using Microsoft.AspNetCore.Components.Web
 @inject HttpClient Http
 @inject NavigationManager Navigation
-@inject ProductService productService
+@inject BillService billService
 
 <h3>Venta de Productos</h3>
 
@@ -41,7 +41,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var detalle in Factura.Detalles)
+            @foreach (var detalle in DetallesFactura)
             {
                 <tr>
                     <td>@detalle.IdProducto</td>
@@ -53,14 +53,14 @@ else
         </tbody>
     </table>
     <h4>Total: @Factura.Total</h4>
-    <button @onclick="RegistrarVenta">Registrar Venta</button>
 }
 
 @code {
-    private Bill Factura = new Bill { Detalles = new List<BillDetail>() };
-    private BillDetail NuevoDetalle = new BillDetail
+    private Bill Factura = new() { FechaHora = DateTime.Now, Total = 0, IdOp = "admin" };
+    private List<BillDetail> DetallesFactura = new();
+    private BillDetail NuevoDetalle = new()
         {
-            IdProducto = string.Empty,
+            IdProducto = "",
             Cantidad = 1,
             Precio = 0m,
             Subtotal = 0m,
@@ -75,24 +75,16 @@ else
         }
 
         NuevoDetalle.Subtotal = NuevoDetalle.Cantidad * NuevoDetalle.Precio;
+        DetallesFactura.Add(NuevoDetalle);
+        Factura.Total = DetallesFactura.Sum(d => d.Subtotal);
 
-        Factura.Detalles.Add(NuevoDetalle);
-
-        Factura.Total = Factura.Detalles.Sum(d => d.Subtotal);
-
-        NuevoDetalle = new BillDetail
+        NuevoDetalle = new()
             {
-                IdProducto = string.Empty,
+                IdProducto = "",
                 Cantidad = 1,
                 Precio = 0m,
                 Subtotal = 0m,
                 IdFactura = 0
             };
-    }
-
-    private void RegistrarVenta()
-    {
-        Console.WriteLine("Venta registrada con éxito");
-        Factura = new Bill { Detalles = new List<BillDetail>() };
     }
 }

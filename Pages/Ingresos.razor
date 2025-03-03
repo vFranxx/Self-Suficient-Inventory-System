@@ -71,7 +71,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        // Simula la carga inicial
         movimientos = new List<Movimiento>
         {
             new Movimiento { Fecha = DateTime.Today, Tipo = "Ingreso", Monto = 500, Descripcion = "Venta" },
@@ -90,7 +89,6 @@ else
                 Descripcion = movimiento.Descripcion
             });
 
-        // Reiniciar el formulario
         movimiento = new Movimiento();
         await Task.CompletedTask;
     }

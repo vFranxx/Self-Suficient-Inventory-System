@@ -1,10 +1,13 @@
 ﻿@page "/ventas"
 @using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Web
-@inject HttpClient Http
+@using BlazorFront.Services
+@using BlazorFront.Models.Entities
+@inject ProductService productService
+@inject BillService billService
 @inject NavigationManager Navigation
+@inject IJSRuntime JsRuntime
 
-<!-- Estilos personalizados -->
 <style>
     .product-card {
         transition: all 0.2s;
@@ -19,134 +22,15 @@
     .cart-table td, .cart-table th {
         vertical-align: middle !important;
     }
-
-    .discount-input {
-        max-width: 100px;
-    }
-
-    .payment-method-card {
-        border: 2px solid #dee2e6;
-        border-radius: 10px;
-        padding: 15px;
-        margin-bottom: 15px;
-        cursor: pointer;
-    }
-
-        .payment-method-card.active {
-            border-color: #0d6efd;
-            background-color: #f8f9fa;
-        }
 </style>
 
-<!-- Modal Nuevo Producto -->
-<div class="modal fade" id="productModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">Agregar Nuevo Producto</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Código de Barras</label>
-                        <input type="text" class="form-control" @bind="newProduct.Barcode" />
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Descripción</label>
-                        <input type="text" class="form-control" @bind="newProduct.Description" />
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Precio Unitario</label>
-                        <input type="number" class="form-control" @bind="newProduct.Price" step="0.01" />
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Stock</label>
-                        <input type="number" class="form-control" @bind="newProduct.Stock" />
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Categoría</label>
-                        <select class="form-select" @bind="newProduct.Category">
-                            <option value="Almacén">Almacén</option>
-                            <option value="Fiambrería">Fiambrería</option>
-                            <option value="Panadería">Panadería</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" @onclick="AddNewProduct">Guardar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal de Pago -->
-<div class="modal fade" id="paymentModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title">Procesar Pago</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label">Método de Pago</label>
-                    <select class="form-select" @bind="paymentMethod">
-                        <option value="Efectivo">Efectivo</option>
-                        <option value="Tarjeta">Tarjeta</option>
-                        <option value="Transferencia">Transferencia</option>
-                    </select>
-                </div>
-
-                <div class="mb-3" style="@(paymentMethod == "Efectivo" ? "" : "display:none;")">
-                    <label class="form-label">Monto Recibido</label>
-                    <input type="number" class="form-control" @bind="receivedAmount" />
-                </div>
-
-                <div class="alert alert-primary">
-                    <h5 class="mb-0">
-                        Total a Pagar: $@total.ToString("N2")<br>
-                        @if (paymentMethod == "Efectivo")
-                        {
-                            <span>Cambio: $@(receivedAmount - total > 0 ? (receivedAmount - total).ToString("N2") : "0.00")</span>
-                        }
-                    </h5>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-success" @onclick="ProcessPayment">Confirmar Pago</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Interfaz Principal -->
 <div class="container-fluid mt-4">
-    <div class="row mb-4">
-        <div class="col text-center">
-            <h2>Sistema de Ventas <small class="text-muted">Caja #01</small></h2>
-        </div>
-    </div>
-
     <div class="row">
-        <!-- Columna de Productos -->
         <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <div>
-                        <button class="btn btn-sm btn-light me-2" data-bs-toggle="modal" data-bs-target="#productModal">
-                            <i class="bi bi-plus-lg me-1"></i>Nuevo
-                        </button>
-                        <span class="h5">Productos Disponibles</span>
-                    </div>
-                    <div class="w-50">
-                        <input type="text" class="form-control form-control-sm"
-                               placeholder="Buscar producto..."
-                               @bind="searchTerm" />
-                    </div>
+                    <span class="h5">Productos Disponibles</span>
+                    <input type="text" class="form-control form-control-sm w-50" placeholder="Buscar producto..." @bind="searchTerm" />
                 </div>
                 <div class="card-body">
                     <div class="row row-cols-2 row-cols-md-3 g-3">
@@ -155,18 +39,14 @@
                             <div class="col">
                                 <div class="card product-card h-100">
                                     <div class="card-body">
-                                        <h6 class="card-title">@product.Description</h6>
+                                        <h6 class="card-title">@product.Descripcion</h6>
                                         <div class="d-flex justify-content-between align-items-center">
-                                            <span class="badge bg-secondary">@product.Category</span>
-                                            <span class="h5 text-success">$@product.Price.ToString("N2")</span>
+                                            <span class="badge bg-secondary">Stock: @product.Stock</span>
+                                            <span class="h5 text-success">$@product.PrecioUnitario.ToString("N2")</span>
                                         </div>
-                                        <small class="text-muted">Stock: @product.Stock</small>
                                     </div>
                                     <div class="card-footer bg-transparent">
-                                        <button class="btn btn-sm btn-primary w-100"
-                                                @onclick="() => AddToCart(product)">
-                                            <i class="bi bi-cart-plus me-1"></i>Agregar
-                                        </button>
+                                        <button class="btn btn-sm btn-primary w-100" @onclick="() => AddToCart(product)">Agregar</button>
                                     </div>
                                 </div>
                             </div>
@@ -176,11 +56,10 @@
             </div>
         </div>
 
-        <!-- Columna del Carrito -->
         <div class="col-lg-4">
             <div class="card shadow sticky-top">
                 <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="bi bi-cart-check me-2"></i>Carrito de Ventas</h5>
+                    <h5 class="mb-0">Carrito de Ventas</h5>
                 </div>
                 <div class="card-body p-0">
                     <table class="table table-hover cart-table mb-0">
@@ -197,33 +76,12 @@
                             @foreach (var item in cartItems)
                             {
                                 <tr>
+                                    <td>@item.Product.Descripcion</td>
+                                    <td>@item.Quantity</td>
+                                    <td>$@item.Product.PrecioUnitario.ToString("N2")</td>
+                                    <td>$@((item.Quantity * item.Product.PrecioUnitario).ToString("N2"))</td>
                                     <td>
-                                        <div class="d-flex flex-column">
-                                            <strong>@item.Product.Description</strong>
-                                            <small class="text-muted">@item.Product.Barcode</small>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="input-group input-group-sm">
-                                            <button class="btn btn-outline-secondary"
-                                                    @onclick="() => UpdateQuantity(item, -1)">
-                                                -
-                                            </button>
-                                            <input type="number" class="form-control text-center"
-                                                   @bind="item.Quantity" />
-                                            <button class="btn btn-outline-secondary"
-                                                    @onclick="() => UpdateQuantity(item, 1)">
-                                                +
-                                            </button>
-                                        </div>
-                                    </td>
-                                    <td>$@item.Product.Price.ToString("N2")</td>
-                                    <td>$@((item.Quantity * item.Product.Price).ToString("N2"))</td>
-                                    <td>
-                                        <button class="btn btn-sm btn-danger"
-                                                @onclick="() => RemoveFromCart(item)">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
+                                        <button class="btn btn-sm btn-danger" @onclick="() => RemoveFromCart(item)">X</button>
                                     </td>
                                 </tr>
                             }
@@ -231,46 +89,13 @@
                     </table>
                 </div>
                 <div class="card-footer">
-                    <div class="row mb-2">
-                        <div class="col-6">Subtotal:</div>
-                        <div class="col-6 text-end">$@subtotal.ToString("N2")</div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-6">
-                            <div class="input-group input-group-sm">
-                                <input type="number" class="form-control discount-input"
-                                       placeholder="Descuento %" @bind="discountPercentage" />
-                                <button class="btn btn-outline-secondary"
-                                        @onclick="ApplyDiscount">
-                                    Aplicar
-                                </button>
-                            </div>
-                        </div>
-                        <div class="col-6 text-end text-danger">
-                            -$@discountAmount.ToString("N2")
-                        </div>
-                    </div>
-
                     <div class="row mb-3">
                         <div class="col-6 fw-bold">Total:</div>
-                        <div class="col-6 text-end fw-bold text-success">
-                            $@total.ToString("N2")
-                        </div>
+                        <div class="col-6 text-end fw-bold text-success">$@total.ToString("N2")</div>
                     </div>
-
                     <div class="d-grid gap-2">
-                        <button class="btn btn-lg btn-success"
-                                data-bs-toggle="modal"
-                                data-bs-target="#paymentModal"
-                                disabled="@(cartItems.Count == 0)">
-                            <i class="bi bi-currency-dollar me-2"></i>Cobrar Venta
-                        </button>
-                        <button class="btn btn-outline-danger"
-                                @onclick="CancelSale"
-                                disabled="@(cartItems.Count == 0)">
-                            <i class="bi bi-x-circle me-2"></i>Cancelar Todo
-                        </button>
+                        <button class="btn btn-lg btn-success" @onclick="ProcessSale" disabled="@(cartItems.Count == 0)">Cobrar Venta</button>
+                        <button class="btn btn-outline-danger" @onclick="CancelSale" disabled="@(cartItems.Count == 0)">Cancelar</button>
                     </div>
                 </div>
             </div>
@@ -279,117 +104,95 @@
 </div>
 
 @code {
-
-    private class Product
-    {
-        public string Barcode { get; set; } = "";
-        public string Description { get; set; } = "";
-        public decimal Price { get; set; }
-        public int Stock { get; set; }
-        public string Category { get; set; } = "Almacén";
-    }
-
-    private class CartItem
-    {
-        public Product Product { get; set; } = new Product();
-        public int Quantity { get; set; } = 1;
-    }
-
-
     private List<Product> products = new();
     private List<CartItem> cartItems = new();
-    private Product newProduct = new();
     private string searchTerm = "";
-    private decimal subtotal => cartItems.Sum(i => i.Quantity * i.Product.Price);
-    private decimal discountPercentage;
-    private decimal discountAmount => subtotal * (discountPercentage / 100);
-    private decimal total => subtotal - discountAmount;
-    private string paymentMethod = "Efectivo";
-    private decimal receivedAmount;
+
+    private decimal total => cartItems.Sum(i => i.Quantity * i.Product.PrecioUnitario);
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadProducts();  
+        await LoadProducts();
     }
-
 
     private async Task LoadProducts()
     {
-            products = new List<Product>
-        {
-            new Product { Barcode = "779080032109", Description = "LECHE ENTERA SANCOR", Price = 10.00m, Stock = 50, Category = "Almacén" },
-            new Product { Barcode = "779080056418", Description = "GASEOSA COCA COLA 3L", Price = 25.00m, Stock = 30, Category = "Bebidas" },
-            new Product { Barcode = "779085095714", Description = "JUGO ARCOR MANZANA", Price = 2.50m, Stock = 100, Category = "Bebidas" }
-        };
-
-            await Task.CompletedTask;
+        products = await productService.GetProductsAsync();
     }
 
-
     private IEnumerable<Product> filteredProducts =>
-        products.Where(p => p.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                            p.Barcode.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
-                .OrderBy(p => p.Description);
+        products.Where(p => p.Descripcion.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
 
     private void AddToCart(Product product)
     {
-        var existing = cartItems.FirstOrDefault(i => i.Product.Barcode == product.Barcode);
+        var existing = cartItems.FirstOrDefault(i => i.Product.ProdId == product.ProdId);
         if (existing != null)
         {
             existing.Quantity++;
         }
         else
         {
-            cartItems.Add(new CartItem { Product = product });
+            cartItems.Add(new CartItem { Product = product, Quantity = 1 });
         }
-    }
-
-    private void UpdateQuantity(CartItem item, int change)
-    {
-        item.Quantity += change;
-        if (item.Quantity < 1) cartItems.Remove(item);
     }
 
     private void RemoveFromCart(CartItem item) => cartItems.Remove(item);
 
-    private void ApplyDiscount()
-    {
-        // Validar que el descuento no sea mayor a 100%
-        discountPercentage = Math.Clamp(discountPercentage, 0, 100);
-        StateHasChanged();
-    }
-
-    private async Task ProcessPayment()
-    {
-        if (paymentMethod == "Efectivo" && receivedAmount < total)
-        {
-            return;
-        }
-
-        var success = true; 
-
-        if (success)
-        {
-            cartItems.Clear();
-            discountPercentage = 0;
-            receivedAmount = 0;
-
-        }
-    }
-
     private void CancelSale()
     {
         cartItems.Clear();
-        discountPercentage = 0;
     }
 
-    private async Task AddNewProduct()
+    private async Task ProcessSale()
     {
-        if (string.IsNullOrWhiteSpace(newProduct.Description) || newProduct.Price <= 0)
+        if (cartItems.Count == 0)
+        {
+            await JsRuntime.InvokeVoidAsync("alert", "El carrito está vacío.");
             return;
+        }
 
-        products.Add(newProduct);
-        newProduct = new Product(); 
-                                    
+        var bill = new Bill
+            {
+                FechaHora = DateTime.Now,
+                Total = total,
+                IdOp = "1"
+            };
+
+        Console.WriteLine($"📤 Enviando Factura: {System.Text.Json.JsonSerializer.Serialize(bill)}");
+
+        var createdBill = await billService.CreateBillAsync(bill);
+
+        if (createdBill != null)
+        {
+            Console.WriteLine($"✅ Factura creada con ID: {createdBill.FacId}");
+
+            foreach (var item in cartItems)
+            {
+                var billDetail = new BillDetail
+                    {
+                        IdFactura = createdBill.FacId,
+                        IdProducto = item.Product.ProdId,
+                        Cantidad = item.Quantity,
+                        Precio = item.Product.PrecioUnitario,
+                        Subtotal = item.Quantity * item.Product.PrecioUnitario
+                    };
+
+                await billService.CreateBillDetailAsync(billDetail);
+            }
+
+            cartItems.Clear();
+            await JsRuntime.InvokeVoidAsync("alert", "Venta registrada con éxito.");
+        }
+        else
+        {
+            Console.WriteLine("❌ La API no devolvió una factura válida.");
+            await JsRuntime.InvokeVoidAsync("alert", "Error al registrar la venta.");
+        }
+    }
+
+    private class CartItem
+    {
+        public required Product Product { get; set; }
+        public int Quantity { get; set; } = 1;
     }
 }
