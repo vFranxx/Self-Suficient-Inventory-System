@@ -1,0 +1,117 @@
+@page "/inventario"
+@using WebClient.Models.Entities
+@using WebClient.Services
+@using MudBlazor
+@using MudBlazor.Components
+@inject ProductService productService
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    <MudCard Class="mb-4">
+        <MudCardContent>
+            <MudText Typo="Typo.h4">📦 Gestión de Inventario</MudText>
+            <MudTextField Label="Buscar producto..." @bind-Value="searchTerm"
+                          Variant="Variant.Outlined" Adornment="Adornment.Start" 
+                          AdornmentIcon="@Icons.Material.Filled.Search" Size="Size.Medium"
+                          Margin="Margin.Dense" />
+        </MudCardContent>
+    </MudCard>
+
+    <MudTable Items="@productosFiltrados" Hover="true" Striped="true" Bordered="true" Dense="true">
+        <HeaderContent>
+            <MudTh>ID</MudTh>
+            <MudTh>Descripción</MudTh>
+            <MudTh>Stock</MudTh>
+            <MudTh>Acciones</MudTh>
+        </HeaderContent>
+        <RowTemplate Context="producto">
+            <MudTd>@producto.ProdId</MudTd>
+            <MudTd>@producto.Descripcion</MudTd>
+            <MudTd>@(producto.Stock ?? 0)</MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="() => ModificarStock(producto, 1)" 
+                               Color="Color.Primary" Size="Size.Small" />
+                <MudIconButton Icon="@Icons.Material.Filled.Remove" OnClick="() => ModificarStock(producto, -1)" 
+                               Disabled="@(producto.Stock <= 0)" Color="Color.Error" Size="Size.Small" />
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+    
+    <MudButton OnClick="NuevoProducto" Color="Color.Success" Class="mt-3">➕ Agregar Producto</MudButton>
+</MudContainer>
+
+@if (productoSeleccionado != null)
+{
+    <MudDialog Open="true" MaxWidth="MaxWidth.Small">
+        <MudDialogTitle>@(string.IsNullOrEmpty(productoSeleccionado.ProdId) ? "Agregar Producto" : "Editar Producto")</MudDialogTitle>
+        <MudDialogContent>
+            <MudTextField Label="Descripción" @bind-Value="productoSeleccionado.Descripcion" Variant="Variant.Outlined" 
+                          Required="true" Margin="Margin.Dense" />
+            <MudTextField Label="Stock" @bind-Value="productoSeleccionado.Stock" Variant="Variant.Outlined" Type="number" 
+                          Margin="Margin.Dense" />
+        </MudDialogContent>
+        <MudDialogActions>
+            <MudButton OnClick="GuardarProducto" Color="Color.Primary">💾 Guardar</MudButton>
+            <MudButton OnClick="CancelarEdicion" Color="Color.Secondary">❌ Cancelar</MudButton>
+        </MudDialogActions>
+    </MudDialog>
+}
+
+@code {
+    private List<Product> productos = new();
+    private Product? productoSeleccionado;
+    private string searchTerm = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarProductos();
+    }
+
+    private async Task CargarProductos()
+    {
+        productos = await productService.GetProductsAsync();
+    }
+
+    private IEnumerable<Product> productosFiltrados =>
+        productos.Where(p => string.IsNullOrWhiteSpace(searchTerm) ||
+                             (p.Descripcion?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false));
+
+    private void NuevoProducto()
+    {
+        productoSeleccionado = new Product
+        {
+            ProdId = Guid.NewGuid().ToString(),
+            Descripcion = "",
+            PrecioUnitario = 0m,
+            Ganancia = 0m,
+            Stock = 0
+        };
+    }
+
+    private async Task GuardarProducto()
+    {
+        if (productoSeleccionado is null) return;
+        
+        bool success = string.IsNullOrEmpty(productoSeleccionado.ProdId)
+            ? await productService.AddProductAsync(productoSeleccionado)
+            : await productService.UpdateProductAsync(productoSeleccionado);
+        
+        if (success)
+        {
+            await CargarProductos();
+            productoSeleccionado = null;
+        }
+    }
+
+    private async Task ModificarStock(Product producto, int cantidad)
+    {
+        if (producto.Stock + cantidad < 0) return;
+        producto.Stock += cantidad;
+        await productService.UpdateProductAsync(producto);
+        await CargarProductos();
+    }
+
+    private void CancelarEdicion()
+    {
+        productoSeleccionado = null;
+    }
+}

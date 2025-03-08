@@ -1,0 +1,228 @@
+﻿@page "/proveedores"
+@using WebClient.Models.Entities
+@using WebClient.Services
+@inject SupplierService supplierService
+@inject ProductService productService
+@inject NavigationManager NavigationManager
+
+<h3>Gestión de Proveedores</h3>
+
+@if (!string.IsNullOrEmpty(mensajeResultado))
+{
+    <div class="alert @(esError ? "alert-danger" : "alert-success")">
+        @mensajeResultado
+    </div>
+}
+
+@if (isLoading)
+{
+    <p><em>Cargando proveedores...</em></p>
+}
+else if (proveedores == null || !proveedores.Any())
+{
+    <p>No se encontraron proveedores.</p>
+}
+else
+{
+    <div class="mb-3">
+        <input type="text" class="form-control" placeholder="Buscar proveedor..." @bind="searchQuery" />
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Referencia</th>
+                <th>Contacto</th>
+                <th>Email</th>
+                <th>Dirección</th>
+                <th>Productos</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var proveedor in proveedores.Where(p => p.Referencia.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)))
+            {
+                <tr>
+                    <td>@proveedor.ProvId</td>
+                    <td>@proveedor.Referencia</td>
+                    <td>@proveedor.Contacto</td>
+                    <td>@proveedor.Mail</td>
+                    <td>@proveedor.Direccion</td>
+                    <td>
+                        <ul>
+                            @foreach (var prod in productosProveedor.Where(p => p.IdProv == proveedor.ProvId))
+                            {
+                                <li>@prod.Products.Descripcion - $@prod.Products.PrecioUnitario.ToString("N2")</li>
+                            }
+                        </ul>
+                    </td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" @onclick="() => EditarProveedor(proveedor)">Editar</button>
+                        <button class="btn btn-danger btn-sm" @onclick="() => EliminarProveedor(proveedor.ProvId)">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h3>Agregar / Editar Proveedor</h3>
+<div class="card p-3">
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">Referencia</label>
+            <input type="text" class="form-control" @bind="newSupplier.Referencia" />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Contacto / Teléfono</label>
+            <input type="text" class="form-control" @bind="newSupplier.Contacto" />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" @bind="newSupplier.Mail" />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Dirección</label>
+            <input type="text" class="form-control" @bind="newSupplier.Direccion" />
+        </div>
+    </div>
+
+    <h5 class="mt-3">Productos que Provee</h5>
+    <div class="row">
+        @foreach (var product in productos)
+        {
+            <div class="col-md-6">
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" @bind="selectedProducts[product.ProdId]" />
+                    <label class="form-check-label">@product.Descripcion</label>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="mt-3">
+        <button class="btn btn-success" @onclick="GuardarProveedor">Guardar</button>
+        <button class="btn btn-secondary" @onclick="ResetForm">Cancelar</button>
+    </div>
+</div>
+
+@code {
+    private List<Supplier> proveedores = new();
+    private List<Product> productos = new();
+    private List<SupplierProduct> productosProveedor = new();
+    private Dictionary<string, bool> selectedProducts = new();
+    private Supplier newSupplier = new()
+        {
+            Referencia = "",
+            Contacto = "",
+            Mail = "",
+            Direccion = ""
+        };
+    private string searchQuery = "";
+    private bool isLoading = true;
+    private string mensajeResultado = "";
+    private bool esError = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarProveedores();
+        await CargarProductos();
+    }
+
+    private void EditarProveedor(Supplier proveedor)
+    {
+        newSupplier = new Supplier
+            {
+                ProvId = proveedor.ProvId,
+                Referencia = proveedor.Referencia,
+                Contacto = proveedor.Contacto,
+                Mail = proveedor.Mail,
+                Direccion = proveedor.Direccion
+            };
+    }
+
+    private async Task EliminarProveedor(int provId)
+    {
+        try
+        {
+            bool success = await supplierService.DeleteSupplierAsync(provId);
+            if (success)
+            {
+                mensajeResultado = "✅ Proveedor eliminado correctamente.";
+                esError = false;
+                await CargarProveedores();
+            }
+            else
+            {
+                mensajeResultado = "❌ Error al eliminar el proveedor.";
+                esError = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            mensajeResultado = $"❌ Error inesperado: {ex.Message}";
+            esError = true;
+        }
+    }
+
+    private async Task CargarProveedores()
+    {
+        isLoading = true;
+        try
+        {
+            proveedores = await supplierService.GetSuppliersAsync();
+            productosProveedor = await supplierService.GetAllSupplierProductsAsync();
+        }
+        catch (Exception ex)
+        {
+            mensajeResultado = $"❌ Error al cargar proveedores: {ex.Message}";
+            esError = true;
+        }
+        isLoading = false;
+    }
+
+    private async Task CargarProductos()
+    {
+        productos = await productService.GetProductsAsync();
+        foreach (var product in productos)
+        {
+            selectedProducts[product.ProdId] = false;
+        }
+    }
+
+    private async Task GuardarProveedor()
+    {
+        try
+        {
+            bool success = await supplierService.AddSupplierAsync(newSupplier);
+            if (success)
+            {
+                foreach (var productId in selectedProducts.Where(p => p.Value).Select(p => p.Key))
+                {
+                    var supplierProduct = new SupplierProduct { IdProv = newSupplier.ProvId, IdProd = productId };
+                    await supplierService.AddSupplierProductAsync(supplierProduct);
+                }
+                mensajeResultado = "✅ Proveedor guardado correctamente.";
+                esError = false;
+                await CargarProveedores();
+                ResetForm();
+            }
+            else
+            {
+                mensajeResultado = "❌ Error al guardar el proveedor.";
+                esError = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            mensajeResultado = $"❌ Error inesperado: {ex.Message}";
+            esError = true;
+        }
+    }
+
+    private void ResetForm()
+    {
+        newSupplier = new Supplier { Referencia = "", Contacto = "", Mail = "", Direccion = "" };
+        selectedProducts.Clear();
+    }
+}

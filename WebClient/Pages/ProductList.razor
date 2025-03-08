@@ -1,0 +1,228 @@
+@page "/products"
+@using WebClient.Services
+@using WebClient.Models.Entities
+@inject ProductService productService
+@inject NavigationManager NavigationManager
+
+<h3>Listado de Productos</h3>
+
+<input type="text" @bind="searchTerm" placeholder="Buscar producto..." />
+<button @onclick="SearchProducts">Buscar</button>
+
+@if (!string.IsNullOrEmpty(mensajeResultado))
+{
+    <div class="alert @(esError ? "alert-danger" : "alert-success")">
+        @mensajeResultado
+    </div>
+}
+
+@if (isLoading)
+{
+    <p><em>Cargando productos...</em></p>
+}
+else if (products == null || !products.Any())
+{
+    <p>No se encontraron productos.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>Ganancia</th>
+                <th>Descuento</th>
+                <th>Stock</th>
+                <th>Stock Mínimo</th>
+                <th>Fecha de Baja</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in products)
+            {
+                <tr>
+                    <td>@product.ProdId</td>
+                    <td>@product.Descripcion</td>
+                    <td>@product.PrecioUnitario</td>
+                    <td>@product.Ganancia</td>
+                    <td>@(product.Descuento ?? 0)</td>
+                    <td>@(product.Stock ?? 0)</td>
+                    <td>@(product.StockMin ?? 0)</td>
+                    <td>@(product.FechaBaja?.ToString("dd/MM/yyyy") ?? "-")</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => EditProduct(product.ProdId)">Editar</button>
+                        <button class="btn btn-danger" @onclick="() => DeleteProduct(product.ProdId)">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <button @onclick="PreviousPage" disabled="@(!canGoPrevious)">Anterior</button>
+    <button @onclick="NextPage" disabled="@(!canGoNext)">Siguiente</button>
+}
+
+<h3>Agregar Producto</h3>
+
+<div>
+    <input type="text" @bind="newProduct.ProdId" placeholder="ID" />
+    <input type="text" @bind="newProduct.Descripcion" placeholder="Descripción" />
+    <input type="number" @bind="newProduct.PrecioUnitario" placeholder="Precio" />
+    <input type="number" @bind="newProduct.Ganancia" placeholder="Ganancia" />
+    <input type="number" @bind="newProduct.Descuento" placeholder="Descuento" />
+    <input type="number" @bind="newProduct.Stock" placeholder="Stock" />
+    <input type="number" @bind="newProduct.StockMin" placeholder="Stock Mínimo" />
+    <input type="date" @bind="newProduct.FechaBaja" placeholder="Fecha de Baja" />
+    <button class="btn btn-success" @onclick="AddProduct">Agregar Producto</button>
+</div>
+
+@code {
+    private List<Product> products = new();
+    private bool isLoading = true;
+    private string searchTerm = "";
+    private int currentPage = 1;
+    private int pageSize = 10;
+    private bool canGoPrevious => currentPage > 1;
+    private bool canGoNext => products.Count == pageSize;
+
+    private string mensajeResultado = "";
+    private bool esError = false;
+
+    private Product newProduct = new()
+        {
+            ProdId = "",
+            Descripcion = "",
+            PrecioUnitario = 0,
+            Ganancia = 0,
+            Descuento = null,
+            Stock = null,
+            StockMin = null,
+            FechaBaja = null
+        };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProducts();
+    }
+
+    private async Task LoadProducts()
+    {
+        isLoading = true;
+        try
+        {
+            products = await productService.GetProductsAsync();
+        }
+        catch (Exception ex)
+        {
+            mensajeResultado = $"❌ Error al cargar productos: {ex.Message}";
+            esError = true;
+        }
+        isLoading = false;
+    }
+
+    private async Task SearchProducts()
+    {
+        isLoading = true;
+        try
+        {
+            products = (await productService.GetProductsAsync())
+                .Where(p => p.Descripcion.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            mensajeResultado = $"❌ Error en la búsqueda: {ex.Message}";
+            esError = true;
+        }
+        isLoading = false;
+    }
+
+    private async Task PreviousPage()
+    {
+        if (canGoPrevious)
+        {
+            currentPage--;
+            await LoadProducts();
+        }
+    }
+
+    private async Task NextPage()
+    {
+        if (canGoNext)
+        {
+            currentPage++;
+            await LoadProducts();
+        }
+    }
+
+    private async Task AddProduct()
+    {
+        try
+        {
+            Console.WriteLine($"📢 Intentando agregar producto: {System.Text.Json.JsonSerializer.Serialize(newProduct)}");
+
+            bool success = await productService.AddProductAsync(newProduct);
+
+            if (success)
+            {
+                mensajeResultado = "✅ Producto agregado correctamente.";
+                esError = false;
+                await LoadProducts();
+
+                newProduct = new Product
+                    {
+                        ProdId = "",
+                        Descripcion = "",
+                        PrecioUnitario = 0,
+                        Ganancia = 0,
+                        Descuento = null,
+                        Stock = null,
+                        StockMin = null,
+                        FechaBaja = null
+                    };
+            }
+            else
+            {
+                mensajeResultado = "❌ Error al agregar el producto.";
+                esError = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            mensajeResultado = $"❌ Error inesperado: {ex.Message}";
+            esError = true;
+        }
+    }
+
+    private void EditProduct(string prodId)
+    {
+        NavigationManager.NavigateTo($"/edit-product/{prodId}");
+    }
+
+    private async Task DeleteProduct(string prodId)
+    {
+        try
+        {
+            bool success = await productService.DeleteProductAsync(prodId);
+            if (success)
+            {
+                mensajeResultado = "✅ Producto eliminado correctamente.";
+                esError = false;
+                await LoadProducts();
+            }
+            else
+            {
+                mensajeResultado = "❌ Error al eliminar el producto.";
+                esError = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            mensajeResultado = $"❌ Error inesperado: {ex.Message}";
+            esError = true;
+        }
+    }
+
+}
