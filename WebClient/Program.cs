@@ -29,11 +29,4 @@ builder.Services.AddAuthorizationCore();
 
 builder.Services.AddScoped<CustomHttpHandler>();
 
-//Agrego los servicios
-builder.Services.AddScoped<ProductService>();
-builder.Services.AddScoped<BillService>();
-builder.Services.AddScoped<SupplierService>();
-builder.Services.AddScoped<OrderService>();
-builder.Services.AddScoped<InventoryService>();
-
 await builder.Build().RunAsync();
