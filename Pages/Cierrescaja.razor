@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿@page "/cierres-caja"
 @inject HttpClient Http
 
@@ -100,3 +101,107 @@ else
         public decimal EfectivoDisponible { get; set; }
     }
 }
+=======
+﻿@page "/cierres-caja"
+@inject HttpClient Http
+
+<h3>Cierre de Caja por Turno</h3>
+
+<EditForm Model="cierreCaja" OnValidSubmit="GuardarCierre">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="mb-3">
+        <label>Fecha:</label>
+        <InputDate @bind-Value="cierreCaja.Fecha" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label>Turno:</label>
+        <select class="form-select" @bind="cierreCaja.Turno">
+            <option value="Mañana">Mañana</option>
+            <option value="Tarde">Tarde</option>
+            <option value="Noche">Noche</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label>Total Ventas:</label>
+        <InputNumber @bind-Value="cierreCaja.TotalVentas" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label>Efectivo Disponible:</label>
+        <InputNumber @bind-Value="cierreCaja.EfectivoDisponible" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Registrar Cierre de Caja</button>
+</EditForm>
+
+<hr />
+
+<h4>Cierres de Caja Registrados</h4>
+@if (cierres is null)
+{
+    <p>Cargando cierres...</p>
+}
+else if (!cierres.Any())
+{
+    <p>No hay cierres registrados.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Turno</th>
+                <th>Total Ventas</th>
+                <th>Efectivo Disponible</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var cierre in cierres)
+            {
+                <tr>
+                    <td>@cierre.Fecha.ToShortDateString()</td>
+                    <td>@cierre.Turno</td>
+                    <td>@cierre.TotalVentas.ToString("C")</td>
+                    <td>@cierre.EfectivoDisponible.ToString("C")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private CierreCaja cierreCaja = new CierreCaja();
+    private List<CierreCaja> cierres = new List<CierreCaja>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Simula carga inicial
+        cierres = new List<CierreCaja>
+        {
+            new CierreCaja { Fecha = DateTime.Today, Turno = "Mañana", TotalVentas = 1000, EfectivoDisponible = 950 }
+        };
+        await Task.CompletedTask;
+    }
+
+    private async Task GuardarCierre()
+    {
+        cierres.Add(new CierreCaja
+            {
+                Fecha = cierreCaja.Fecha,
+                Turno = cierreCaja.Turno,
+                TotalVentas = cierreCaja.TotalVentas,
+                EfectivoDisponible = cierreCaja.EfectivoDisponible
+            });
+        cierreCaja = new CierreCaja();
+        await Task.CompletedTask;
+    }
+
+    public class CierreCaja
+    {
+        public DateTime Fecha { get; set; } = DateTime.Today;
+        public string Turno { get; set; } = "Mañana";
+        public decimal TotalVentas { get; set; }
+        public decimal EfectivoDisponible { get; set; }
+    }
+}
+>>>>>>> bd9cc5e72f2d3a84ac6a39a51b72b57afbf7aae1

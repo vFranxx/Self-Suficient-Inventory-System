@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿@page "/Sales"
 @using BlazorFront.Services
 @using BlazorFront.Models.Entities
@@ -88,3 +89,95 @@ else
             };
     }
 }
+=======
+﻿@page "/Sales"
+@using BlazorFront.Services
+@using BlazorFront.Models.Entities
+@using System.Linq
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject BillService billService
+
+<h3>Venta de Productos</h3>
+
+@if (Factura == null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <div>
+        <label>Producto:</label>
+        <input @bind="NuevoDetalle.IdProducto" placeholder="Código de producto" />
+    </div>
+    <div>
+        <label>Cantidad:</label>
+        <input type="number" @bind="NuevoDetalle.Cantidad" min="1" />
+    </div>
+    <div>
+        <label>Precio:</label>
+        <input type="number" @bind="NuevoDetalle.Precio" step="0.01" />
+    </div>
+    <button @onclick="AgregarProducto">Agregar</button>
+
+    <h4>Detalles de Venta</h4>
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var detalle in DetallesFactura)
+            {
+                <tr>
+                    <td>@detalle.IdProducto</td>
+                    <td>@detalle.Cantidad</td>
+                    <td>@detalle.Precio</td>
+                    <td>@detalle.Subtotal</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <h4>Total: @Factura.Total</h4>
+}
+
+@code {
+    private Bill Factura = new() { FechaHora = DateTime.Now, Total = 0, IdOp = "admin" };
+    private List<BillDetail> DetallesFactura = new();
+    private BillDetail NuevoDetalle = new()
+        {
+            IdProducto = "",
+            Cantidad = 1,
+            Precio = 0m,
+            Subtotal = 0m,
+            IdFactura = 0
+        };
+
+    private void AgregarProducto()
+    {
+        if (string.IsNullOrWhiteSpace(NuevoDetalle.IdProducto) || NuevoDetalle.Cantidad <= 0 || NuevoDetalle.Precio <= 0)
+        {
+            return;
+        }
+
+        NuevoDetalle.Subtotal = NuevoDetalle.Cantidad * NuevoDetalle.Precio;
+        DetallesFactura.Add(NuevoDetalle);
+        Factura.Total = DetallesFactura.Sum(d => d.Subtotal);
+
+        NuevoDetalle = new()
+            {
+                IdProducto = "",
+                Cantidad = 1,
+                Precio = 0m,
+                Subtotal = 0m,
+                IdFactura = 0
+            };
+    }
+}
+>>>>>>> bd9cc5e72f2d3a84ac6a39a51b72b57afbf7aae1

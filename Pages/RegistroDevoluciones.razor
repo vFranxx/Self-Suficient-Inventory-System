@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿@page "/devoluciones-proveedores"
 @inject HttpClient Http
 
@@ -104,3 +105,111 @@ else
         public string Razon { get; set; } = "";
     }
 }
+=======
+﻿@page "/devoluciones-proveedores"
+@inject HttpClient Http
+
+<h3>Registro de Devoluciones a Proveedores</h3>
+
+<EditForm Model="devolucion" OnValidSubmit="GuardarDevolucion">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="mb-3">
+        <label>Fecha:</label>
+        <InputDate @bind-Value="devolucion.Fecha" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label>Proveedor:</label>
+        <InputText @bind-Value="devolucion.Proveedor" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label>Producto:</label>
+        <InputText @bind-Value="devolucion.Producto" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label>Cantidad:</label>
+        <InputNumber @bind-Value="devolucion.Cantidad" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label>Razón de Devolución:</label>
+        <InputText @bind-Value="devolucion.Razon" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Registrar Devolución</button>
+</EditForm>
+
+<hr />
+
+<h4>Historial de Devoluciones</h4>
+@if (devoluciones == null)
+{
+    <p>Cargando devoluciones...</p>
+}
+else if (!devoluciones.Any())
+{
+    <p>No hay devoluciones registradas.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Proveedor</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Razón</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var d in devoluciones)
+            {
+                <tr>
+                    <td>@d.Fecha.ToShortDateString()</td>
+                    <td>@d.Proveedor</td>
+                    <td>@d.Producto</td>
+                    <td>@d.Cantidad</td>
+                    <td>@d.Razon</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Devolucion devolucion = new Devolucion();
+    private List<Devolucion> devoluciones = new List<Devolucion>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Simula la carga de devoluciones
+        devoluciones = new List<Devolucion>
+        {
+            new Devolucion { Fecha = DateTime.Today.AddDays(-3), Proveedor = "Proveedor A", Producto = "LECHE", Cantidad = 5, Razon = "Producto defectuoso" }
+        };
+        await Task.CompletedTask;
+    }
+
+    private async Task GuardarDevolucion()
+    {
+        devoluciones.Add(new Devolucion
+            {
+                Fecha = devolucion.Fecha,
+                Proveedor = devolucion.Proveedor,
+                Producto = devolucion.Producto,
+                Cantidad = devolucion.Cantidad,
+                Razon = devolucion.Razon
+            });
+        devolucion = new Devolucion();
+        await Task.CompletedTask;
+    }
+
+    public class Devolucion
+    {
+        public DateTime Fecha { get; set; } = DateTime.Today;
+        public string Proveedor { get; set; } = "";
+        public string Producto { get; set; } = "";
+        public int Cantidad { get; set; }
+        public string Razon { get; set; } = "";
+    }
+}
+>>>>>>> bd9cc5e72f2d3a84ac6a39a51b72b57afbf7aae1

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿@page "/historial-ventas"
 @inject HttpClient Http
 
@@ -76,3 +77,83 @@ else
         public decimal Total { get; set; }
     }
 }
+=======
+﻿@page "/historial-ventas"
+@inject HttpClient Http
+
+<h3>Historial de Ventas</h3>
+
+<div class="mb-3">
+    <label>Filtrar por Fecha:</label>
+    <InputDate @bind-Value="fechaFiltro" class="form-control" />
+</div>
+<div class="mb-3">
+    <label>Filtrar por Producto:</label>
+    <InputText @bind-Value="productoFiltro" class="form-control" placeholder="Nombre del producto" />
+</div>
+<button class="btn btn-primary" @onclick="AplicarFiltros">Aplicar Filtros</button>
+
+<hr />
+
+@if (ventas == null)
+{
+    <p>Cargando ventas...</p>
+}
+else if (!ventas.Any())
+{
+    <p>No se encontraron ventas.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var venta in ventas)
+            {
+                <tr>
+                    <td>@venta.Fecha.ToShortDateString()</td>
+                    <td>@venta.Producto</td>
+                    <td>@venta.Cantidad</td>
+                    <td>@venta.Total.ToString("C")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private DateTime? fechaFiltro;
+    private string productoFiltro = "";
+    private List<Venta> ventas = new List<Venta>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Simula la carga de ventas
+        ventas = new List<Venta>
+        {
+            new Venta { Fecha = DateTime.Today, Producto = "LECHE ENTERA SANCOR", Cantidad = 10, Total = 100 },
+            new Venta { Fecha = DateTime.Today.AddDays(-1), Producto = "GASEOSA COCA COLA 3L", Cantidad = 5, Total = 125 }
+        };
+        await Task.CompletedTask;
+    }
+
+    private void AplicarFiltros()
+    {
+    }
+
+    public class Venta
+    {
+        public DateTime Fecha { get; set; }
+        public string Producto { get; set; } = "";
+        public int Cantidad { get; set; }
+        public decimal Total { get; set; }
+    }
+}
+>>>>>>> bd9cc5e72f2d3a84ac6a39a51b72b57afbf7aae1

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿@page "/dashboard-negocio"
 @inject HttpClient Http
 @inject IJSRuntime JSRuntime
@@ -56,3 +57,63 @@
         }
     }
 }
+=======
+﻿@page "/dashboard-negocio"
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+
+<h3>Dashboard de Negocio</h3>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-header">Ventas Totales</div>
+            <div class="card-body">
+                <h5 class="card-title">@ventasTotales.ToString("C")</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-header">Productos Más Vendidos</div>
+            <div class="card-body">
+                <ul>
+                    @foreach (var producto in productosMasVendidos)
+                    {
+                        <li>@producto</li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-warning mb-3">
+            <div class="card-header">Ganancias</div>
+            <div class="card-body">
+                <h5 class="card-title">@ganancias.ToString("C")</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr />
+
+<h4>Gráfico de Tendencias de Ingresos y Egresos</h4>
+<canvas id="tendenciasChart" width="400" height="200"></canvas>
+
+@code {
+    // Datos de ejemplo
+    private decimal ventasTotales = 5000;
+    private List<string> productosMasVendidos = new List<string> { "LECHE", "GASEOSA", "JUGO" };
+    private decimal ganancias = 1200;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Inicializa con el script de Chart.js
+            await JSRuntime.InvokeVoidAsync("inicializarChart", "tendenciasChart");
+        }
+    }
+}
+>>>>>>> bd9cc5e72f2d3a84ac6a39a51b72b57afbf7aae1
