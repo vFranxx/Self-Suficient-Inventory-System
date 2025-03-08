@@ -1,8 +1,12 @@
 ﻿@page "/Sales"
-
+@using BlazorFront.Services
 @using BlazorFront.Models.Entities
 @using System.Linq
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@inject HttpClient Http
 @inject NavigationManager Navigation
+@inject BillService billService
 
 <h3>Venta de Productos</h3>
 
@@ -37,7 +41,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var detalle in Factura.Detalles)
+            @foreach (var detalle in DetallesFactura)
             {
                 <tr>
                     <td>@detalle.IdProducto</td>
@@ -49,12 +53,19 @@ else
         </tbody>
     </table>
     <h4>Total: @Factura.Total</h4>
-    <button @onclick="RegistrarVenta">Registrar Venta</button>
 }
 
 @code {
-    private Bill Factura = new Bill { Detalles = new List<BillDetail>() };
-    private BillDetail NuevoDetalle = new BillDetail();
+    private Bill Factura = new() { FechaHora = DateTime.Now, Total = 0, IdOp = "admin" };
+    private List<BillDetail> DetallesFactura = new();
+    private BillDetail NuevoDetalle = new()
+        {
+            IdProducto = "",
+            Cantidad = 1,
+            Precio = 0m,
+            Subtotal = 0m,
+            IdFactura = 0
+        };
 
     private void AgregarProducto()
     {
@@ -64,22 +75,16 @@ else
         }
 
         NuevoDetalle.Subtotal = NuevoDetalle.Cantidad * NuevoDetalle.Precio;
-        Factura.Detalles.Add(new BillDetail
+        DetallesFactura.Add(NuevoDetalle);
+        Factura.Total = DetallesFactura.Sum(d => d.Subtotal);
+
+        NuevoDetalle = new()
             {
-                IdProducto = NuevoDetalle.IdProducto,
-                Cantidad = NuevoDetalle.Cantidad,
-                Precio = NuevoDetalle.Precio,
-                Subtotal = NuevoDetalle.Subtotal
-            });
-
-        Factura.Total = Factura.Detalles.Sum(d => d.Subtotal);
-        NuevoDetalle = new BillDetail();
-    }
-
-    private void RegistrarVenta()
-    {
-        // Aquí se enviaría la factura a la API para registrarla en la base de datos
-        Console.WriteLine("Venta registrada con éxito");
-        Factura = new Bill { Detalles = new List<BillDetail>() };
+                IdProducto = "",
+                Cantidad = 1,
+                Precio = 0m,
+                Subtotal = 0m,
+                IdFactura = 0
+            };
     }
 }

@@ -1,0 +1,198 @@
+﻿@page "/pedidos-proveedores"
+@using BlazorFront.Models.Entities
+@using BlazorFront.Services
+@inject OrderService OrderService
+@inject ProductService ProductService
+@inject SupplierService supplierService
+@inject HttpClient Http
+
+<h3>Pedidos a Proveedores</h3>
+
+@if (isLoading)
+{
+    <p>Cargando datos...</p>
+}
+else
+{
+    <EditForm Model="nuevoPedido" OnValidSubmit="GuardarPedido">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <!-- Seleccion de proveedor -->
+        <div class="mb-3">
+            <label>Proveedor:</label>
+            <select class="form-control" @bind="nuevoPedido.IdProv">
+                <option value="0">Seleccione un proveedor</option>
+                @foreach (var proveedor in proveedores)
+                {
+                    <option value="@proveedor.ProvId">@proveedor.Referencia</option>
+                }
+            </select>
+        </div>
+
+        <!-- Boton para cargar productos del proveedor -->
+        <button type="button" class="btn btn-info mb-3" @onclick="CargarProductosProveedor">
+            Cargar Productos del Proveedor
+        </button>
+
+        <!-- Mostrar mensaje si no hay productos -->
+        @if (!productosProveedor.Any())
+        {
+            <p>No hay productos disponibles para este proveedor.</p>
+        }
+        else
+        {
+            <!-- Tabla de productos -->
+            <h5>Productos Disponibles del Proveedor</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Precio</th>
+                        <th>Cantidad</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var producto in productosProveedor)
+                    {
+                        <tr>
+                            <td>@producto.Descripcion</td>
+                            <td>$@producto.PrecioUnitario</td>
+                            <td>
+                                <InputNumber @bind-Value="producto.Cantidad" class="form-control" Min="0" />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+
+        <!-- Boton para registrar pedido -->
+        <button type="submit" class="btn btn-primary">Registrar Pedido</button>
+    </EditForm>
+
+    <!-- Historial de pedidos / falta terminar -->
+    <h4>Historial de Pedidos</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Proveedor</th>
+                <th>Productos</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var pedido in pedidos)
+            {
+                <tr>
+                    <td>@pedido.FechaSolicitud.ToShortDateString()</td>
+                    <td>@proveedores.FirstOrDefault(p => p.ProvId == pedido.IdProv)?.Referencia</td>
+                    <td>
+                        @foreach (var detalle in detallesPedidos.Where(d => d.IdOc == pedido.OcId))
+                        {
+                            <p>@productosProveedor.FirstOrDefault(p => p.ProdId == detalle.IdProd)?.Descripcion - Cantidad: @detalle.Cantidad</p>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private class ProductWithQuantity : Product
+    {
+        public int Cantidad { get; set; } = 0;
+        public ProductWithQuantity()
+        {
+            Ganancia = 0;
+            PrecioUnitario = 0;
+        }
+    }
+
+    private Order nuevoPedido = new() { IdProv = 0, FechaSolicitud = DateTime.Today, IdOp = "DEFAULT_OP" };
+    private List<Order> pedidos = new();
+    private List<OrderDetail> detallesPedidos = new();
+    private List<Supplier> proveedores = new();
+    private List<ProductWithQuantity> productosProveedor = new();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        isLoading = true;
+        StateHasChanged();
+        
+        try
+        {
+            proveedores = await supplierService.GetSuppliersAsync();
+            pedidos = await OrderService.GetOrdersAsync();
+            detallesPedidos = await OrderService.GetOrderDetailsAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar datos: {ex.Message}");
+        }
+
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task CargarProductosProveedor()
+    {
+        if (nuevoPedido.IdProv == 0)
+        {
+            Console.WriteLine("Debe seleccionar un proveedor");
+            return;
+        }
+
+        try
+        {
+            var productos = await Http.GetFromJsonAsync<List<Product>>($"api/Supplier/{nuevoPedido.IdProv}/products");
+            productosProveedor = productos?.Select(p => new ProductWithQuantity
+            {
+                ProdId = p.ProdId,
+                Descripcion = p.Descripcion,
+                PrecioUnitario = p.PrecioUnitario,
+                Ganancia = p.Ganancia,
+                Cantidad = 0
+            }).ToList() ?? new();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar productos del proveedor: {ex.Message}");
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task GuardarPedido()
+    {
+        if (nuevoPedido.IdProv == 0)
+        {
+            Console.WriteLine("Debe seleccionar un proveedor");
+            return;
+        }
+
+        var pedidoCreado = await OrderService.CreateOrderAsync(nuevoPedido);
+        if (pedidoCreado != null)
+        {
+            foreach (var producto in productosProveedor.Where(p => p.Cantidad > 0))
+            {
+                var detalle = new OrderDetail
+                {
+                    IdOc = pedidoCreado.OcId,
+                    IdProd = producto.ProdId,
+                    Cantidad = producto.Cantidad
+                };
+                await OrderService.AddOrderDetailAsync(detalle);
+            }
+            await CargarDatos();
+            nuevoPedido = new() { IdProv = 0, FechaSolicitud = DateTime.Today, IdOp = "DEFAULT_OP" };
+        }
+    }
+}

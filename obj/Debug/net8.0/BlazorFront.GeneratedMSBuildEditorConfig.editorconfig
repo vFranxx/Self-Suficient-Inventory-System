@@ -3,6 +3,9 @@ build_property.EnableAotAnalyzer =
 build_property.EnableSingleFileAnalyzer = 
 build_property.EnableTrimAnalyzer = false
 build_property.IncludeAllContentForSelfExtract = 
+build_property.MudDebugAnalyzer = 
+build_property.MudAllowedAttributePattern = 
+build_property.MudAllowedAttributeList = 
 build_property.TargetFramework = net8.0
 build_property.TargetPlatformMinVersion = 
 build_property.UsingMicrosoftNETSdkWeb = 
@@ -26,6 +29,10 @@ build_property._RazorSourceGeneratorDebug =
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/ale_g/source/repos/BlazorFront/Pages/Cierrescaja.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2llcnJlc2NhamEucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/ale_g/source/repos/BlazorFront/Pages/Counter.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ291bnRlci5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
@@ -34,16 +41,60 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ3JlYXRlUHJvZHVjdC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/ale_g/source/repos/BlazorFront/Pages/DashboardNegocio.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGFzaGJvYXJkTmVnb2Npby5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ale_g/source/repos/BlazorFront/Pages/HistorialCompras.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSGlzdG9yaWFsQ29tcHJhcy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ale_g/source/repos/BlazorFront/Pages/HistorialVentas.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSGlzdG9yaWFsVmVudGFzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/ale_g/source/repos/BlazorFront/Pages/Home.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSG9tZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ale_g/source/repos/BlazorFront/Pages/Ingresos.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5ncmVzb3MucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ale_g/source/repos/BlazorFront/Pages/Inventario.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW52ZW50YXJpby5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ale_g/source/repos/BlazorFront/Pages/MetodoPago.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTWV0b2RvUGFnby5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/ale_g/source/repos/BlazorFront/Pages/NavMenu.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTmF2TWVudS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/ale_g/source/repos/BlazorFront/Pages/PedidosProveedores.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUGVkaWRvc1Byb3ZlZWRvcmVzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/ale_g/source/repos/BlazorFront/Pages/ProductList.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJvZHVjdExpc3QucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ale_g/source/repos/BlazorFront/Pages/Proveedores.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJvdmVlZG9yZXMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ale_g/source/repos/BlazorFront/Pages/RegistroDevoluciones.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUmVnaXN0cm9EZXZvbHVjaW9uZXMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ale_g/source/repos/BlazorFront/Pages/Sales.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2FsZXMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ale_g/source/repos/BlazorFront/Pages/Ventas.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVmVudGFzLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/ale_g/source/repos/BlazorFront/Pages/Weather.razor]

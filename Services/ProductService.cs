@@ -1,8 +1,5 @@
-﻿using System.Net.Http.Json;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using BlazorFront.Models.Entities;
+﻿using BlazorFront.Models.Entities;
+using System.Net.Http.Json;
 
 namespace BlazorFront.Services
 {
@@ -13,18 +10,29 @@ namespace BlazorFront.Services
         public ProductService(HttpClient httpClient)
         {
             _httpClient = httpClient;
+            _httpClient.BaseAddress = new Uri("https://localhost:7047/api/");
         }
 
         public async Task<List<Product>> GetProductsAsync()
         {
             try
             {
-                var response = await _httpClient.GetFromJsonAsync<List<Product>>("api/Product/all");
-                return response ?? new List<Product>();
+                Console.WriteLine("📡 Solicitando lista de productos...");
+                var response = await _httpClient.GetAsync("Product/all");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine($"❌ Error al obtener productos: {response.StatusCode} - {await response.Content.ReadAsStringAsync()}");
+                    return new List<Product>();
+                }
+
+                var products = await response.Content.ReadFromJsonAsync<List<Product>>();
+                Console.WriteLine("✅ Productos obtenidos correctamente.");
+                return products ?? new List<Product>();
             }
-            catch (HttpRequestException ex)
+            catch (Exception ex)
             {
-                Console.WriteLine($"Error al obtener productos: {ex.Message}");
+                Console.WriteLine($"❌ Error inesperado al obtener productos: {ex.Message}");
                 return new List<Product>();
             }
         }
@@ -33,46 +41,52 @@ namespace BlazorFront.Services
         {
             try
             {
-                var response = await _httpClient.PostAsJsonAsync("api/Product", product);
+                Console.WriteLine($"📤 Enviando producto: {System.Text.Json.JsonSerializer.Serialize(product)}");
+
+                var response = await _httpClient.PostAsJsonAsync("Product", product);
+                string responseContent = await response.Content.ReadAsStringAsync();
+
+                Console.WriteLine($"🔄 Respuesta de la API: {response.StatusCode} - {responseContent}");
+
                 return response.IsSuccessStatusCode;
             }
-            catch (HttpRequestException ex)
+            catch (Exception ex)
             {
-                Console.WriteLine($"Error al agregar producto: {ex.Message}");
+                Console.WriteLine($"❌ Error inesperado al agregar producto: {ex.Message}");
                 return false;
             }
         }
+
         public async Task<bool> DeleteProductAsync(string prodId)
         {
             try
             {
-                if (int.TryParse(prodId, out int prodIdInt))
-                {
-                    var response = await _httpClient.DeleteAsync($"api/Product/{prodIdInt}");
-                    return response.IsSuccessStatusCode;
-                }
-                else
-                {
-                    Console.WriteLine($"Error: ID de producto inválido.");
-                    return false;
-                }
+                Console.WriteLine($"🗑 Eliminando producto ID: {prodId}");
+                var response = await _httpClient.DeleteAsync($"Product/{prodId}");
+                Console.WriteLine($"🔄 Respuesta API: {response.StatusCode}");
+
+                return response.IsSuccessStatusCode;
             }
-            catch (HttpRequestException ex)
+            catch (Exception ex)
             {
-                Console.WriteLine($"Error al eliminar producto: {ex.Message}");
+                Console.WriteLine($"❌ Error inesperado al eliminar producto: {ex.Message}");
                 return false;
             }
         }
+
         public async Task<bool> UpdateProductAsync(Product product)
         {
             try
             {
-                var response = await _httpClient.PutAsJsonAsync("api/Product", product);
+                Console.WriteLine($"🔄 Actualizando producto ID: {product.ProdId}");
+                var response = await _httpClient.PutAsJsonAsync($"Product/{product.ProdId}", product);
+
+                Console.WriteLine($"🔄 Respuesta API: {response.StatusCode}");
                 return response.IsSuccessStatusCode;
             }
-            catch (HttpRequestException ex)
+            catch (Exception ex)
             {
-                Console.WriteLine($"Error al actualizar producto: {ex.Message}");
+                Console.WriteLine($"❌ Error inesperado al actualizar producto: {ex.Message}");
                 return false;
             }
         }

@@ -1,0 +1,59 @@
+﻿@page "/historial-compras"
+@inject HttpClient Http
+
+<h3>Historial de Compras</h3>
+
+@if (compras == null)
+{
+    <p>Cargando compras...</p>
+}
+else if (!compras.Any())
+{
+    <p>No se encontraron compras.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Proveedor</th>
+                <th>Productos</th>
+                <th>Estado de Entrega</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var compra in compras)
+            {
+                <tr>
+                    <td>@compra.FechaCompra.ToShortDateString()</td>
+                    <td>@compra.Proveedor</td>
+                    <td>@compra.Productos</td>
+                    <td>@compra.EstadoEntrega</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Compra> compras = new List<Compra>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Simula la carga de compras
+        compras = new List<Compra>
+        {
+            new Compra { FechaCompra = DateTime.Today.AddDays(-2), Proveedor = "Proveedor A", Productos = "LECHE, 20; GASEOSA, 10", EstadoEntrega = "Entregado" }
+        };
+        await Task.CompletedTask;
+    }
+
+    public class Compra
+    {
+        public DateTime FechaCompra { get; set; } = DateTime.Today;
+        public string Proveedor { get; set; } = "";
+        public string Productos { get; set; } = "";
+        public string EstadoEntrega { get; set; } = "";
+    }
+}

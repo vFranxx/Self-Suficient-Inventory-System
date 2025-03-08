@@ -1,0 +1,103 @@
+﻿@page "/ingresos"
+@using System.Globalization
+@inject HttpClient Http
+
+<h3>Registro de Ingresos y Egresos</h3>
+
+<EditForm Model="movimiento" OnValidSubmit="GuardarMovimiento">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="mb-3">
+        <label>Fecha:</label>
+        <InputDate @bind-Value="movimiento.Fecha" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label>Tipo:</label>
+        <select class="form-select" @bind="movimiento.Tipo">
+            <option value="Ingreso">Ingreso</option>
+            <option value="Egreso">Egreso</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label>Monto:</label>
+        <InputNumber @bind-Value="movimiento.Monto" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label>Descripción:</label>
+        <InputText @bind-Value="movimiento.Descripcion" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar Movimiento</button>
+</EditForm>
+
+<hr />
+
+<h4>Movimientos Registrados</h4>
+@if (movimientos is null)
+{
+    <p>Cargando movimientos...</p>
+}
+else if (!movimientos.Any())
+{
+    <p>No hay movimientos registrados.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Tipo</th>
+                <th>Monto</th>
+                <th>Descripción</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var mov in movimientos)
+            {
+                <tr>
+                    <td>@mov.Fecha.ToShortDateString()</td>
+                    <td>@mov.Tipo</td>
+                    <td>@mov.Monto.ToString("C", CultureInfo.CurrentCulture)</td>
+                    <td>@mov.Descripcion</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Movimiento movimiento = new Movimiento();
+    private List<Movimiento> movimientos = new List<Movimiento>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        movimientos = new List<Movimiento>
+        {
+            new Movimiento { Fecha = DateTime.Today, Tipo = "Ingreso", Monto = 500, Descripcion = "Venta" },
+            new Movimiento { Fecha = DateTime.Today, Tipo = "Egreso", Monto = 200, Descripcion = "Compra Insumos" }
+        };
+        await Task.CompletedTask;
+    }
+
+    private async Task GuardarMovimiento()
+    {
+        movimientos.Add(new Movimiento
+            {
+                Fecha = movimiento.Fecha,
+                Tipo = movimiento.Tipo,
+                Monto = movimiento.Monto,
+                Descripcion = movimiento.Descripcion
+            });
+
+        movimiento = new Movimiento();
+        await Task.CompletedTask;
+    }
+
+    public class Movimiento
+    {
+        public DateTime Fecha { get; set; } = DateTime.Today;
+        public string Tipo { get; set; } = "Ingreso";
+        public decimal Monto { get; set; }
+        public string Descripcion { get; set; } = "";
+    }
+}

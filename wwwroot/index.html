@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,8 +9,9 @@
     <link rel="stylesheet" href="css/app.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
     <link href="BlazorFront.styles.css" rel="stylesheet" />
+    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+    <script src="_content/MudBlazor/MudBlazor.min.js"></script>
 </head>
-
 <body>
     <div id="app">
         <svg class="loading-progress">
@@ -26,7 +26,69 @@
         <a href="" class="reload">Reload</a>
         <a class="dismiss">🗙</a>
     </div>
-    <script src="_framework/blazor.webassembly.js"></script>
-</body>
 
+    <!-- Incluye Chart.js desde un CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Script de Blazor -->
+    <script src="_framework/blazor.webassembly.js"></script>
+    <!-- Tu código JavaScript personalizado -->
+    <script>
+        window.inicializarChart = (canvasId) => {
+            var ctx = document.getElementById(canvasId).getContext('2d');
+            var chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    // Etiquetas de todos los meses del año
+                    labels: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+                    datasets: [
+                        {
+                            label: "Ingresos 2025",
+                            data: [2000, 2200, 2300, 2500, 2700, 2900, 3000, 3200, 3300, 3500, 3600, 3800],
+                            borderColor: "green",
+                            fill: false
+                        },
+                        {
+                            label: "Egresos 2025",
+                            data: [1500, 1600, 1700, 1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600],
+                            borderColor: "red",
+                            fill: false
+                        },
+                        {
+                            label: "Ingresos 2026",
+                            data: [2200, 2400, 2500, 2700, 2900, 3100, 3200, 3400, 3500, 3700, 3800, 4000],
+                            borderColor: "blue",
+                            fill: false
+                        },
+                        {
+                            label: "Egresos 2026",
+                            data: [1600, 1700, 1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700],
+                            borderColor: "orange",
+                            fill: false
+                        },
+                        {
+                            label: "Ingresos 2027",
+                            data: [2500, 2700, 2800, 3000, 3200, 3400, 3500, 3700, 3800, 4000, 4200, 4400],
+                            borderColor: "purple",
+                            fill: false
+                        },
+                        {
+                            label: "Egresos 2027",
+                            data: [1700, 1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800],
+                            borderColor: "brown",
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        };
+    </script>
+</body>
 </html>

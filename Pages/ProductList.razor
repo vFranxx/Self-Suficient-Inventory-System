@@ -9,6 +9,13 @@
 <input type="text" @bind="searchTerm" placeholder="Buscar producto..." />
 <button @onclick="SearchProducts">Buscar</button>
 
+@if (!string.IsNullOrEmpty(mensajeResultado))
+{
+    <div class="alert @(esError ? "alert-danger" : "alert-success")">
+        @mensajeResultado
+    </div>
+}
+
 @if (isLoading)
 {
     <p><em>Cargando productos...</em></p>
@@ -80,6 +87,9 @@ else
     private bool canGoPrevious => currentPage > 1;
     private bool canGoNext => products.Count == pageSize;
 
+    private string mensajeResultado = "";
+    private bool esError = false;
+
     private Product newProduct = new()
         {
             ProdId = "",
@@ -100,16 +110,32 @@ else
     private async Task LoadProducts()
     {
         isLoading = true;
-        products = await productService.GetProductsAsync();
+        try
+        {
+            products = await productService.GetProductsAsync();
+        }
+        catch (Exception ex)
+        {
+            mensajeResultado = $"❌ Error al cargar productos: {ex.Message}";
+            esError = true;
+        }
         isLoading = false;
     }
 
     private async Task SearchProducts()
     {
         isLoading = true;
-        products = (await productService.GetProductsAsync())
-            .Where(p => p.Descripcion.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
-            .ToList();
+        try
+        {
+            products = (await productService.GetProductsAsync())
+                .Where(p => p.Descripcion.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            mensajeResultado = $"❌ Error en la búsqueda: {ex.Message}";
+            esError = true;
+        }
         isLoading = false;
     }
 
@@ -133,25 +159,40 @@ else
 
     private async Task AddProduct()
     {
-        bool success = await productService.AddProductAsync(newProduct);
-        if (success)
+        try
         {
-            await LoadProducts();
-            newProduct = new()
-                {
-                    ProdId = "",
-                    Descripcion = "",
-                    PrecioUnitario = 0,
-                    Ganancia = 0,
-                    Descuento = null,
-                    Stock = null,
-                    StockMin = null,
-                    FechaBaja = null
-                };
+            Console.WriteLine($"📢 Intentando agregar producto: {System.Text.Json.JsonSerializer.Serialize(newProduct)}");
+
+            bool success = await productService.AddProductAsync(newProduct);
+
+            if (success)
+            {
+                mensajeResultado = "✅ Producto agregado correctamente.";
+                esError = false;
+                await LoadProducts();
+
+                newProduct = new Product
+                    {
+                        ProdId = "",
+                        Descripcion = "",
+                        PrecioUnitario = 0,
+                        Ganancia = 0,
+                        Descuento = null,
+                        Stock = null,
+                        StockMin = null,
+                        FechaBaja = null
+                    };
+            }
+            else
+            {
+                mensajeResultado = "❌ Error al agregar el producto.";
+                esError = true;
+            }
         }
-        else
+        catch (Exception ex)
         {
-            Console.Error.WriteLine("Error al agregar el producto.");
+            mensajeResultado = $"❌ Error inesperado: {ex.Message}";
+            esError = true;
         }
     }
 
@@ -162,14 +203,27 @@ else
 
     private async Task DeleteProduct(string prodId)
     {
-        bool success = await productService.DeleteProductAsync(prodId);
-        if (success)
+        try
         {
-            await LoadProducts();
+            bool success = await productService.DeleteProductAsync(prodId);
+            if (success)
+            {
+                mensajeResultado = "✅ Producto eliminado correctamente.";
+                esError = false;
+                await LoadProducts();
+            }
+            else
+            {
+                mensajeResultado = "❌ Error al eliminar el producto.";
+                esError = true;
+            }
         }
-        else
+        catch (Exception ex)
         {
-            Console.Error.WriteLine("Error al eliminar el producto.");
+            mensajeResultado = $"❌ Error inesperado: {ex.Message}";
+            esError = true;
         }
     }
+
 }
+

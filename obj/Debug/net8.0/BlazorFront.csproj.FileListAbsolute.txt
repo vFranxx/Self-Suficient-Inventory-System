@@ -1,3 +1,10 @@
+C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\BlazorFront.csproj.AssemblyReference.cache
+C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\BlazorFront.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\BlazorFront.AssemblyInfoInputs.cache
+C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\BlazorFront.AssemblyInfo.cs
+C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\BlazorFront.csproj.CoreCompileInputs.cache
+C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\BlazorFront.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\BlazorFront.sourcelink.json
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\blazor.boot.json
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\blazor.webassembly.js
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\BlazorFront.pdb
@@ -18,6 +25,10 @@ C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Micr
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Microsoft.AspNetCore.Components.WebAssembly.wasm
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Microsoft.AspNetCore.Metadata.wasm
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Microsoft.CSharp.wasm
+C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Microsoft.EntityFrameworkCore.Abstractions.wasm
+C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Microsoft.EntityFrameworkCore.wasm
+C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Microsoft.Extensions.Caching.Abstractions.wasm
+C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Microsoft.Extensions.Caching.Memory.wasm
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Microsoft.Extensions.Configuration.Abstractions.wasm
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Microsoft.Extensions.Configuration.Binder.wasm
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Microsoft.Extensions.Configuration.FileExtensions.wasm
@@ -40,6 +51,7 @@ C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Micr
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Microsoft.Win32.Registry.wasm
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\mscorlib.wasm
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\netstandard.wasm
+C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Newtonsoft.Json.wasm
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.AppContext.wasm
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.Buffers.wasm
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.Collections.Concurrent.wasm
@@ -211,6 +223,7 @@ C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Micr
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.Data.Common.wasm.gz
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.Runtime.Extensions.wasm.gz
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\dotnet.native.wasm.gz
+C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Microsoft.Extensions.Caching.Abstractions.wasm.gz
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.IO.wasm.gz
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.Security.Principal.Windows.wasm.gz
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.Linq.wasm.gz
@@ -244,6 +257,7 @@ C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Syst
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.Net.Primitives.wasm.gz
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.Private.Xml.wasm.gz
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.Globalization.Calendars.wasm.gz
+C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Microsoft.EntityFrameworkCore.wasm.gz
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.Text.Encodings.Web.wasm.gz
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.Private.Uri.wasm.gz
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.Runtime.InteropServices.JavaScript.wasm.gz
@@ -284,6 +298,7 @@ C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Syst
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.IO.FileSystem.AccessControl.wasm.gz
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.Xml.Linq.wasm.gz
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.Drawing.wasm.gz
+C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Microsoft.Extensions.Caching.Memory.wasm.gz
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.Security.Claims.wasm.gz
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Microsoft.Extensions.Logging.Abstractions.wasm.gz
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.Net.NetworkInformation.wasm.gz
@@ -294,6 +309,7 @@ C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Micr
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\dotnet.native.8.0.5.exs4x9a6h4.js.gz
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Microsoft.AspNetCore.Components.Forms.wasm.gz
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.wasm.gz
+C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Newtonsoft.Json.wasm.gz
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.Reflection.Emit.ILGeneration.wasm.gz
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.ComponentModel.wasm.gz
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.Diagnostics.DiagnosticSource.wasm.gz
@@ -374,6 +390,7 @@ C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\icud
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.Xml.wasm.gz
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.Text.RegularExpressions.wasm.gz
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.Threading.Tasks.wasm.gz
+C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Microsoft.EntityFrameworkCore.Abstractions.wasm.gz
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.ComponentModel.Annotations.wasm.gz
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.Xml.XPath.XDocument.wasm.gz
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.IO.Compression.FileSystem.wasm.gz
@@ -406,6 +423,7 @@ C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Syst
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.Web.HttpUtility.wasm.gz
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.Transactions.wasm.gz
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\System.Security.Principal.wasm.gz
+C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\appsettings.Development.json
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\BlazorFront.staticwebassets.runtime.json
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\BlazorFront.dll
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\BlazorFront.pdb
@@ -415,6 +433,10 @@ C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\Microsoft.AspNetCore.Co
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\Microsoft.AspNetCore.Components.Web.dll
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\Microsoft.AspNetCore.Components.WebAssembly.dll
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\Microsoft.AspNetCore.Metadata.dll
+C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.dll
+C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\Microsoft.Extensions.Caching.Abstractions.dll
+C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\Microsoft.Extensions.Caching.Memory.dll
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\Microsoft.Extensions.Configuration.dll
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Abstractions.dll
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Binder.dll
@@ -431,6 +453,8 @@ C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\Microsoft.Extensions.Op
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\Microsoft.Extensions.Primitives.dll
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\Microsoft.JSInterop.dll
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\Microsoft.JSInterop.WebAssembly.dll
+C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\Newtonsoft.Json.dll
+C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\System.Diagnostics.DiagnosticSource.dll
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\System.IO.Pipelines.dll
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\Microsoft.CSharp.dll
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\Microsoft.VisualBasic.Core.dll
@@ -458,7 +482,6 @@ C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\System.Data.DataSetExte
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\System.Data.dll
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\System.Diagnostics.Contracts.dll
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\System.Diagnostics.Debug.dll
-C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\System.Diagnostics.DiagnosticSource.dll
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\System.Diagnostics.FileVersionInfo.dll
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\System.Diagnostics.Process.dll
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\System.Diagnostics.StackTrace.dll
@@ -609,18 +632,16 @@ C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\dotnet.runtime.js.map
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\icudt_CJK.dat
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\icudt_EFIGS.dat
 C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\icudt_no_CJK.dat
-C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\BlazorFront.csproj.AssemblyReference.cache
-C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\BlazorFront.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\BlazorFront.AssemblyInfoInputs.cache
-C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\BlazorFront.AssemblyInfo.cs
-C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\BlazorFront.csproj.CoreCompileInputs.cache
-C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\BlazorFront.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\Microsoft.AspNetCore.Authorization.wasm
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\Microsoft.AspNetCore.Components.wasm
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\Microsoft.AspNetCore.Components.Forms.wasm
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\Microsoft.AspNetCore.Components.Web.wasm
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\Microsoft.AspNetCore.Components.WebAssembly.wasm
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\Microsoft.AspNetCore.Metadata.wasm
+C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\Microsoft.EntityFrameworkCore.wasm
+C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\Microsoft.EntityFrameworkCore.Abstractions.wasm
+C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\Microsoft.Extensions.Caching.Abstractions.wasm
+C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\Microsoft.Extensions.Caching.Memory.wasm
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\Microsoft.Extensions.Configuration.wasm
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\Microsoft.Extensions.Configuration.Abstractions.wasm
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\Microsoft.Extensions.Configuration.Binder.wasm
@@ -637,6 +658,8 @@ C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\Microsoft.Extens
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\Microsoft.Extensions.Primitives.wasm
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\Microsoft.JSInterop.wasm
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\Microsoft.JSInterop.WebAssembly.wasm
+C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\Newtonsoft.Json.wasm
+C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\System.Diagnostics.DiagnosticSource.wasm
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\System.IO.Pipelines.wasm
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\Microsoft.CSharp.wasm
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\Microsoft.VisualBasic.Core.wasm
@@ -664,7 +687,6 @@ C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\System.Data.Data
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\System.Data.wasm
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\System.Diagnostics.Contracts.wasm
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\System.Diagnostics.Debug.wasm
-C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\System.Diagnostics.DiagnosticSource.wasm
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\System.Diagnostics.FileVersionInfo.wasm
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\System.Diagnostics.Process.wasm
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\System.Diagnostics.StackTrace.wasm
@@ -827,6 +849,10 @@ C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\ezsyoies73.g
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\qvvdf71qeq.gz
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\7cdhc6i712.gz
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\ur08byjbi9.gz
+C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\6ykr1kt230.gz
+C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\t9bst9btfv.gz
+C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\25wy1vg8kv.gz
+C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\dyztw3a9ut.gz
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\eul99esl6s.gz
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\sik2nyyswh.gz
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\rjhfof65yb.gz
@@ -843,6 +869,8 @@ C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\a0aempgo5q.g
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\8fr3cqil0u.gz
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\2lzwhclbc6.gz
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\2qu3gqxssq.gz
+C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\fbm8nrk6gl.gz
+C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\fpo64vaofy.gz
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\1butqu42z9.gz
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\vixi0d5k0k.gz
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\ka36f6e6zw.gz
@@ -870,7 +898,6 @@ C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\4qc4gs0tbw.g
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\rseheogdrj.gz
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\kvtrv801u7.gz
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\12dyfid2ex.gz
-C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\fpo64vaofy.gz
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\9q2isetfhf.gz
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\467w35t4cx.gz
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\olpn4k5mqi.gz
@@ -1029,3 +1056,18 @@ C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\BlazorFront.dll
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\refint\BlazorFront.dll
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\BlazorFront.pdb
 C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\ref\BlazorFront.dll
+C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Microsoft.Extensions.Localization.Abstractions.wasm
+C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Microsoft.Extensions.Localization.wasm
+C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\MudBlazor.wasm
+C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Microsoft.Extensions.Localization.wasm.gz
+C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\Microsoft.Extensions.Localization.Abstractions.wasm.gz
+C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\wwwroot\_framework\MudBlazor.wasm.gz
+C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\Microsoft.Extensions.Localization.dll
+C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\Microsoft.Extensions.Localization.Abstractions.dll
+C:\Users\ale_g\source\repos\BlazorFront\bin\Debug\net8.0\MudBlazor.dll
+C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\Microsoft.Extensions.Localization.wasm
+C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\Microsoft.Extensions.Localization.Abstractions.wasm
+C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\webcil\MudBlazor.wasm
+C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\95h96isdlz.gz
+C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\crvr4dzrem.gz
+C:\Users\ale_g\source\repos\BlazorFront\obj\Debug\net8.0\compressed\ydw3ou26zc.gz
